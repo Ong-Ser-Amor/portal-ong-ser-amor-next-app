@@ -1,0 +1,85 @@
+{
+	"name": "Portal-ONG-Ser-Amor-Frontend",
+
+	// Aponta para o conjunto de arquivos docker-compose na raiz do projeto.
+	// O Docker irá mesclá-los, para criar o contêiner de desenvolvimento.
+	"dockerComposeFile": [
+		"../docker-compose.yml",
+		"../docker-compose.override.yml"
+	],
+
+	// O serviço ao qual o VS Code deve se conectar.
+	"service": "frontend",
+
+	// A pasta que será aberta dentro do contêiner.
+	"workspaceFolder": "/usr/src/app",
+
+	// Comando que roda DEPOIS que o container está pronto, mas ANTES de conectar
+	// "postStartCommand": "npm install",
+
+	// Ação a ser tomada quando a janela do VS Code for fechada.
+	"shutdownAction": "stopCompose",
+
+	// Features que serão instaladas no contêiner.
+	// Mais informações: https://containers.dev/features
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": true,
+			"configureZshAsDefaultShell": true,
+			"installOhMyZsh": true,
+			"installOhMyZshConfig": true,
+			"upgradePackages": true,
+			"username": "node",
+			"userUid": "automatic",
+			"userGid": "automatic"
+		},
+		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
+	},
+
+	// Use 'forwardPorts' para criar uma lista de portas dentro do contêiner disponíveis localmente.
+	// Garante que a porta 3000 (Frontend) fique acessível no seu PC (mapeada para 3001 pelo compose)
+	"forwardPorts": [3000], // Porta interna do Next.js
+	"portsAttributes": {
+		"3000": { // Porta DENTRO do container
+			"label": "Frontend",
+			"onAutoForward": "notify"
+		}
+	},
+
+	// Uncomment the next line if you want start specific services in your Docker Compose config.
+	// "runServices": [],
+
+	// Descomente a próxima linha se quiser manter seus contêineres em execução após o encerramento do VS Code.
+	// "shutdownAction": "none",
+
+	// Descomente a próxima linha para executar comandos após a criação do contêiner.
+	"postCreateCommand": "echo 'Frontend Dev Container criado com sucesso!'",
+
+	// Customizações do VS Code (extensões e configurações)
+	"customizations": {
+		"vscode": {
+			// Extensões que serão instaladas automaticamente no contêiner.
+			"extensions": [
+				// Essenciais para Qualidade de Código e Frontend Dev
+				"editorconfig.editorconfig",
+				"dbaeumer.vscode-eslint",
+				"esbenp.prettier-vscode",
+				"bradlc.vscode-tailwindcss"
+			],
+			// Configurações específicas do VS Code para o contêiner.
+			"settings": {
+				"editor.formatOnSave": true,
+				"editor.defaultFormatter": "esbenp.prettier-vscode",
+				"terminal.integrated.defaultProfile.linux": "zsh",
+				"terminal.integrated.profiles.linux": {
+					"zsh": {
+						"path": "/usr/bin/zsh"
+					}
+				}
+			}
+		}
+	},
+
+	// Descomente para conectar-se como um usuário existente diferente do padrão do contêiner. Mais informações: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "node"
+}

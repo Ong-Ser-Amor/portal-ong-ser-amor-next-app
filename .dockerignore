@@ -1,0 +1,23 @@
+# Ignora dependências locais (serão instaladas dentro do container)
+node_modules
+
+# Ignora o diretório de build do Next.js
+.next
+
+# Ignora arquivos de log
+*.log
+
+# Ignora arquivos Markdown (consistente com API)
+*.md
+
+# Ignora diretório do Git
+.git
+
+# Ignora arquivos .env locais (segurança)
+.env*
+!.env.example # Não ignora o exemplo
+
+# Ignora outros artefatos comuns
+npm-debug.log*
+coverage
+*.tsbuildinfo

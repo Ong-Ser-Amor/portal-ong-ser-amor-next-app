@@ -1,0 +1,10 @@
+services:
+  frontend:
+    build:
+      target: production # DIZ AO DOCKER PARA CONSTRUIR A IMAGEM A PARTIR DO ESTÁGIO 'production'
+    restart: unless-stopped # Política de reinício para produção
+    # Em produção, geralmente não se expõe a porta diretamente,
+    # pois a aplicação estaria atrás de um proxy reverso (como Nginx).
+    # Mas se precisar, pode descomentar a linha abaixo.
+    # ports:
+    #   - "3001:3000" # Mapeia porta interna 3000 para porta externa 3001
