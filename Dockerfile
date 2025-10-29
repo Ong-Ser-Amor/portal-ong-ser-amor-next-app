@@ -5,7 +5,7 @@
 FROM node:22.19.0-trixie-slim AS base
 
 # Instala pacotes do sistema operacional úteis
-RUN apt-get update && apt-get install -y git curl && apt-get clean -y
+RUN apt-get update && apt-get install -y git git-flow curl && apt-get clean -y
 
 # Define o diretório de trabalho padrão dentro do container
 WORKDIR /usr/src/app
