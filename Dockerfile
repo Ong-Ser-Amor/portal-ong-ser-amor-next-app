@@ -11,14 +11,14 @@ RUN apt-get update && apt-get install -y git git-flow curl && apt-get clean -y
 WORKDIR /usr/src/app
 
 # Copia os arquivos de definição de dependências
-# COPY package*.json ./
+COPY package*.json ./
 
 # Instala todas as dependências (incluindo devDependencies)
-# RUN npm ci
+RUN npm ci
 # RUN npm install
 
 # Copia o restante do código-fonte (pode ser sobrescrito por volumes)
-# COPY . .
+COPY . .
 
 # Muda para o usuário não-root 'node'
 USER node
@@ -35,16 +35,16 @@ WORKDIR /usr/src/app
 ENV NODE_ENV=production
 
 # Copia os arquivos de definição de dependências
-# COPY package*.json ./
+COPY package*.json ./
 
 # Instala apenas as dependências de produção
-# RUN npm ci --omit=dev
+RUN npm ci --omit=dev
 
 # Copia o código-fonte necessário para o build
-# COPY . .
+COPY . .
 
 # Gera o build otimizado da aplicação Next.js
-# RUN npm run build
+RUN npm run build
 
 # Muda para o usuário não-root 'node' (existente na imagem base)
 USER node
