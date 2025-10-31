@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Pequeno atraso para garantir que o estado seja atualizado antes do redirecionamento
       setTimeout(() => {
-        router.push('/dashboard');
+        router.push('/courses');
       }, 100);
     } catch (error) {
       console.error('Erro no login:', error);
