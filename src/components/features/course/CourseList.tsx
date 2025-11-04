@@ -1,8 +1,7 @@
 import Pagination from '@/components/ui/Pagination';
-import Table from '@/components/ui/Table';
 import { Course } from '@/interfaces/Course';
 import { FaFilter, FaPlus } from 'react-icons/fa';
-import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import CourseCard from './CourseCard';
 
 interface CourseListProps {
   courses: Course[];
@@ -33,35 +32,6 @@ export default function CourseList({
   onDeleteClick,
   onPageChange,
 }: CourseListProps) {
-  const courseColumns = [
-    { header: 'Nome', accessor: (course: Course) => course.name },
-    {
-      header: 'Turmas Ativas',
-      accessor: (course: Course) => course.activeClassesCount ?? 0,
-      align: 'center' as const,
-    },
-    {
-      header: 'Ações',
-      accessor: (course: Course) => (
-        <div className='flex justify-end space-x-2'>
-          <button
-            onClick={() => onEditCourse(course)}
-            className='text-blue-600 hover:text-blue-900'
-          >
-            <FiEdit size={18} />
-          </button>
-          <button
-            onClick={() => onDeleteClick(course.id)}
-            className='text-red-600 hover:text-red-900'
-          >
-            <FiTrash2 size={18} />
-          </button>
-        </div>
-      ),
-      align: 'right' as const,
-    },
-  ];
-
   return (
     <div className='container mx-auto px-4'>
       <section className='py-5'>
@@ -99,14 +69,21 @@ export default function CourseList({
             </div>
           ) : error ? (
             <div className='py-8 text-center text-red-500'>{error}</div>
+          ) : courses.length === 0 ? (
+            <div className='py-8 text-center text-gray-700'>
+              <p>Nenhum curso encontrado.</p>
+            </div>
           ) : (
-            <Table
-              columns={courseColumns}
-              data={courses}
-              keyExtractor={(course) => course.id}
-              isLoading={loading}
-              emptyMessage='Nenhum curso encontrado.'
-            />
+            <div className='grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
+              {courses.map((course) => (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                  onEdit={onEditCourse}
+                  onDelete={onDeleteClick}
+                />
+              ))}
+            </div>
           )}
           {totalPages > 0 && (
             <Pagination
