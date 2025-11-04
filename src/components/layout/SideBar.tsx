@@ -72,6 +72,11 @@ export default function Sidebar({ mobileOpen, onMobileToggle }: SidebarProps) {
       label: 'Courses',
     },
     {
+      path: '/students',
+      icon: <FaTachometerAlt size={20} />,
+      label: 'Students',
+    },
+    {
       path: '/configuracoes',
       icon: <FiSettings size={20} />,
       label: 'Configurações',
