@@ -1,5 +1,6 @@
 import Pagination from '@/components/ui/Pagination';
 import Table from '@/components/ui/Table';
+import IconButton from '@/components/ui/IconButton';
 import { Student } from '@/interfaces/Student';
 import { FaFilter, FaPlus } from 'react-icons/fa';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
@@ -38,19 +39,19 @@ export default function StudentList({
     {
       header: 'Ações',
       accessor: (student: Student) => (
-        <div className='flex justify-end space-x-2'>
-          <button
+        <div className='flex justify-end space-x-1'>
+          <IconButton
+            icon={FiEdit}
             onClick={() => onEditStudent(student)}
-            className='text-blue-600 hover:text-blue-900'
-          >
-            <FiEdit size={18} />
-          </button>
-          <button
+            variant='primary'
+            tooltip='Editar aluno'
+          />
+          <IconButton
+            icon={FiTrash2}
             onClick={() => onDeleteClick(student.id)}
-            className='text-red-600 hover:text-red-900'
-          >
-            <FiTrash2 size={18} />
-          </button>
+            variant='danger'
+            tooltip='Excluir aluno'
+          />
         </div>
       ),
       align: 'right' as const,

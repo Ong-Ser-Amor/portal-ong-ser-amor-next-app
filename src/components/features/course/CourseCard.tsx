@@ -1,4 +1,5 @@
 import { Course } from '@/interfaces/Course';
+import IconButton from '@/components/ui/IconButton';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
 
 interface CourseCardProps {
@@ -16,21 +17,19 @@ export default function CourseCard({
     <div className='rounded-lg border-l-4 border-blue-500 bg-white p-6 shadow-md transition-shadow hover:shadow-lg'>
       <div className='mb-4 flex items-start justify-between'>
         <h3 className='text-lg font-semibold text-gray-800'>{course.name}</h3>
-        <div className='flex space-x-2'>
-          <button
+        <div className='flex space-x-1'>
+          <IconButton
+            icon={FiEdit}
             onClick={() => onEdit(course)}
-            className='text-blue-600 transition-colors hover:text-blue-900'
-            title='Editar curso'
-          >
-            <FiEdit size={18} />
-          </button>
-          <button
+            variant='primary'
+            tooltip='Editar curso'
+          />
+          <IconButton
+            icon={FiTrash2}
             onClick={() => onDelete(course.id)}
-            className='text-red-600 transition-colors hover:text-red-900'
-            title='Excluir curso'
-          >
-            <FiTrash2 size={18} />
-          </button>
+            variant='danger'
+            tooltip='Excluir curso'
+          />
         </div>
       </div>
 
