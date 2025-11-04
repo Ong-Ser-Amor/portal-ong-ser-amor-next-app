@@ -36,6 +36,11 @@ export default function CourseList({
   const courseColumns = [
     { header: 'Nome', accessor: (course: Course) => course.name },
     {
+      header: 'Turmas Ativas',
+      accessor: (course: Course) => course.activeClassesCount ?? 0,
+      align: 'center' as const,
+    },
+    {
       header: 'Ações',
       accessor: (course: Course) => (
         <div className='flex justify-end space-x-2'>

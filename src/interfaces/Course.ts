@@ -1,6 +1,7 @@
 export interface Course {
   id: number;
   name: string;
+  activeClassesCount?: number;
 }
 
 export interface CourseDto {
