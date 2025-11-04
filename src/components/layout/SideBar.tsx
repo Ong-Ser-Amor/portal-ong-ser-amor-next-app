@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { FaTachometerAlt } from 'react-icons/fa';
+import { FaBook, FaTachometerAlt } from 'react-icons/fa';
 import {
   FiChevronDown,
   FiChevronLeft,
@@ -68,12 +68,12 @@ export default function Sidebar({ mobileOpen, onMobileToggle }: SidebarProps) {
   const menuItems: MenuItem[] = [
     {
       path: '/courses',
-      icon: <FaTachometerAlt size={20} />,
+      icon: <span className='text-xl'>📚</span>,
       label: 'Courses',
     },
     {
       path: '/students',
-      icon: <FaTachometerAlt size={20} />,
+      icon: <span className='text-xl'>👥</span>,
       label: 'Students',
     },
     {
