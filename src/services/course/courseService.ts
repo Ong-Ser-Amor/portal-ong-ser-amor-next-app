@@ -1,5 +1,4 @@
 import { Course, CourseDto, CoursePaginated } from '@/interfaces/Course';
-import { CourseClass, CourseClassPaginated } from '@/interfaces/CourseClass';
 import { apiService } from '../api/apiService';
 import { getChangedFields, hasNoChanges } from '@/utils/patchUtils';
 
@@ -83,23 +82,6 @@ export const courseService = {
       await apiService.delete<void>(`${baseUrl}/${id}`);
     } catch (error) {
       console.error(`Erro ao excluir curso ${id}:`, error);
-      throw error;
-    }
-  },
-
-  async getCourseClasses(
-    courseId: number,
-    page = 1,
-    limit = 10,
-  ): Promise<CourseClassPaginated> {
-    try {
-      const response = await apiService.get<CourseClassPaginated>(
-        `${baseUrl}/${courseId}/classes?page=${page}&take=${limit}`,
-      );
-      
-      return response;
-    } catch (error) {
-      console.error(`Erro ao buscar turmas do curso ${courseId}:`, error);
       throw error;
     }
   },

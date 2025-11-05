@@ -1,12 +1,12 @@
-import { CourseClass, CourseClassDto } from '@/interfaces/CourseClass';
+import { CourseClass, CourseClassDto, CourseClassPaginated } from '@/interfaces/CourseClass';
 import { Student } from '@/interfaces/Student';
 import { User } from '@/interfaces/User';
+import { Lesson } from '@/interfaces/Lesson';
 import { apiService } from '../api/apiService';
 import { getChangedFields, hasNoChanges } from '@/utils/patchUtils';
 
 const baseUrl = '/course-classes';
 
-// Tipos para adicionar alunos e professores
 interface AddStudentDto {
   studentId: number;
 }
@@ -15,15 +15,24 @@ interface AddTeacherDto {
   teacherId: number;
 }
 
-// Tipo para aulas (lesson) - pode ser expandido posteriormente
-interface Lesson {
-  id: number;
-  courseClassId: number;
-  date: string;
-  topic?: string;
-}
-
 export const courseClassService = {
+  async getCourseClassesByCourse(
+    courseId: number,
+    page = 1,
+    limit = 10,
+  ): Promise<CourseClassPaginated> {
+    try {
+      const response = await apiService.get<CourseClassPaginated>(
+        `/courses/${courseId}/classes?page=${page}&take=${limit}`,
+      );
+      
+      return response;
+    } catch (error) {
+      console.error(`Erro ao buscar turmas do curso ${courseId}:`, error);
+      throw error;
+    }
+  },
+
   async createCourseClass(data: CourseClassDto): Promise<CourseClass> {
     try {
       const response = await apiService.post<CourseClass>(

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { CourseClass } from '@/interfaces/CourseClass';
-import { courseService } from '@/services/course/courseService';
 import { courseClassService } from '@/services/courseClass/courseClassService';
 
 export const useCourseClasses = (courseId: number, page = 1, limit = 10) => {
@@ -18,7 +17,7 @@ export const useCourseClasses = (courseId: number, page = 1, limit = 10) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await courseService.getCourseClasses(courseId, page, limit);
+      const response = await courseClassService.getCourseClassesByCourse(courseId, page, limit);
       
       setCourseClasses(response.data ?? []);
       setMeta(response.meta);
