@@ -34,7 +34,7 @@ export default function LessonList({
       accessor: (lesson: Lesson) => formatDate(lesson.date),
     },
     {
-      header: 'Tópico',
+      header: 'Tema',
       accessor: (lesson: Lesson) => lesson.topic || '-',
     },
     {

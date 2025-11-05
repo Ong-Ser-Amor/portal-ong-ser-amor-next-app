@@ -48,7 +48,7 @@ const LessonForm: React.FC<LessonFormProps> = ({
 
         <Input
           id='topic'
-          label='Tópico'
+          label='Tema'
           type='text'
           {...register('topic')}
           placeholder='Ex: Introdução ao Python'
