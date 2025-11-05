@@ -1,6 +1,5 @@
 import { CourseClass, CourseClassStatusEnum } from '@/interfaces/CourseClass';
-import IconButton from '@/components/ui/IconButton';
-import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import Card from '@/components/ui/Card';
 
 interface CourseClassCardProps {
   courseClass: CourseClass;
@@ -59,18 +58,18 @@ export default function CourseClassCard({
   };
 
   return (
-    <div
-      className={`rounded-lg border-l-4 ${status.borderColor} bg-white p-6 shadow-md transition-shadow hover:shadow-lg`}
+    <Card
+      title={courseClass.name}
+      borderColor={status.borderColor}
+      onEdit={() => onEdit(courseClass)}
+      onDelete={() => onDelete(courseClass.id)}
+      badge={{
+        label: status.label,
+        bgColor: status.bgColor,
+        textColor: status.textColor,
+      }}
     >
-      {/* Header com título */}
-      <div className='mb-4'>
-        <h3 className='text-lg font-semibold text-gray-900'>
-          {courseClass.name}
-        </h3>
-      </div>
-
-      {/* Informações */}
-      <div className='mb-4 space-y-1 text-sm text-gray-700'>
+      <div className='space-y-1 text-sm text-gray-700'>
         <div>
           <strong>Professores:</strong>{' '}
           {courseClass.teachers && courseClass.teachers.length > 0
@@ -85,29 +84,6 @@ export default function CourseClassCard({
           {formatDate(courseClass.endDate)}
         </div>
       </div>
-
-      {/* Badge de status e Botões de ação */}
-      <div className='flex items-center justify-between'>
-        <span
-          className={`inline-block rounded-full ${status.bgColor} px-3 py-1 text-xs font-medium ${status.textColor}`}
-        >
-          {status.label}
-        </span>
-        <div className='flex space-x-1'>
-          <IconButton
-            icon={FiEdit}
-            onClick={() => onEdit(courseClass)}
-            variant='primary'
-            tooltip='Editar turma'
-          />
-          <IconButton
-            icon={FiTrash2}
-            onClick={() => onDelete(courseClass.id)}
-            variant='danger'
-            tooltip='Excluir turma'
-          />
-        </div>
-      </div>
-    </div>
+    </Card>
   );
 }
