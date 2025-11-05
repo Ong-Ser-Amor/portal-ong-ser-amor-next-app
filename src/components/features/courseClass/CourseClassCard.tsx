@@ -1,5 +1,8 @@
+'use client';
+
 import { CourseClass, CourseClassStatusEnum } from '@/interfaces/CourseClass';
 import Card from '@/components/ui/Card';
+import { useRouter } from 'next/navigation';
 
 interface CourseClassCardProps {
   courseClass: CourseClass;
@@ -47,20 +50,23 @@ export default function CourseClassCard({
   onEdit,
   onDelete,
 }: CourseClassCardProps) {
+  const router = useRouter();
   const status = statusConfig[courseClass.status];
 
+  const handleCardClick = () => {
+    router.push(`/course-classes/${courseClass.id}`);
+  };
+
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
+    const [year, month, day] = dateString.split('T')[0].split('-');
+    return `${day}/${month}/${year}`;
   };
 
   return (
     <Card
       title={courseClass.name}
       borderColor={status.borderColor}
+      onClick={handleCardClick}
       onEdit={() => onEdit(courseClass)}
       onDelete={() => onDelete(courseClass.id)}
       badge={{
