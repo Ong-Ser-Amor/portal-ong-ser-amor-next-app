@@ -1,6 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { FiLogOut } from 'react-icons/fi';
+import ThemeSelector from './ThemeSelector';
 
 interface HeaderProps {
   children?: React.ReactNode;
@@ -43,7 +44,10 @@ export default function Header({ children }: HeaderProps) {
     >
       {' '}
       <div className='flex items-center'>{children}</div>
-      <div className='flex items-center gap-5'>
+      <div className='flex items-center gap-4'>
+        {/* Seletor de Tema */}
+        <ThemeSelector />
+
         {/* User Info */}
         {user && (
           <div className='flex items-center gap-3'>

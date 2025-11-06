@@ -1,20 +1,77 @@
 @import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ====================================
+   SISTEMA DE TEMAS - Portal ONG Ser Amor
+   ==================================== */
+
+/* Tema Default (Pink + Purple) */
+body.theme-default {
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #ffffff;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  --accent-primary: #e91e63;
+  --accent-secondary: #9c27b0;
+  --accent-tertiary: #cddc39;
+  --accent-quaternary: #03a9f4;
+  --border-color: #f0f0f0;
+  --hover-bg: #f5f5f5;
+  --card-shadow: rgba(0, 0, 0, 0.05);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Tema Purple (Tons de Roxo) */
+body.theme-purple {
+  --bg-primary: #f3e5f5;
+  --bg-secondary: #ffffff;
+  --text-primary: #4a148c;
+  --text-secondary: #6a1b9a;
+  --text-tertiary: #8e24aa;
+  --accent-primary: #7b1fa2;
+  --accent-secondary: #9c27b0;
+  --accent-tertiary: #ab47bc;
+  --accent-quaternary: #ba68c8;
+  --border-color: #e1bee7;
+  --hover-bg: #f3e5f5;
+  --card-shadow: rgba(123, 31, 162, 0.1);
 }
 
+/* Tema Dark (Escuro) */
+body.theme-dark {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-tertiary: #808080;
+  --accent-primary: #e91e63;
+  --accent-secondary: #9c27b0;
+  --accent-tertiary: #cddc39;
+  --accent-quaternary: #03a9f4;
+  --border-color: #404040;
+  --hover-bg: #3a3a3a;
+  --card-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* Tema Blue (Azul - tema atual/clássico) */
+body.theme-blue {
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #ffffff;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  --accent-primary: #2196f3;
+  --accent-secondary: #1976d2;
+  --accent-tertiary: #03a9f4;
+  --accent-quaternary: #00bcd4;
+  --border-color: #f0f0f0;
+  --hover-bg: #f5f5f5;
+  --card-shadow: rgba(0, 0, 0, 0.05);
+}
+
+/* Aplicar tema default por padrão */
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-primary, #f5f5f5);
+  color: var(--text-primary, #333333);
   font-family: Arial, Helvetica, sans-serif;
 }
 

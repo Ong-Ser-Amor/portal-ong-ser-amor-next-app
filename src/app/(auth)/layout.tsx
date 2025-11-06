@@ -26,7 +26,10 @@ export default function AuthLayout({
 
   return (
     <ProtectedRoute>
-      <div className='flex h-screen' style={{ background: '#f5f5f5' }}>
+      <div 
+        className='flex h-screen' 
+        style={{ background: 'var(--bg-primary, #f5f5f5)' }}
+      >
         <Sidebar
           mobileOpen={mobileMenuOpen}
           onMobileToggle={toggleMobileMenu}
