@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { CourseClass } from '@/interfaces/CourseClass';
 import { Student } from '@/interfaces/Student';
+import { User } from '@/interfaces/User';
 import { courseClassService } from '@/services/courseClass/courseClassService';
 
 export const useCourseClasses = (courseId: number, page = 1, limit = 10) => {
@@ -119,4 +120,52 @@ export const useStudentsByCourseClass = (
   }, [fetchStudents]);
 
   return { students, loading, error, meta, refetch };
+};
+
+export const useTeachersByCourseClass = (
+  courseClassId: number,
+  page = 1,
+  limit = 10,
+) => {
+  const [teachers, setTeachers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [meta, setMeta] = useState<{
+    currentPage: number;
+    totalPages: number;
+    itemsPerPage: number;
+    totalItems: number;
+  } | null>(null);
+
+  const fetchTeachers = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await courseClassService.getTeachers(
+        courseClassId,
+        page,
+        limit,
+      );
+
+      setTeachers(response.data ?? []);
+      setMeta(response.meta);
+    } catch (err) {
+      setError(err as Error);
+      console.error('Erro ao buscar professores da turma:', err);
+      setTeachers([]);
+      setMeta(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [courseClassId, page, limit]);
+
+  useEffect(() => {
+    fetchTeachers();
+  }, [fetchTeachers]);
+
+  const refetch = useCallback(() => {
+    fetchTeachers();
+  }, [fetchTeachers]);
+
+  return { teachers, loading, error, meta, refetch };
 };

@@ -5,14 +5,19 @@ import { useRouter } from 'next/navigation';
 import {
   useCourseClass,
   useStudentsByCourseClass,
+  useTeachersByCourseClass,
 } from '@/hooks/courseClass/useCourseClassQueries';
 import { useLessonsByCourseClass } from '@/hooks/lesson/useLessonQueries';
 import { useDeleteLesson } from '@/hooks/lesson/useLessonMutations';
-import { useRemoveStudentFromCourseClass } from '@/hooks/courseClass/useCourseClassMutations';
+import {
+  useRemoveStudentFromCourseClass,
+  useRemoveTeacherFromCourseClass,
+} from '@/hooks/courseClass/useCourseClassMutations';
 import CourseClassDetail from '@/components/features/courseClass/CourseClassDetail';
 import LessonFormContainer from '@/containers/lesson/LessonFormContainer';
 import CourseClassFormContainer from '@/containers/courseClass/CourseClassFormContainer';
 import AddStudentModalContainer from '@/containers/courseClass/AddStudentModalContainer';
+import AddTeacherModalContainer from '@/containers/courseClass/AddTeacherModalContainer';
 import { Lesson } from '@/interfaces/Lesson';
 import { toast } from 'react-toastify';
 import { getApiErrorMessage } from '@/utils/errorUtils';
@@ -27,8 +32,10 @@ export default function CourseClassDetailContainer({
   const router = useRouter();
   const [currentLessonPage, setCurrentLessonPage] = useState(1);
   const [currentStudentPage, setCurrentStudentPage] = useState(1);
+  const [currentTeacherPage, setCurrentTeacherPage] = useState(1);
   const lessonsPerPage = 10;
   const studentsPerPage = 10;
+  const teachersPerPage = 10;
 
   const {
     courseClass,
@@ -54,14 +61,27 @@ export default function CourseClassDetailContainer({
     studentsPerPage,
   );
 
+  const {
+    teachers,
+    loading: teachersLoading,
+    meta: teacherMeta,
+    refetch: refetchTeachers,
+  } = useTeachersByCourseClass(
+    courseClassId,
+    currentTeacherPage,
+    teachersPerPage,
+  );
+
   const deleteLesson = useDeleteLesson();
   const removeStudent = useRemoveStudentFromCourseClass();
+  const removeTeacher = useRemoveTeacherFromCourseClass();
 
   const [isEditCourseClassModalOpen, setIsEditCourseClassModalOpen] =
     useState(false);
   const [isAddLessonModalOpen, setIsAddLessonModalOpen] = useState(false);
   const [isEditLessonModalOpen, setIsEditLessonModalOpen] = useState(false);
   const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false);
+  const [isAddTeacherModalOpen, setIsAddTeacherModalOpen] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
 
   const handleBack = () => {
@@ -108,8 +128,16 @@ export default function CourseClassDetailContainer({
     setCurrentStudentPage(page);
   };
 
+  const handleTeacherPageChange = (page: number) => {
+    setCurrentTeacherPage(page);
+  };
+
   const handleAddStudent = () => {
     setIsAddStudentModalOpen(true);
+  };
+
+  const handleAddTeacher = () => {
+    setIsAddTeacherModalOpen(true);
   };
 
   const handleRemoveStudent = async (studentId: number) => {
@@ -123,6 +151,21 @@ export default function CourseClassDetailContainer({
         const message = getApiErrorMessage(error);
         toast.error(message || 'Erro ao remover aluno da turma.');
         console.error('Erro ao remover aluno:', error);
+      }
+    }
+  };
+
+  const handleRemoveTeacher = async (teacherId: number) => {
+    if (confirm('Tem certeza que deseja remover este professor da turma?')) {
+      try {
+        await removeTeacher(courseClassId, teacherId);
+        toast.success('Professor removido da turma com sucesso!');
+        setCurrentTeacherPage(1);
+        refetchTeachers();
+      } catch (error) {
+        const message = getApiErrorMessage(error);
+        toast.error(message || 'Erro ao remover professor da turma.');
+        console.error('Erro ao remover professor:', error);
       }
     }
   };
@@ -146,20 +189,31 @@ export default function CourseClassDetailContainer({
     setIsAddStudentModalOpen(false);
   };
 
+  const handleTeacherSuccess = () => {
+    setCurrentTeacherPage(1);
+    refetchTeachers();
+    setIsAddTeacherModalOpen(false);
+  };
+
   return (
     <>
       <CourseClassDetail
         courseClass={courseClass}
         lessons={lessons}
         students={students}
+        teachers={teachers}
         loading={courseClassLoading || lessonsLoading}
         studentsLoading={studentsLoading}
+        teachersLoading={teachersLoading}
         currentLessonPage={currentLessonPage}
         totalLessonPages={lessonMeta?.totalPages ?? 0}
         currentStudentPage={currentStudentPage}
         totalStudentPages={studentMeta?.totalPages ?? 0}
+        currentTeacherPage={currentTeacherPage}
+        totalTeacherPages={teacherMeta?.totalPages ?? 0}
         onLessonPageChange={handleLessonPageChange}
         onStudentPageChange={handleStudentPageChange}
+        onTeacherPageChange={handleTeacherPageChange}
         onBack={handleBack}
         onEditCourseClass={handleEditCourseClass}
         onAddLesson={handleAddLesson}
@@ -167,6 +221,8 @@ export default function CourseClassDetailContainer({
         onDeleteLesson={handleDeleteLesson}
         onAddStudent={handleAddStudent}
         onRemoveStudent={handleRemoveStudent}
+        onAddTeacher={handleAddTeacher}
+        onRemoveTeacher={handleRemoveTeacher}
       />
 
       {/* Modal de Editar Turma */}
@@ -207,6 +263,14 @@ export default function CourseClassDetailContainer({
         courseClassId={courseClassId}
         enrolledStudentIds={students.map((s) => s.id)}
         onSuccess={handleStudentSuccess}
+      />
+
+      {/* Modal de Adicionar Professor */}
+      <AddTeacherModalContainer
+        isOpen={isAddTeacherModalOpen}
+        onClose={() => setIsAddTeacherModalOpen(false)}
+        courseClassId={courseClassId}
+        onSuccess={handleTeacherSuccess}
       />
     </>
   );

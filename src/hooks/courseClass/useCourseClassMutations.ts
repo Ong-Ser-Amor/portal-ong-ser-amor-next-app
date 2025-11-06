@@ -87,3 +87,37 @@ export const useRemoveStudentFromCourseClass = () => {
 
   return removeStudent;
 };
+
+export const useAddTeacherToCourseClass = () => {
+  const addTeacher = async (
+    courseClassId: number,
+    teacherId: number,
+  ): Promise<void> => {
+    try {
+      await courseClassService.addTeacher(courseClassId, teacherId);
+    } catch (error) {
+      const message = getApiErrorMessage(error);
+      console.error('Erro ao adicionar professor na turma:', message);
+      throw error;
+    }
+  };
+
+  return addTeacher;
+};
+
+export const useRemoveTeacherFromCourseClass = () => {
+  const removeTeacher = async (
+    courseClassId: number,
+    teacherId: number,
+  ): Promise<void> => {
+    try {
+      await courseClassService.removeTeacher(courseClassId, teacherId);
+    } catch (error) {
+      const message = getApiErrorMessage(error);
+      console.error('Erro ao remover professor da turma:', message);
+      throw error;
+    }
+  };
+
+  return removeTeacher;
+};

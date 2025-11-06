@@ -1,25 +1,32 @@
 import { CourseClass } from '@/interfaces/CourseClass';
 import { Lesson } from '@/interfaces/Lesson';
 import { Student } from '@/interfaces/Student';
+import { User } from '@/interfaces/User';
 import BackButton from '@/components/ui/BackButton';
 import Button from '@/components/ui/Button';
 import IconButton from '@/components/ui/IconButton';
 import { FiEdit, FiPlus } from 'react-icons/fi';
 import LessonList from '../lesson/LessonList';
 import CourseClassStudentList from './CourseClassStudentList';
+import CourseClassTeacherList from './CourseClassTeacherList';
 
 interface CourseClassDetailProps {
   courseClass: CourseClass | null;
   lessons: Lesson[];
   students: Student[];
+  teachers: User[];
   loading: boolean;
   studentsLoading: boolean;
+  teachersLoading: boolean;
   currentLessonPage: number;
   totalLessonPages: number;
   currentStudentPage: number;
   totalStudentPages: number;
+  currentTeacherPage: number;
+  totalTeacherPages: number;
   onLessonPageChange: (page: number) => void;
   onStudentPageChange: (page: number) => void;
+  onTeacherPageChange: (page: number) => void;
   onBack: () => void;
   onEditCourseClass: () => void;
   onAddLesson: () => void;
@@ -27,20 +34,27 @@ interface CourseClassDetailProps {
   onDeleteLesson: (lessonId: number) => void;
   onAddStudent: () => void;
   onRemoveStudent: (studentId: number) => void;
+  onAddTeacher: () => void;
+  onRemoveTeacher: (teacherId: number) => void;
 }
 
 export default function CourseClassDetail({
   courseClass,
   lessons,
   students,
+  teachers,
   loading,
   studentsLoading,
+  teachersLoading,
   currentLessonPage,
   totalLessonPages,
   currentStudentPage,
   totalStudentPages,
+  currentTeacherPage,
+  totalTeacherPages,
   onLessonPageChange,
   onStudentPageChange,
+  onTeacherPageChange,
   onBack,
   onEditCourseClass,
   onAddLesson,
@@ -48,6 +62,8 @@ export default function CourseClassDetail({
   onDeleteLesson,
   onAddStudent,
   onRemoveStudent,
+  onAddTeacher,
+  onRemoveTeacher,
 }: CourseClassDetailProps) {
   const formatDate = (dateString: string) => {
     const [year, month, day] = dateString.split('T')[0].split('-');
@@ -131,6 +147,25 @@ export default function CourseClassDetail({
           onEdit={onEditLesson}
           onDelete={onDeleteLesson}
           onPageChange={onLessonPageChange}
+        />
+
+        <hr className='my-6' />
+
+        <div className='mb-4 flex items-center justify-between'>
+          <h2 className='text-2xl font-semibold text-gray-900'>Professores</h2>
+          <Button onClick={onAddTeacher}>
+            <FiPlus className='mr-2' />
+            Adicionar Professor
+          </Button>
+        </div>
+
+        <CourseClassTeacherList
+          teachers={teachers}
+          loading={teachersLoading}
+          currentPage={currentTeacherPage}
+          totalPages={totalTeacherPages}
+          onPageChange={onTeacherPageChange}
+          onRemoveTeacher={onRemoveTeacher}
         />
 
         <hr className='my-6' />

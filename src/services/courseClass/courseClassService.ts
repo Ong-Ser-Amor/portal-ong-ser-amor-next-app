@@ -1,6 +1,6 @@
 import { CourseClass, CourseClassDto, CourseClassPaginated } from '@/interfaces/CourseClass';
 import { Student, StudentPaginated } from '@/interfaces/Student';
-import { User } from '@/interfaces/User';
+import { User, UserPaginated } from '@/interfaces/User';
 import { Lesson } from '@/interfaces/Lesson';
 import { apiService } from '../api/apiService';
 import { getChangedFields, hasNoChanges } from '@/utils/patchUtils';
@@ -182,10 +182,14 @@ export const courseClassService = {
     }
   },
 
-  async getTeachers(courseClassId: number): Promise<User[]> {
+  async getTeachers(
+    courseClassId: number,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<UserPaginated> {
     try {
-      const response = await apiService.get<User[]>(
-        `${baseUrl}/${courseClassId}/teachers`,
+      const response = await apiService.get<UserPaginated>(
+        `${baseUrl}/${courseClassId}/teachers?page=${page}&take=${limit}`,
       );
       return response;
     } catch (error) {
