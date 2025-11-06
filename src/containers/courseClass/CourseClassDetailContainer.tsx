@@ -2,12 +2,17 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCourseClass } from '@/hooks/courseClass/useCourseClassQueries';
+import {
+  useCourseClass,
+  useStudentsByCourseClass,
+} from '@/hooks/courseClass/useCourseClassQueries';
 import { useLessonsByCourseClass } from '@/hooks/lesson/useLessonQueries';
 import { useDeleteLesson } from '@/hooks/lesson/useLessonMutations';
+import { useRemoveStudentFromCourseClass } from '@/hooks/courseClass/useCourseClassMutations';
 import CourseClassDetail from '@/components/features/courseClass/CourseClassDetail';
 import LessonFormContainer from '@/containers/lesson/LessonFormContainer';
 import CourseClassFormContainer from '@/containers/courseClass/CourseClassFormContainer';
+import AddStudentModalContainer from '@/containers/courseClass/AddStudentModalContainer';
 import { Lesson } from '@/interfaces/Lesson';
 import { toast } from 'react-toastify';
 import { getApiErrorMessage } from '@/utils/errorUtils';
@@ -20,8 +25,10 @@ export default function CourseClassDetailContainer({
   courseClassId,
 }: CourseClassDetailContainerProps) {
   const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [currentLessonPage, setCurrentLessonPage] = useState(1);
+  const [currentStudentPage, setCurrentStudentPage] = useState(1);
+  const lessonsPerPage = 10;
+  const studentsPerPage = 10;
 
   const {
     courseClass,
@@ -32,15 +39,29 @@ export default function CourseClassDetailContainer({
   const {
     lessons,
     loading: lessonsLoading,
-    meta,
+    meta: lessonMeta,
     refetch: refetchLessons,
-  } = useLessonsByCourseClass(courseClassId, currentPage, itemsPerPage);
+  } = useLessonsByCourseClass(courseClassId, currentLessonPage, lessonsPerPage);
+
+  const {
+    students,
+    loading: studentsLoading,
+    meta: studentMeta,
+    refetch: refetchStudents,
+  } = useStudentsByCourseClass(
+    courseClassId,
+    currentStudentPage,
+    studentsPerPage,
+  );
 
   const deleteLesson = useDeleteLesson();
+  const removeStudent = useRemoveStudentFromCourseClass();
 
-  const [isEditCourseClassModalOpen, setIsEditCourseClassModalOpen] = useState(false);
+  const [isEditCourseClassModalOpen, setIsEditCourseClassModalOpen] =
+    useState(false);
   const [isAddLessonModalOpen, setIsAddLessonModalOpen] = useState(false);
   const [isEditLessonModalOpen, setIsEditLessonModalOpen] = useState(false);
+  const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
 
   const handleBack = () => {
@@ -69,7 +90,7 @@ export default function CourseClassDetailContainer({
       try {
         await deleteLesson(lessonId);
         toast.success('Aula excluída com sucesso!');
-        setCurrentPage(1);
+        setCurrentLessonPage(1);
         refetchLessons();
       } catch (error) {
         const message = getApiErrorMessage(error);
@@ -79,8 +100,31 @@ export default function CourseClassDetailContainer({
     }
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handleLessonPageChange = (page: number) => {
+    setCurrentLessonPage(page);
+  };
+
+  const handleStudentPageChange = (page: number) => {
+    setCurrentStudentPage(page);
+  };
+
+  const handleAddStudent = () => {
+    setIsAddStudentModalOpen(true);
+  };
+
+  const handleRemoveStudent = async (studentId: number) => {
+    if (confirm('Tem certeza que deseja remover este aluno da turma?')) {
+      try {
+        await removeStudent(courseClassId, studentId);
+        toast.success('Aluno removido da turma com sucesso!');
+        setCurrentStudentPage(1);
+        refetchStudents();
+      } catch (error) {
+        const message = getApiErrorMessage(error);
+        toast.error(message || 'Erro ao remover aluno da turma.');
+        console.error('Erro ao remover aluno:', error);
+      }
+    }
   };
 
   const handleCourseClassSuccess = () => {
@@ -89,11 +133,17 @@ export default function CourseClassDetailContainer({
   };
 
   const handleLessonSuccess = () => {
-    setCurrentPage(1);
+    setCurrentLessonPage(1);
     refetchLessons();
     setIsAddLessonModalOpen(false);
     setIsEditLessonModalOpen(false);
     setSelectedLesson(null);
+  };
+
+  const handleStudentSuccess = () => {
+    setCurrentStudentPage(1);
+    refetchStudents();
+    setIsAddStudentModalOpen(false);
   };
 
   return (
@@ -101,15 +151,22 @@ export default function CourseClassDetailContainer({
       <CourseClassDetail
         courseClass={courseClass}
         lessons={lessons}
+        students={students}
         loading={courseClassLoading || lessonsLoading}
-        currentPage={currentPage}
-        totalPages={meta?.totalPages ?? 0}
-        onPageChange={handlePageChange}
+        studentsLoading={studentsLoading}
+        currentLessonPage={currentLessonPage}
+        totalLessonPages={lessonMeta?.totalPages ?? 0}
+        currentStudentPage={currentStudentPage}
+        totalStudentPages={studentMeta?.totalPages ?? 0}
+        onLessonPageChange={handleLessonPageChange}
+        onStudentPageChange={handleStudentPageChange}
         onBack={handleBack}
         onEditCourseClass={handleEditCourseClass}
         onAddLesson={handleAddLesson}
         onEditLesson={handleEditLesson}
         onDeleteLesson={handleDeleteLesson}
+        onAddStudent={handleAddStudent}
+        onRemoveStudent={handleRemoveStudent}
       />
 
       {/* Modal de Editar Turma */}
@@ -141,6 +198,15 @@ export default function CourseClassDetailContainer({
         courseClassId={courseClassId}
         lessonToEdit={selectedLesson}
         onSuccess={handleLessonSuccess}
+      />
+
+      {/* Modal de Adicionar Aluno */}
+      <AddStudentModalContainer
+        isOpen={isAddStudentModalOpen}
+        onClose={() => setIsAddStudentModalOpen(false)}
+        courseClassId={courseClassId}
+        enrolledStudentIds={students.map((s) => s.id)}
+        onSuccess={handleStudentSuccess}
       />
     </>
   );

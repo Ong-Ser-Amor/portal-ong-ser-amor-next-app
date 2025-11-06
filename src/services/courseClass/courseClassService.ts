@@ -1,5 +1,5 @@
 import { CourseClass, CourseClassDto, CourseClassPaginated } from '@/interfaces/CourseClass';
-import { Student } from '@/interfaces/Student';
+import { Student, StudentPaginated } from '@/interfaces/Student';
 import { User } from '@/interfaces/User';
 import { Lesson } from '@/interfaces/Lesson';
 import { apiService } from '../api/apiService';
@@ -127,6 +127,25 @@ export const courseClassService = {
       return response;
     } catch (error) {
       console.error(`Erro ao buscar alunos da turma ${courseClassId}:`, error);
+      throw error;
+    }
+  },
+
+  async getStudentsPaginated(
+    courseClassId: number,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<StudentPaginated> {
+    try {
+      const response = await apiService.get<StudentPaginated>(
+        `${baseUrl}/${courseClassId}/students/paginated?page=${page}&take=${limit}`,
+      );
+      return response;
+    } catch (error) {
+      console.error(
+        `Erro ao buscar alunos paginados da turma ${courseClassId}:`,
+        error,
+      );
       throw error;
     }
   },

@@ -1,37 +1,53 @@
 import { CourseClass } from '@/interfaces/CourseClass';
 import { Lesson } from '@/interfaces/Lesson';
+import { Student } from '@/interfaces/Student';
 import BackButton from '@/components/ui/BackButton';
 import Button from '@/components/ui/Button';
 import IconButton from '@/components/ui/IconButton';
 import { FiEdit, FiPlus } from 'react-icons/fi';
 import LessonList from '../lesson/LessonList';
+import CourseClassStudentList from './CourseClassStudentList';
 
 interface CourseClassDetailProps {
   courseClass: CourseClass | null;
   lessons: Lesson[];
+  students: Student[];
   loading: boolean;
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  studentsLoading: boolean;
+  currentLessonPage: number;
+  totalLessonPages: number;
+  currentStudentPage: number;
+  totalStudentPages: number;
+  onLessonPageChange: (page: number) => void;
+  onStudentPageChange: (page: number) => void;
   onBack: () => void;
   onEditCourseClass: () => void;
   onAddLesson: () => void;
   onEditLesson: (lesson: Lesson) => void;
   onDeleteLesson: (lessonId: number) => void;
+  onAddStudent: () => void;
+  onRemoveStudent: (studentId: number) => void;
 }
 
 export default function CourseClassDetail({
   courseClass,
   lessons,
+  students,
   loading,
-  currentPage,
-  totalPages,
-  onPageChange,
+  studentsLoading,
+  currentLessonPage,
+  totalLessonPages,
+  currentStudentPage,
+  totalStudentPages,
+  onLessonPageChange,
+  onStudentPageChange,
   onBack,
   onEditCourseClass,
   onAddLesson,
   onEditLesson,
   onDeleteLesson,
+  onAddStudent,
+  onRemoveStudent,
 }: CourseClassDetailProps) {
   const formatDate = (dateString: string) => {
     const [year, month, day] = dateString.split('T')[0].split('-');
@@ -110,11 +126,30 @@ export default function CourseClassDetail({
         <LessonList
           lessons={lessons}
           loading={loading}
-          currentPage={currentPage}
-          totalPages={totalPages}
+          currentPage={currentLessonPage}
+          totalPages={totalLessonPages}
           onEdit={onEditLesson}
           onDelete={onDeleteLesson}
-          onPageChange={onPageChange}
+          onPageChange={onLessonPageChange}
+        />
+
+        <hr className='my-6' />
+
+        <div className='mb-4 flex items-center justify-between'>
+          <h2 className='text-2xl font-semibold text-gray-900'>Alunos</h2>
+          <Button onClick={onAddStudent}>
+            <FiPlus className='mr-2' />
+            Adicionar Aluno
+          </Button>
+        </div>
+
+        <CourseClassStudentList
+          students={students}
+          loading={studentsLoading}
+          currentPage={currentStudentPage}
+          totalPages={totalStudentPages}
+          onPageChange={onStudentPageChange}
+          onRemoveStudent={onRemoveStudent}
         />
       </div>
     </div>
