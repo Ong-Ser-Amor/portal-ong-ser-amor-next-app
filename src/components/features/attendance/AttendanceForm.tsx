@@ -38,7 +38,7 @@ export default function AttendanceForm({
       return {
         studentId: student.id,
         studentName: student.name,
-        present: existing?.present ?? true,
+        present: existing?.present ?? false,
         notes: existing?.notes ?? '',
       };
     });
