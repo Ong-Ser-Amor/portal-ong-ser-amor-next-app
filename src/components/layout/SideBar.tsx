@@ -95,33 +95,59 @@ export default function Sidebar({ mobileOpen, onMobileToggle }: SidebarProps) {
 
       {/* Sidebar */}
       <div
-        className={`fixed z-50 h-full md:static md:z-auto ${collapsed ? 'w-16' : 'w-64'} flex flex-col bg-gray-800 text-white transition-all duration-300 ${mobileOpen ? 'left-0' : '-left-64 md:left-0'} `}
+        className={`fixed z-50 h-full md:static md:z-auto ${collapsed ? 'w-20' : 'w-[260px]'} flex flex-col bg-gray-50 text-gray-800 transition-all duration-300 ${mobileOpen ? 'left-0' : '-left-64 md:left-0'} `}
+        style={{ boxShadow: '2px 0 10px rgba(0, 0, 0, 0.08)' }}
       >
-        <div
-          className={`border-b border-gray-700 p-5 ${collapsed ? 'justify-center' : ''} flex items-center`}
-        >
+        {/* Header com Logo e Toggle */}
+        <div className='relative border-b-2 border-gray-200 px-5 py-6'>
           {!collapsed && (
-            <h1 className='text-xl font-bold'>Portal Ong Ser Amor</h1>
+            <div className='flex items-center gap-3'>
+              {/* Logo Icon com Gradiente */}
+              <div className='flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-pink-500 to-purple-600 text-xl font-bold text-white shadow-md'>
+                SA
+              </div>
+
+              {/* Logo Text */}
+              <div className='flex flex-col'>
+                <h2 className='text-lg font-bold leading-tight text-gray-800'>
+                  ONG Ser Amor
+                </h2>
+                <p className='text-xs text-gray-500'>Portal</p>
+              </div>
+            </div>
           )}
+
+          {/* Toggle Button */}
+          <button
+            onClick={toggleSidebar}
+            className={`${collapsed ? 'left-1/2 -translate-x-1/2' : 'right-3'} absolute top-1/2 hidden -translate-y-1/2 rounded-lg bg-gray-100 p-2 text-gray-600 transition-colors hover:bg-gray-200 md:block`}
+            title={collapsed ? 'Expandir menu' : 'Recolher menu'}
+          >
+            {collapsed ? (
+              <FiChevronRight size={18} />
+            ) : (
+              <FiChevronLeft size={18} />
+            )}
+          </button>
 
           {/* Botão de fechar para mobile */}
           <button
-            className='ml-auto text-white md:hidden'
+            className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 md:hidden'
             onClick={onMobileToggle}
           >
             <FiX size={24} />
           </button>
         </div>
 
-        <nav className='flex-1 overflow-y-auto p-4'>
-          <ul className='space-y-2'>
+        <nav className='flex-1 overflow-y-auto py-5'>
+          <ul className='space-y-1'>
             {menuItems.map((item, index) => (
               <li key={item.label + index}>
                 {item.submenu ? (
                   <div>
                     <button
                       onClick={() => toggleSubmenu(item.label)}
-                      className={`flex w-full items-center justify-between ${collapsed ? 'justify-center' : ''} rounded-md p-3 transition-colors ${isSubmenuActive(item.submenu) ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700'}`}
+                      className={`flex w-full items-center justify-between ${collapsed ? 'justify-center' : ''} rounded-lg p-3 transition-colors ${isSubmenuActive(item.submenu) ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
                     >
                       <div className='flex items-center'>
                         <span className={collapsed ? '' : 'mr-3'}>
@@ -143,10 +169,10 @@ export default function Sidebar({ mobileOpen, onMobileToggle }: SidebarProps) {
                           <li key={subItem.path}>
                             <Link href={subItem.path}>
                               <div
-                                className={`flex items-center rounded-md p-2 transition-colors ${
+                                className={`flex items-center rounded-lg p-2 transition-colors ${
                                   isActive(subItem.path)
                                     ? 'bg-blue-600 text-white'
-                                    : 'text-gray-300 hover:bg-gray-700'
+                                    : 'text-gray-600 hover:bg-gray-100'
                                 }`}
                               >
                                 <span className='mr-2'>{subItem.icon}</span>
@@ -161,17 +187,17 @@ export default function Sidebar({ mobileOpen, onMobileToggle }: SidebarProps) {
                 ) : (
                   <Link href={item.path || '#'}>
                     <div
-                      className={`flex items-center ${collapsed ? 'justify-center' : ''} rounded-md p-3 transition-colors ${
+                      className={`mx-3 flex items-center ${collapsed ? 'justify-center' : ''} rounded-lg px-5 py-3.5 transition-colors ${
                         isActive(item.path || '')
                           ? 'bg-blue-600 text-white'
-                          : 'text-gray-300 hover:bg-gray-700'
+                          : 'text-gray-600 hover:bg-gray-200'
                       }`}
                       title={collapsed ? item.label : ''}
                     >
                       <span className={collapsed ? '' : 'mr-3'}>
                         {item.icon}
                       </span>
-                      {!collapsed && <span>{item.label}</span>}
+                      {!collapsed && <span className='font-medium'>{item.label}</span>}
                     </div>
                   </Link>
                 )}
@@ -179,20 +205,6 @@ export default function Sidebar({ mobileOpen, onMobileToggle }: SidebarProps) {
             ))}
           </ul>
         </nav>
-
-        <div className='border-t border-gray-700 p-4'>
-          <button
-            onClick={toggleSidebar}
-            className='flex w-full items-center justify-center rounded-md p-3 text-gray-300 transition-colors hover:bg-gray-700'
-            title={collapsed ? 'Expandir menu' : 'Recolher menu'}
-          >
-            {collapsed ? (
-              <FiChevronRight size={20} />
-            ) : (
-              <FiChevronLeft size={20} />
-            )}
-          </button>
-        </div>
       </div>
     </>
   );
