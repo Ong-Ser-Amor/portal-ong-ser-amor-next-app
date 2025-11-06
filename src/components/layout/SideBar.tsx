@@ -16,6 +16,7 @@ import {
 interface SidebarProps {
   mobileOpen: boolean;
   onMobileToggle: () => void;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }
 
 interface MenuItem {
@@ -29,7 +30,7 @@ interface MenuItem {
   }[];
 }
 
-export default function Sidebar({ mobileOpen, onMobileToggle }: SidebarProps) {
+export default function Sidebar({ mobileOpen, onMobileToggle, onCollapsedChange }: SidebarProps) {
   const pathname = usePathname();
   const prevPathnameRef = useRef(pathname);
   const [collapsed, setCollapsed] = useState(false);
@@ -48,7 +49,9 @@ export default function Sidebar({ mobileOpen, onMobileToggle }: SidebarProps) {
   }, [pathname, mobileOpen, onMobileToggle]);
 
   const toggleSidebar = () => {
-    setCollapsed(!collapsed);
+    const newCollapsed = !collapsed;
+    setCollapsed(newCollapsed);
+    onCollapsedChange?.(newCollapsed);
   };
 
   const toggleSubmenu = (label: string) => {
@@ -95,21 +98,21 @@ export default function Sidebar({ mobileOpen, onMobileToggle }: SidebarProps) {
 
       {/* Sidebar */}
       <div
-        className={`fixed z-50 h-full md:static md:z-auto ${collapsed ? 'w-20' : 'w-[260px]'} flex flex-col bg-gray-50 text-gray-800 transition-all duration-300 ${mobileOpen ? 'left-0' : '-left-64 md:left-0'} `}
-        style={{ boxShadow: '2px 0 10px rgba(0, 0, 0, 0.08)' }}
+        className={`fixed h-full ${collapsed ? 'w-20' : 'w-[260px]'} flex flex-col bg-white text-gray-800 transition-all duration-300 ${mobileOpen ? 'left-0 z-50' : '-left-64 md:left-0 md:z-101'} `}
+        style={{ boxShadow: '2px 0 10px rgba(0, 0, 0, 0.05)' }}
       >
         {/* Header com Logo e Toggle */}
         <div className='relative border-b-2 border-gray-200 px-5 py-6'>
           {!collapsed && (
             <div className='flex items-center gap-3'>
               {/* Logo Icon com Gradiente */}
-              <div className='flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-pink-500 to-purple-600 text-xl font-bold text-white shadow-md'>
+              <div className='flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-blue-500 to-blue-600 text-xl font-bold text-white shadow-md'>
                 SA
               </div>
 
               {/* Logo Text */}
               <div className='flex flex-col'>
-                <h2 className='text-lg font-bold leading-tight text-gray-800'>
+                <h2 className='text-lg leading-tight font-bold text-gray-800'>
                   ONG Ser Amor
                 </h2>
                 <p className='text-xs text-gray-500'>Portal</p>
@@ -132,7 +135,7 @@ export default function Sidebar({ mobileOpen, onMobileToggle }: SidebarProps) {
 
           {/* Botão de fechar para mobile */}
           <button
-            className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 md:hidden'
+            className='absolute top-1/2 right-3 -translate-y-1/2 text-gray-600 md:hidden'
             onClick={onMobileToggle}
           >
             <FiX size={24} />
@@ -197,7 +200,9 @@ export default function Sidebar({ mobileOpen, onMobileToggle }: SidebarProps) {
                       <span className={collapsed ? '' : 'mr-3'}>
                         {item.icon}
                       </span>
-                      {!collapsed && <span className='font-medium'>{item.label}</span>}
+                      {!collapsed && (
+                        <span className='font-medium'>{item.label}</span>
+                      )}
                     </div>
                   </Link>
                 )}

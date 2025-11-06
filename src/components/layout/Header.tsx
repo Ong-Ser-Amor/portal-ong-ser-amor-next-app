@@ -37,15 +37,17 @@ export default function Header({ children }: HeaderProps) {
   };
 
   return (
-    <header className='flex h-20 items-center justify-between bg-white px-6 shadow-md'>
-      <div className='flex items-center'>{children}</div>
+    <header
+      className='sticky top-0 z-100 flex h-20 items-center justify-between bg-white px-6'
+      style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)' }}
+    >      <div className='flex items-center'>{children}</div>
 
       <div className='flex items-center gap-5'>
         {/* User Info */}
         {user && (
           <div className='flex items-center gap-3'>
             {/* Avatar */}
-            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-lime-400 to-green-500 text-sm font-bold text-gray-800'>
+            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-gray-400 to-gray-500 text-sm font-bold text-white'>
               {getInitials(user.name)}
             </div>
             {/* User Details */}
