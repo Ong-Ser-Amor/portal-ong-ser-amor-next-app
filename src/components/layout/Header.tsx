@@ -40,8 +40,9 @@ export default function Header({ children }: HeaderProps) {
     <header
       className='sticky top-0 z-100 flex h-20 items-center justify-between bg-white px-6'
       style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)' }}
-    >      <div className='flex items-center'>{children}</div>
-
+    >
+      {' '}
+      <div className='flex items-center'>{children}</div>
       <div className='flex items-center gap-5'>
         {/* User Info */}
         {user && (

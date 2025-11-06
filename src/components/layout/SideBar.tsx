@@ -30,7 +30,11 @@ interface MenuItem {
   }[];
 }
 
-export default function Sidebar({ mobileOpen, onMobileToggle, onCollapsedChange }: SidebarProps) {
+export default function Sidebar({
+  mobileOpen,
+  onMobileToggle,
+  onCollapsedChange,
+}: SidebarProps) {
   const pathname = usePathname();
   const prevPathnameRef = useRef(pathname);
   const [collapsed, setCollapsed] = useState(false);
@@ -98,8 +102,11 @@ export default function Sidebar({ mobileOpen, onMobileToggle, onCollapsedChange 
 
       {/* Sidebar */}
       <div
-        className={`fixed h-full ${collapsed ? 'w-20' : 'w-[260px]'} flex flex-col bg-white text-gray-800 transition-all duration-300 ${mobileOpen ? 'left-0 z-50' : '-left-64 md:left-0 md:z-101'} `}
-        style={{ boxShadow: '2px 0 10px rgba(0, 0, 0, 0.05)' }}
+        className={`fixed h-full ${collapsed ? 'w-20' : 'w-[260px]'} flex flex-col bg-white text-gray-800 ${mobileOpen ? 'left-0 z-50' : '-left-64 md:left-0 md:z-101'} `}
+        style={{ 
+          boxShadow: '2px 0 10px rgba(0, 0, 0, 0.05)',
+          transition: 'width 0.3s ease'
+        }}
       >
         {/* Header com Logo e Toggle */}
         <div className='relative border-b-2 border-gray-200 px-5 py-6'>
@@ -123,7 +130,8 @@ export default function Sidebar({ mobileOpen, onMobileToggle, onCollapsedChange 
           {/* Toggle Button */}
           <button
             onClick={toggleSidebar}
-            className={`${collapsed ? 'left-1/2 -translate-x-1/2' : 'right-3'} absolute top-1/2 hidden -translate-y-1/2 rounded-lg bg-gray-100 p-2 text-gray-600 transition-colors hover:bg-gray-200 md:block`}
+            className={`${collapsed ? 'left-1/2 -translate-x-1/2' : 'right-3'} absolute top-1/2 hidden -translate-y-1/2 rounded-lg bg-gray-100 p-2 text-gray-600 hover:bg-gray-200 md:block`}
+            style={{ transition: 'all 0.3s' }}
             title={collapsed ? 'Expandir menu' : 'Recolher menu'}
           >
             {collapsed ? (
@@ -150,7 +158,8 @@ export default function Sidebar({ mobileOpen, onMobileToggle, onCollapsedChange 
                   <div>
                     <button
                       onClick={() => toggleSubmenu(item.label)}
-                      className={`flex w-full items-center justify-between ${collapsed ? 'justify-center' : ''} rounded-lg p-3 transition-colors ${isSubmenuActive(item.submenu) ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                      className={`flex w-full items-center justify-between ${collapsed ? 'justify-center' : ''} rounded-lg p-3 ${isSubmenuActive(item.submenu) ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                      style={{ transition: 'all 0.3s' }}
                     >
                       <div className='flex items-center'>
                         <span className={collapsed ? '' : 'mr-3'}>
@@ -172,11 +181,12 @@ export default function Sidebar({ mobileOpen, onMobileToggle, onCollapsedChange 
                           <li key={subItem.path}>
                             <Link href={subItem.path}>
                               <div
-                                className={`flex items-center rounded-lg p-2 transition-colors ${
+                                className={`flex items-center rounded-lg p-2 ${
                                   isActive(subItem.path)
                                     ? 'bg-blue-600 text-white'
                                     : 'text-gray-600 hover:bg-gray-100'
                                 }`}
+                                style={{ transition: 'all 0.3s' }}
                               >
                                 <span className='mr-2'>{subItem.icon}</span>
                                 <span>{subItem.label}</span>
@@ -190,11 +200,12 @@ export default function Sidebar({ mobileOpen, onMobileToggle, onCollapsedChange 
                 ) : (
                   <Link href={item.path || '#'}>
                     <div
-                      className={`mx-3 flex items-center ${collapsed ? 'justify-center' : ''} rounded-lg px-5 py-3.5 transition-colors ${
+                      className={`mx-3 flex items-center ${collapsed ? 'justify-center' : ''} rounded-lg px-5 py-3.5 ${
                         isActive(item.path || '')
                           ? 'bg-blue-600 text-white'
                           : 'text-gray-600 hover:bg-gray-200'
                       }`}
+                      style={{ transition: 'all 0.3s' }}
                       title={collapsed ? item.label : ''}
                     >
                       <span className={collapsed ? '' : 'mr-3'}>

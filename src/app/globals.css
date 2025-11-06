@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --background: #ffffff;
@@ -16,4 +16,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Layout - Content Wrapper responsive margin */
+@media (max-width: 768px) {
+  .content-wrapper {
+    margin-left: 0 !important;
+  }
 }

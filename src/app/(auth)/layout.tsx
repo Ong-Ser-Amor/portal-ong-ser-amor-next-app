@@ -4,7 +4,7 @@ import ProtectedRoute from '@/components/features/auth/ProtectedRoute';
 import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/SideBar';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { FiMenu } from 'react-icons/fi';
 import { ToastContainer } from 'react-toastify';
 
@@ -15,17 +15,6 @@ export default function AuthLayout({
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(true);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 768);
-    };
-    
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -34,8 +23,6 @@ export default function AuthLayout({
   const handleSidebarToggle = (collapsed: boolean) => {
     setSidebarCollapsed(collapsed);
   };
-
-  const contentMarginLeft = isDesktop ? (sidebarCollapsed ? '80px' : '260px') : '0';
 
   return (
     <ProtectedRoute>
@@ -46,9 +33,12 @@ export default function AuthLayout({
           onCollapsedChange={handleSidebarToggle}
         />
 
-        <div 
-          className='flex flex-1 flex-col overflow-hidden transition-all duration-300'
-          style={{ marginLeft: contentMarginLeft }}
+        <div
+          className='content-wrapper flex flex-1 flex-col overflow-hidden'
+          style={{
+            marginLeft: sidebarCollapsed ? '80px' : '260px',
+            transition: 'margin-left 0.3s ease',
+          }}
         >
           <Header>
             <button
