@@ -6,7 +6,7 @@ import Modal from '@/components/ui/Modal';
 import AttendanceForm from '@/components/features/attendance/AttendanceForm';
 import { Attendance, AttendanceItem, BulkAttendanceDto } from '@/interfaces/Attendance';
 import { Student } from '@/interfaces/Student';
-import { useBulkUpsertAttendances } from '@/hooks/attendance/useAttendanceMutations';
+import { useCreateAttendances, useUpdateAttendances } from '@/hooks/attendance/useAttendanceMutations';
 import { courseClassService } from '@/services/courseClass/courseClassService';
 import { getApiErrorMessage } from '@/utils/errorUtils';
 
@@ -29,7 +29,9 @@ export default function AttendanceFormContainer({
 }: AttendanceFormContainerProps) {
   const [students, setStudents] = useState<Student[]>([]);
   const [loadingStudents, setLoadingStudents] = useState(false);
-  const { bulkUpsertAttendances, loading } = useBulkUpsertAttendances();
+  const { createAttendances, loading: createLoading } = useCreateAttendances();
+  const { updateAttendances, loading: updateLoading } = useUpdateAttendances();
+  const loading = createLoading || updateLoading;
 
   useEffect(() => {
     if (isOpen) {
@@ -81,12 +83,14 @@ export default function AttendanceFormContainer({
         attendances: dataToSend,
       };
 
-      await bulkUpsertAttendances(lessonId, bulkData);
-      toast.success(
-        isEditing
-          ? 'Chamada atualizada com sucesso!'
-          : 'Chamada registrada com sucesso!',
-      );
+      if (isEditing) {
+        await updateAttendances(lessonId, bulkData);
+        toast.success('Chamada atualizada com sucesso!');
+      } else {
+        await createAttendances(lessonId, bulkData);
+        toast.success('Chamada registrada com sucesso!');
+      }
+      
       onSuccess();
     } catch (error) {
       const message = getApiErrorMessage(error);

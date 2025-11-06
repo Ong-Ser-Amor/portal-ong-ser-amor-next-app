@@ -17,7 +17,7 @@ export const attendanceService = {
     }
   },
 
-  async bulkUpsertAttendances(
+  async createAttendances(
     lessonId: number,
     data: BulkAttendanceDto,
   ): Promise<Attendance[]> {
@@ -29,7 +29,26 @@ export const attendanceService = {
       return response;
     } catch (error) {
       console.error(
-        `Erro ao salvar chamadas da aula ${lessonId}:`,
+        `Erro ao criar chamadas da aula ${lessonId}:`,
+        error,
+      );
+      throw error;
+    }
+  },
+
+  async updateAttendances(
+    lessonId: number,
+    data: BulkAttendanceDto,
+  ): Promise<Attendance[]> {
+    try {
+      const response = await apiService.patch<Attendance[]>(
+        `/lessons/${lessonId}/attendances`,
+        data as unknown as Record<string, unknown>,
+      );
+      return response;
+    } catch (error) {
+      console.error(
+        `Erro ao atualizar chamadas da aula ${lessonId}:`,
         error,
       );
       throw error;
