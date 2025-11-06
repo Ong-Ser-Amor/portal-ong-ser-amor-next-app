@@ -62,7 +62,7 @@ export default function CourseList({
         {loading ? (
           <div className='py-8 text-center'>
             <div
-              className='mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-t-2'
+              className='mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-t-2 border-b-2'
               style={{ borderColor: 'var(--accent-primary, #2196f3)' }}
             />
             <p style={{ color: 'var(--text-secondary, #666666)' }}>
