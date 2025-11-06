@@ -287,14 +287,25 @@
         ],
         "responses": {
           "200": {
-            "description": "The students have been successfully retrieved",
+            "description": "Successfully received paginated response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/StudentResponseDto"
-                  }
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginatedResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/StudentResponseDto"
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -465,14 +476,25 @@
         ],
         "responses": {
           "200": {
-            "description": "The courses have been successfully retrieved",
+            "description": "Successfully received paginated response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CourseResponseDto"
-                  }
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginatedResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/CourseResponseDto"
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -620,14 +642,25 @@
         ],
         "responses": {
           "200": {
-            "description": "The course classes have been successfully retrieved",
+            "description": "Successfully received paginated response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CourseClassResponseDto"
-                  }
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginatedResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/CourseClassResponseDto"
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -813,14 +846,25 @@
         ],
         "responses": {
           "200": {
-            "description": "The lessons have been successfully retrieved.",
+            "description": "Successfully received paginated response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/LessonResponseDto"
-                  }
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginatedResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/LessonResponseDto"
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -877,24 +921,51 @@
             "schema": {
               "type": "number"
             }
+          },
+          {
+            "name": "take",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Successfully received paginated response",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserResponseDto"
-                  }
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginatedResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/UserResponseDto"
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
           }
         },
-        "summary": "Get all teachers from a course class",
+        "summary": "Get paginated teachers from a course class",
         "tags": ["Course Classes"]
       }
     },
@@ -960,7 +1031,8 @@
         "tags": ["Course Classes"]
       },
       "get": {
-        "operationId": "CourseClassesController_getStudents",
+        "description": "Returns all students without pagination (for attendance)",
+        "operationId": "CourseClassesController_getAllStudents",
         "parameters": [
           {
             "name": "id",
@@ -987,6 +1059,66 @@
           }
         },
         "summary": "Get all students from a course class",
+        "tags": ["Course Classes"]
+      }
+    },
+    "/course-classes/{id}/students/paginated": {
+      "get": {
+        "description": "Returns students with pagination (for listing)",
+        "operationId": "CourseClassesController_getStudents",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "take",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully received paginated response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginatedResponseDto"
+                    },
+                    {
+                      "properties": {
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/StudentResponseDto"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get paginated students from a course class",
         "tags": ["Course Classes"]
       }
     },
@@ -1158,6 +1290,56 @@
       }
     },
     "/lessons/{id}/attendances": {
+      "post": {
+        "description": "Creates or updates attendance records for all students in a course class. All students must be included in the request.",
+        "operationId": "LessonsController_bulkUpsertAttendances",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkAttendanceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Attendance records have been successfully created/updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AttendanceResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing students or invalid student IDs for this course class."
+          },
+          "404": {
+            "description": "Lesson not found."
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "summary": "Create or update attendance records for a lesson",
+        "tags": ["Lessons"]
+      },
       "get": {
         "operationId": "LessonsController_findAllAttendancesByLesson",
         "parameters": [
@@ -1190,126 +1372,10 @@
         },
         "summary": "Get all attendance records for a specific lesson",
         "tags": ["Lessons"]
-      }
-    },
-    "/attendances": {
-      "post": {
-        "operationId": "AttendancesController_create",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAttendanceDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "The attendance record has been successfully created.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AttendanceResponseDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Student or Lesson not found."
-          },
-          "409": {
-            "description": "Attendance record for this student/lesson already exists."
-          },
-          "500": {
-            "description": "Internal server error."
-          }
-        },
-        "summary": "Create a new attendance record",
-        "tags": ["Attendances"]
-      }
-    },
-    "/attendances/{id}": {
-      "get": {
-        "operationId": "AttendancesController_findOne",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Attendance record retrieved successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AttendanceResponseDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Attendance record not found."
-          },
-          "500": {
-            "description": "Internal server error."
-          }
-        },
-        "summary": "Get a single attendance record by ID",
-        "tags": ["Attendances"]
-      },
-      "patch": {
-        "operationId": "AttendancesController_update",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAttendanceDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Attendance record updated successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AttendanceResponseDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Attendance record not found."
-          },
-          "500": {
-            "description": "Internal server error."
-          }
-        },
-        "summary": "Update an attendance record",
-        "tags": ["Attendances"]
       },
       "delete": {
-        "operationId": "AttendancesController_remove",
+        "description": "Removes all attendance records for a specific lesson. Useful for clearing attendance data entered by mistake.",
+        "operationId": "LessonsController_removeAllAttendances",
         "parameters": [
           {
             "name": "id",
@@ -1322,17 +1388,17 @@
         ],
         "responses": {
           "204": {
-            "description": "Attendance record deleted successfully."
+            "description": "All attendance records have been successfully deleted."
           },
           "404": {
-            "description": "Attendance record not found."
+            "description": "Lesson not found."
           },
           "500": {
-            "description": "Internal server error."
+            "description": "Internal server error"
           }
         },
-        "summary": "Delete an attendance record",
-        "tags": ["Attendances"]
+        "summary": "Delete all attendance records for a lesson",
+        "tags": ["Lessons"]
       }
     }
   },
@@ -1456,17 +1522,70 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number"
+            "type": "number",
+            "example": 1,
+            "description": "Student ID"
           },
           "name": {
-            "type": "string"
+            "type": "string",
+            "example": "João Silva",
+            "description": "Student name"
           },
           "birthDate": {
-            "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "example": "2010-05-15",
+            "description": "Student birth date (date only, no time)",
+            "format": "date"
           }
         },
         "required": ["id", "name", "birthDate"]
+      },
+      "PaginationMetaDto": {
+        "type": "object",
+        "properties": {
+          "itemsPerPage": {
+            "type": "number",
+            "description": "Number of items per page",
+            "example": 10
+          },
+          "totalItems": {
+            "type": "number",
+            "description": "Total items",
+            "example": 100
+          },
+          "currentPage": {
+            "type": "number",
+            "description": "Current page",
+            "example": 1
+          },
+          "totalPages": {
+            "type": "number",
+            "description": "Total pages",
+            "example": 10
+          }
+        },
+        "required": ["itemsPerPage", "totalItems", "currentPage", "totalPages"]
+      },
+      "PaginatedResponseDto": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "description": "Metadata da paginação",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PaginationMetaDto"
+              }
+            ]
+          },
+          "data": {
+            "description": "Dados paginados",
+            "type": "array",
+            "items": {
+              "type": "array"
+            }
+          }
+        },
+        "required": ["meta", "data"]
       },
       "UpdateStudentDto": {
         "type": "object",
@@ -1691,6 +1810,41 @@
           }
         }
       },
+      "AttendanceItemDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "number",
+            "description": "Student ID",
+            "example": 1
+          },
+          "present": {
+            "type": "boolean",
+            "description": "Indicates whether the student was present",
+            "example": true
+          },
+          "notes": {
+            "type": "string",
+            "description": "Notes about the attendance or absence",
+            "example": "Arrived late"
+          }
+        },
+        "required": ["studentId", "present"]
+      },
+      "BulkAttendanceDto": {
+        "type": "object",
+        "properties": {
+          "attendances": {
+            "minItems": 1,
+            "description": "List of attendance records to be created/updated",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceItemDto"
+            }
+          }
+        },
+        "required": ["attendances"]
+      },
       "AttendanceResponseDto": {
         "type": "object",
         "properties": {
@@ -1708,69 +1862,9 @@
           },
           "lesson": {
             "$ref": "#/components/schemas/LessonResponseDto"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "updatedAt": {
-            "format": "date-time",
-            "type": "string"
           }
         },
-        "required": [
-          "id",
-          "present",
-          "student",
-          "lesson",
-          "createdAt",
-          "updatedAt"
-        ]
-      },
-      "CreateAttendanceDto": {
-        "type": "object",
-        "properties": {
-          "lessonId": {
-            "type": "number",
-            "minimum": 1,
-            "description": "ID of the lesson",
-            "example": 1
-          },
-          "studentId": {
-            "type": "number",
-            "minimum": 1,
-            "description": "ID of the student",
-            "example": 1
-          },
-          "present": {
-            "type": "boolean",
-            "description": "Attendance status",
-            "example": true
-          },
-          "notes": {
-            "type": "string",
-            "maxLength": 500,
-            "description": "Notes about the attendance",
-            "example": "Student was late"
-          }
-        },
-        "required": ["lessonId", "studentId", "present"]
-      },
-      "UpdateAttendanceDto": {
-        "type": "object",
-        "properties": {
-          "present": {
-            "type": "boolean",
-            "description": "Attendance status",
-            "example": true
-          },
-          "notes": {
-            "type": "string",
-            "maxLength": 500,
-            "description": "Notes about the attendance",
-            "example": "Student was late"
-          }
-        }
+        "required": ["id", "present", "student", "lesson"]
       }
     }
   }

@@ -15,6 +15,7 @@ interface TableProps<T> {
   keyExtractor: (item: T) => string | number;
   isLoading?: boolean;
   emptyMessage?: string;
+  onRowClick?: (item: T) => void;
 }
 
 export default function Table<T>({
@@ -23,6 +24,7 @@ export default function Table<T>({
   keyExtractor,
   isLoading = false,
   emptyMessage = 'Nenhum dado encontrado',
+  onRowClick,
 }: TableProps<T>) {
   if (isLoading) {
     return (
@@ -58,7 +60,11 @@ export default function Table<T>({
             </tr>
           ) : (
             data.map((item) => (
-              <tr key={keyExtractor(item)}>
+              <tr
+                key={keyExtractor(item)}
+                onClick={onRowClick ? () => onRowClick(item) : undefined}
+                className={onRowClick ? 'cursor-pointer hover:bg-gray-50 transition-colors' : ''}
+              >
                 {columns.map((column, index) => {
                   const cellContent =
                     typeof column.accessor === 'function'

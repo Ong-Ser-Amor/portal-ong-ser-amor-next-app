@@ -1,8 +1,11 @@
+'use client';
+
 import { Lesson } from '@/interfaces/Lesson';
 import Table from '@/components/ui/Table';
 import Pagination from '@/components/ui/Pagination';
 import IconButton from '@/components/ui/IconButton';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import { useRouter } from 'next/navigation';
 
 interface LessonListProps {
   lessons: Lesson[];
@@ -23,9 +26,15 @@ export default function LessonList({
   onDelete,
   onPageChange,
 }: LessonListProps) {
+  const router = useRouter();
+
   const formatDate = (dateString: string) => {
     const [year, month, day] = dateString.split('T')[0].split('-');
     return `${day}/${month}/${year}`;
+  };
+
+  const handleRowClick = (lesson: Lesson) => {
+    router.push(`/lessons/${lesson.id}`);
   };
 
   const lessonColumns = [
@@ -40,7 +49,7 @@ export default function LessonList({
     {
       header: 'Ações',
       accessor: (lesson: Lesson) => (
-        <div className='flex justify-end space-x-1'>
+        <div className='flex justify-end space-x-1' onClick={(e) => e.stopPropagation()}>
           <IconButton
             icon={FiEdit}
             onClick={() => onEdit(lesson)}
@@ -67,6 +76,7 @@ export default function LessonList({
         keyExtractor={(lesson) => lesson.id}
         isLoading={loading}
         emptyMessage='Nenhuma aula cadastrada ainda.'
+        onRowClick={handleRowClick}
       />
       {totalPages > 0 && (
         <Pagination
