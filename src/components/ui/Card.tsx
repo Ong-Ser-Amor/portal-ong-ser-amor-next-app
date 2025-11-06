@@ -28,41 +28,62 @@ export default function Card({
   return (
     <div
       onClick={onClick}
-      className={`rounded-lg border-l-4 ${borderColor} bg-white p-6 shadow-md transition-shadow hover:shadow-lg ${
+      className={`relative rounded-[15px] border-l-4 ${borderColor} p-6 ${
         onClick ? 'cursor-pointer' : ''
       }`}
+      style={{
+        background: 'var(--bg-secondary, #ffffff)',
+        boxShadow: '0 2px 8px var(--card-shadow, rgba(0, 0, 0, 0.05))',
+        transition: 'all 0.3s',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translateY(-5px)';
+        e.currentTarget.style.boxShadow = '0 8px 20px var(--card-shadow, rgba(0, 0, 0, 0.05))';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = '0 2px 8px var(--card-shadow, rgba(0, 0, 0, 0.05))';
+      }}
     >
-      <div className='mb-4 flex items-start justify-between'>
-        <h3 className='text-lg font-semibold text-gray-800'>{title}</h3>
-        {(onEdit || onDelete) && (
-          <div
-            className='flex space-x-1'
-            onClick={(e) => e.stopPropagation()}
-          >
-            {onEdit && (
-              <IconButton
-                icon={FiEdit}
-                onClick={onEdit}
-                variant='primary'
-                tooltip='Editar'
-              />
-            )}
-            {onDelete && (
-              <IconButton
-                icon={FiTrash2}
-                onClick={onDelete}
-                variant='danger'
-                tooltip='Excluir'
-              />
-            )}
-          </div>
-        )}
-      </div>
+      {/* Actions (Edit/Delete) */}
+      {(onEdit || onDelete) && (
+        <div
+          className='absolute right-4 top-4 flex gap-2'
+          onClick={(e) => e.stopPropagation()}
+        >
+          {onEdit && (
+            <IconButton
+              icon={FiEdit}
+              onClick={onEdit}
+              variant='primary'
+              tooltip='Editar'
+            />
+          )}
+          {onDelete && (
+            <IconButton
+              icon={FiTrash2}
+              onClick={onDelete}
+              variant='danger'
+              tooltip='Excluir'
+            />
+          )}
+        </div>
+      )}
 
+      {/* Title */}
+      <h3 
+        className='mb-3 text-lg font-semibold'
+        style={{ color: 'var(--text-primary, #333333)' }}
+      >
+        {title}
+      </h3>
+
+      {/* Content */}
       {children}
 
+      {/* Badge */}
       {badge && (
-        <div className='mt-4 flex items-center justify-between'>
+        <div className='mt-4'>
           <span
             className={`inline-block rounded-full ${badge.bgColor} px-3 py-1 text-xs font-medium ${badge.textColor}`}
           >
