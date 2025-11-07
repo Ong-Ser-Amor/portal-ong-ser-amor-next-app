@@ -1,5 +1,7 @@
 'use client';
 
+import { useThemeObserver } from '@/hooks/useThemeObserver';
+
 interface LabelProps {
   htmlFor: string;
   children: React.ReactNode;
@@ -7,12 +9,19 @@ interface LabelProps {
 }
 
 const Label = ({ htmlFor, children, className = '' }: LabelProps) => {
-  // Remova o espaço extra no final da string de classe
-  const baseClass = 'block text-sm font-medium text-gray-700 mb-1';
-  const combinedClass = className ? `${baseClass} ${className}` : baseClass;
+  const { isDark } = useThemeObserver();
 
   return (
-    <label htmlFor={htmlFor} className={combinedClass}>
+    <label
+      htmlFor={htmlFor}
+      className={`block font-medium ${className}`}
+      style={{
+        marginBottom: '8px',
+        color: isDark ? '#f5f5f5' : '#333',
+        fontWeight: 500,
+        fontSize: '16px',
+      }}
+    >
       {children}
     </label>
   );
