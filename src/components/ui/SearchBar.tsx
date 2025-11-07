@@ -62,10 +62,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   return (
     <div className={`relative min-w-[300px] ${className}`}>
-      <div className='absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none'>
-        <FiSearch 
-          size={16} 
-          style={{ color: 'var(--text-tertiary, #999999)' }} 
+      <div className='pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4'>
+        <FiSearch
+          size={16}
+          style={{ color: 'var(--text-tertiary, #999999)' }}
         />
       </div>
       <input
@@ -75,7 +75,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         autoFocus={autoFocus}
-        className='w-full pl-10 pr-10 py-2 text-sm border-2 rounded-[10px] bg-transparent outline-none transition-all'
+        className='w-full rounded-[10px] border-2 bg-transparent py-2 pr-10 pl-10 text-sm transition-all outline-none'
         style={{
           background: 'var(--bg-primary, #f5f5f5)',
           borderColor: 'var(--border-color, #f0f0f0)',
@@ -83,7 +83,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
         }}
         onFocus={(e) => {
           e.currentTarget.style.borderColor = 'var(--accent-primary, #2196f3)';
-          e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-primary, #2196f3)33';
+          e.currentTarget.style.boxShadow =
+            '0 0 0 2px var(--accent-primary, #2196f3)33';
         }}
         onBlur={(e) => {
           e.currentTarget.style.borderColor = 'var(--border-color, #f0f0f0)';
@@ -93,7 +94,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       {inputValue && (
         <button
           onClick={handleClear}
-          className='absolute inset-y-0 right-0 flex items-center pr-3 hover:opacity-70 transition-opacity'
+          className='absolute inset-y-0 right-0 flex items-center pr-3 transition-opacity hover:opacity-70'
           style={{ color: 'var(--text-tertiary, #999999)' }}
           type='button'
           aria-label='Limpar busca'
