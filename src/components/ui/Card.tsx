@@ -1,4 +1,6 @@
-import { ReactNode } from 'react';
+'use client';
+
+import { ReactNode, useEffect, useState } from 'react';
 import IconButton from './IconButton';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
 
@@ -18,27 +20,44 @@ interface CardProps {
 
 export default function Card({
   title,
-  borderColor = 'border-blue-500',
+  borderColor,
   onClick,
   onEdit,
   onDelete,
   badge,
   children,
 }: CardProps) {
+  // Estado para forçar re-renderização quando o tema mudar
+  const [, setThemeVersion] = useState(0);
+
+  useEffect(() => {
+    // Observa mudanças na classe do body (mudança de tema)
+    const observer = new MutationObserver(() => {
+      setThemeVersion((v) => v + 1);
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
   return (
     <div
       onClick={onClick}
-      className={`relative rounded-[15px] border-l-4 ${borderColor} p-6 ${
+      className={`relative rounded-[15px] p-6 ${
         onClick ? 'cursor-pointer' : ''
       }`}
       style={{
         background: 'var(--bg-secondary, #ffffff)',
         boxShadow: '0 2px 8px var(--card-shadow, rgba(0, 0, 0, 0.05))',
         transition: 'all 0.3s',
+        borderLeft: borderColor || '4px solid var(--accent-primary, #2196f3)',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-5px)';
-        e.currentTarget.style.boxShadow = '0 8px 20px var(--card-shadow, rgba(0, 0, 0, 0.05))';
+        e.currentTarget.style.boxShadow = '0 8px 20px var(--card-shadow, rgba(0, 0, 0, 0.1))';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';

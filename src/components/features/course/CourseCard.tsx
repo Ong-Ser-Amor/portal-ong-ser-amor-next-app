@@ -32,15 +32,22 @@ export default function CourseCard({
   return (
     <Card
       title={course.name}
-      borderColor='border-blue-500'
       onClick={handleCardClick}
       onEdit={handleEdit}
       onDelete={handleDelete}
-      badge={{
-        label: `${course.activeClassesCount ?? 0} Turmas`,
-        bgColor: 'bg-blue-100',
-        textColor: 'text-blue-800',
-      }}
-    />
+    >
+      <div
+        className='mt-3 inline-block rounded-full'
+        style={{
+          padding: '6px 14px',
+          background: '#e1f5fe',
+          color: '#01579b',
+          fontSize: '12px',
+          fontWeight: '600',
+        }}
+      >
+        {course.activeClassesCount ?? 0} Turmas
+      </div>
+    </Card>
   );
 }

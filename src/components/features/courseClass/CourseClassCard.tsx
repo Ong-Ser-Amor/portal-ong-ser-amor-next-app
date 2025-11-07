@@ -14,34 +14,29 @@ const statusConfig: Record<
   CourseClassStatusEnum,
   {
     label: string;
-    bgColor: string;
-    textColor: string;
-    borderColor: string;
+    bg: string;
+    color: string;
   }
 > = {
   [CourseClassStatusEnum.EM_FORMACAO]: {
     label: 'Em Formação',
-    bgColor: 'bg-blue-100',
-    textColor: 'text-blue-800',
-    borderColor: 'border-blue-500',
+    bg: '#e1f5fe',
+    color: '#01579b',
   },
   [CourseClassStatusEnum.EM_ANDAMENTO]: {
     label: 'Em Andamento',
-    bgColor: 'bg-green-100',
-    textColor: 'text-green-800',
-    borderColor: 'border-green-500',
+    bg: '#e8f5e9',
+    color: '#2e7d32',
   },
   [CourseClassStatusEnum.FINALIZADA]: {
     label: 'Finalizada',
-    bgColor: 'bg-gray-100',
-    textColor: 'text-gray-800',
-    borderColor: 'border-gray-500',
+    bg: '#f5f5f5',
+    color: '#757575',
   },
   [CourseClassStatusEnum.CANCELADA]: {
     label: 'Cancelada',
-    bgColor: 'bg-red-100',
-    textColor: 'text-red-800',
-    borderColor: 'border-red-500',
+    bg: '#ffebee',
+    color: '#c62828',
   },
 };
 
@@ -65,30 +60,40 @@ export default function CourseClassCard({
   return (
     <Card
       title={courseClass.name}
-      borderColor={status.borderColor}
       onClick={handleCardClick}
       onEdit={() => onEdit(courseClass)}
       onDelete={() => onDelete(courseClass.id)}
-      badge={{
-        label: status.label,
-        bgColor: status.bgColor,
-        textColor: status.textColor,
-      }}
     >
-      <div className='space-y-1 text-sm text-gray-700'>
+      <div 
+        className='space-y-1 text-sm'
+        style={{ color: 'var(--text-secondary, #666666)' }}
+      >
         <div>
-          <strong>Professores:</strong>{' '}
+          <strong style={{ color: 'var(--text-primary, #333333)' }}>Professores:</strong>{' '}
           {courseClass.teachers && courseClass.teachers.length > 0
             ? courseClass.teachers.map((t) => t.name).join(', ')
             : 'Não atribuído'}
         </div>
         <div>
-          <strong>Alunos:</strong> {courseClass.studentsCount || 0}
+          <strong style={{ color: 'var(--text-primary, #333333)' }}>Alunos:</strong> {courseClass.studentsCount || 0}
         </div>
         <div>
-          <strong>Período:</strong> {formatDate(courseClass.startDate)} -{' '}
+          <strong style={{ color: 'var(--text-primary, #333333)' }}>Período:</strong> {formatDate(courseClass.startDate)} -{' '}
           {formatDate(courseClass.endDate)}
         </div>
+      </div>
+      
+      <div 
+        className='mt-3 inline-block rounded-full'
+        style={{
+          padding: '6px 14px',
+          background: status.bg,
+          color: status.color,
+          fontSize: '12px',
+          fontWeight: '600',
+        }}
+      >
+        {status.label}
       </div>
     </Card>
   );
