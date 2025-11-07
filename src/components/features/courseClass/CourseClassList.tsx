@@ -26,7 +26,10 @@ export default function CourseClassList({
   if (loading) {
     return (
       <div className='flex items-center justify-center py-12'>
-        <div className='h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent'></div>
+        <div
+          className='h-8 w-8 animate-spin rounded-full border-4 border-t-transparent'
+          style={{ borderColor: 'var(--accent-primary, #2196f3)' }}
+        ></div>
       </div>
     );
   }
@@ -36,15 +39,22 @@ export default function CourseClassList({
 
   if (!classList || classList.length === 0) {
     return (
-      <div className='rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 py-12 text-center'>
-        <p className='text-gray-500'>Nenhuma turma cadastrada ainda.</p>
+      <div 
+        className='rounded-lg border-2 border-dashed py-12 text-center'
+        style={{ 
+          borderColor: 'var(--border-color, #f0f0f0)',
+          background: 'var(--bg-primary, #f5f5f5)',
+          color: 'var(--text-secondary, #666666)'
+        }}
+      >
+        <p>Nenhuma turma cadastrada ainda.</p>
       </div>
     );
   }
 
   return (
     <div>
-      <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+      <div className='grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
         {classList.map((courseClass) => (
           <CourseClassCard
             key={courseClass.id}
@@ -60,7 +70,6 @@ export default function CourseClassList({
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={onPageChange}
-          className='mt-6 flex justify-center'
         />
       )}
     </div>

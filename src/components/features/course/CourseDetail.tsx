@@ -2,9 +2,8 @@ import { Course } from '@/interfaces/Course';
 import { CourseClass } from '@/interfaces/CourseClass';
 import CourseClassList from '../courseClass/CourseClassList';
 import { FiEdit, FiPlus } from 'react-icons/fi';
-import IconButton from '@/components/ui/IconButton';
 import Button from '@/components/ui/Button';
-import BackButton from '@/components/ui/BackButton';
+import PageHeader from '@/components/layout/PageHeader';
 
 interface CourseDetailProps {
   course: Course | null;
@@ -36,7 +35,10 @@ export default function CourseDetail({
   if (!course && loading) {
     return (
       <div className='flex min-h-screen items-center justify-center'>
-        <div className='h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent'></div>
+        <div
+          className='h-12 w-12 animate-spin rounded-full border-4 border-t-transparent'
+          style={{ borderColor: 'var(--accent-primary, #2196f3)' }}
+        ></div>
       </div>
     );
   }
@@ -50,40 +52,39 @@ export default function CourseDetail({
   }
 
   return (
-    <div className='space-y-6'>
-      {/* Header */}
-      <div className='rounded-lg bg-white p-6 shadow-md'>
-        <div className='mb-4'>
-          <BackButton onClick={onBack} />
-        </div>
+    <div className='container mx-auto px-4 py-5'>
+      <PageHeader 
+        title={course.name} 
+        breadcrumb='Detalhes do Curso'
+        onBack={onBack}
+      >
+        <Button variant='gradient' size='small' onClick={onAddClass}>
+          <FiPlus className='mr-2' /> Nova Turma
+        </Button>
+        <Button variant='gradient' size='small' onClick={onEditCourse}>
+          <FiEdit className='mr-2' /> Editar Curso
+        </Button>
+      </PageHeader>
 
-        <div className='flex items-start justify-between'>
-          <div>
-            <h1 className='text-3xl font-bold text-gray-900'>{course.name}</h1>
-            {course.activeClassesCount !== undefined && (
-              <p className='mt-2 text-sm text-gray-600'>
-                {course.activeClassesCount} turma(s) ativa(s)
-              </p>
-            )}
-          </div>
-          <IconButton
-            icon={FiEdit}
-            onClick={onEditCourse}
-            variant='primary'
-            tooltip='Editar curso'
-          />
-        </div>
-      </div>
-
-      {/* Classes Section */}
-      <div className='rounded-lg bg-white p-6 shadow-md'>
-        <div className='mb-6 flex items-center justify-between'>
-          <h2 className='text-xl font-semibold text-gray-900'>Turmas</h2>
-          <Button onClick={onAddClass} variant='primary'>
-            <FiPlus className='mr-2 h-5 w-5' />
-            Nova Turma
-          </Button>
-        </div>
+      <div
+        className='rounded-[15px] p-8'
+        style={{
+          background: 'var(--bg-secondary, #ffffff)',
+          boxShadow: '0 2px 8px var(--card-shadow, rgba(0, 0, 0, 0.05))',
+        }}
+      >
+        <h2 
+          className='text-xl font-semibold'
+          style={{ 
+            color: 'var(--text-primary, #333333)',
+            marginTop: 0,
+            marginBottom: '25px',
+            paddingBottom: '10px',
+            borderBottom: '2px solid var(--border-color, #f0f0f0)'
+          }}
+        >
+          Turmas do Curso
+        </h2>
 
         <CourseClassList
           courseClasses={courseClasses}
