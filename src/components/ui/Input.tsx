@@ -1,7 +1,8 @@
 'use client';
 
-import { forwardRef, InputHTMLAttributes } from 'react';
+import { forwardRef, InputHTMLAttributes, useState } from 'react';
 import { FieldError } from 'react-hook-form';
+import { useThemeObserver } from '@/hooks/useThemeObserver';
 import Label from './Label';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -12,17 +13,41 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, id, className, ...props }, ref) => {
-    // Define as classes base, incluindo a cor do texto e do placeholder
-    const baseInputClasses =
-      'w-full px-3 py-2 border border-gray-300 rounded-md text-black font-medium placeholder:text-gray-600 focus:ring-blue-500 focus:border-blue-500';
-
-    // Concatena com quaisquer classes adicionais passadas via props
-    const combinedClassName = `${baseInputClasses} ${className || ''}`.trim();
+    const { isDark } = useThemeObserver();
+    const [isFocused, setIsFocused] = useState(false);
 
     return (
       <div className='mb-2'>
         <Label htmlFor={id}>{label}</Label>
-        <input id={id} ref={ref} className={combinedClassName} {...props} />
+        <input
+          id={id}
+          ref={ref}
+          className={`w-full font-medium ${className || ''}`}
+          style={{
+            padding: '14px',
+            border: `2px solid ${isFocused ? 'var(--accent-primary)' : 'var(--border-color)'}`,
+            borderRadius: '8px',
+            background: 'var(--bg-secondary)',
+            color: isDark ? '#f5f5f5' : '#333',
+            fontSize: '16px',
+            outline: 'none',
+            transition: 'border-color 0.2s',
+          }}
+          onFocus={(e) => {
+            setIsFocused(true);
+            props.onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setIsFocused(false);
+            props.onBlur?.(e);
+          }}
+          {...props}
+        />
+        <style jsx>{`
+          input::placeholder {
+            color: ${isDark ? '#999' : '#666'};
+          }
+        `}</style>
         {error && <p className='mt-1 text-sm text-red-600'>{error.message}</p>}
       </div>
     );
