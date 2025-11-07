@@ -24,7 +24,7 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   useThemeObserver();
   const baseStyles =
-    'inline-flex items-center justify-center border-0 cursor-pointer font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+    'inline-flex items-center justify-center border-0 cursor-pointer font-semibold transition-all duration-300 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed';
 
   const sizeStyles = {
     default: 'px-7 py-3.5 text-[15px] rounded-[10px]',
@@ -32,11 +32,11 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   const variantStyles = {
-    primary: 'text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 shadow-sm',
+    primary: 'text-white shadow-sm',
     gradient: 'text-white shadow-sm',
-    secondary: 'focus:ring-blue-500',
-    danger: 'text-white bg-red-600 hover:bg-red-700 focus:ring-red-500 shadow-sm',
-    success: 'text-gray-800 font-bold focus:ring-green-500',
+    secondary: '',
+    danger: 'text-white bg-red-600 hover:bg-red-700 shadow-sm',
+    success: 'text-gray-800 font-bold',
   };
 
   const widthStyle = fullWidth ? 'w-full' : '';
@@ -46,6 +46,9 @@ const Button: React.FC<ButtonProps> = ({
   if (className) combinedClassName += ' ' + className;
 
   const inlineStyle: React.CSSProperties = {
+    ...(variant === 'primary' && {
+      background: 'var(--accent-primary, #2196f3)',
+    }),
     ...(variant === 'gradient' && {
       background: 'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)',
     }),
@@ -59,7 +62,9 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (variant === 'gradient') {
+    if (variant === 'primary') {
+      e.currentTarget.style.background = 'var(--accent-secondary, #1976d2)';
+    } else if (variant === 'gradient') {
       e.currentTarget.style.transform = 'translateY(-2px)';
       e.currentTarget.style.boxShadow = '0 8px 20px rgba(233, 30, 99, 0.4)';
     } else if (variant === 'secondary') {
@@ -70,7 +75,9 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (variant === 'gradient') {
+    if (variant === 'primary') {
+      e.currentTarget.style.background = 'var(--accent-primary, #2196f3)';
+    } else if (variant === 'gradient') {
       e.currentTarget.style.transform = 'translateY(0)';
       e.currentTarget.style.boxShadow = '';
     } else if (variant === 'secondary') {
