@@ -4,6 +4,7 @@ import React from 'react';
 
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
+import { useThemeObserver } from '@/hooks/useThemeObserver';
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -28,14 +29,25 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   isLoading = false,
   cancelText = "Cancelar",
   confirmText = "Excluir",
-}) => {  return (
+}) => {
+  const { isDark } = useThemeObserver();
+
+  return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={title}
     >
       <div className="p-4">
-        <p className="mb-4 text-gray-800 font-medium">{message}</p>
+        <p 
+          className="mb-4 font-medium"
+          style={{
+            color: isDark ? '#f5f5f5' : '#333',
+            fontSize: '16px',
+          }}
+        >
+          {message}
+        </p>
         <div className="flex justify-end space-x-2">
           <Button
             type="button"
