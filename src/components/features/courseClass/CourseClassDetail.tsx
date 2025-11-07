@@ -2,10 +2,9 @@ import { CourseClass } from '@/interfaces/CourseClass';
 import { Lesson } from '@/interfaces/Lesson';
 import { Student } from '@/interfaces/Student';
 import { User } from '@/interfaces/User';
-import BackButton from '@/components/ui/BackButton';
 import Button from '@/components/ui/Button';
-import IconButton from '@/components/ui/IconButton';
-import { FiEdit, FiPlus } from 'react-icons/fi';
+import PageHeader from '@/components/layout/PageHeader';
+import { FiPlus } from 'react-icons/fi';
 import LessonList from '../lesson/LessonList';
 import CourseClassStudentList from './CourseClassStudentList';
 import CourseClassTeacherList from './CourseClassTeacherList';
@@ -72,71 +71,54 @@ export default function CourseClassDetail({
 
   if (loading && !courseClass) {
     return (
-      <div className='container mx-auto px-4 py-8'>
-        <div className='flex justify-center py-12'>
-          <div className='h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-blue-500'></div>
-        </div>
+      <div className='flex min-h-screen items-center justify-center'>
+        <div
+          className='h-12 w-12 animate-spin rounded-full border-4 border-t-transparent'
+          style={{ borderColor: 'var(--accent-primary, #2196f3)' }}
+        ></div>
       </div>
     );
   }
 
   if (!courseClass) {
     return (
-      <div className='container mx-auto px-4 py-8'>
-        <BackButton onClick={onBack} />
-        <div className='mt-4 text-center text-gray-500'>
-          Turma não encontrada.
-        </div>
+      <div className='rounded-lg bg-red-50 p-6 text-center'>
+        <p className='text-red-600'>Turma não encontrada.</p>
       </div>
     );
   }
 
+  const teachersNames = courseClass.teachers && courseClass.teachers.length > 0
+    ? courseClass.teachers.map((t) => t.name).join(', ')
+    : 'Não atribuído';
+
   return (
-    <div className='container mx-auto px-4 py-8'>
-      <BackButton onClick={onBack} />
+    <div className='container mx-auto px-4 py-5'>
+      <PageHeader
+        title={courseClass.name}
+        breadcrumb={`${courseClass.course?.name || 'N/A'} • ${teachersNames}`}
+        onBack={onBack}
+      >
+        <Button variant='gradient' size='small' onClick={onAddLesson}>
+          <FiPlus className='mr-2' /> Nova Aula
+        </Button>
+      </PageHeader>
 
-      <div className='mt-6 rounded-lg bg-white p-6 shadow-md'>
-        <div className='mb-6 flex items-start justify-between'>
-          <div>
-            <h1 className='text-3xl font-bold text-gray-900'>
-              {courseClass.name}
-            </h1>
-            <p className='mt-2 text-sm text-gray-600'>
-              <strong>Curso:</strong> {courseClass.course?.name || 'N/A'}
-            </p>
-            <p className='mt-1 text-sm text-gray-600'>
-              <strong>Período:</strong> {formatDate(courseClass.startDate)} -{' '}
-              {formatDate(courseClass.endDate)}
-            </p>
-            <p className='mt-1 text-sm text-gray-600'>
-              <strong>Status:</strong> {courseClass.status}
-            </p>
-            <p className='mt-1 text-sm text-gray-600'>
-              <strong>Professores:</strong>{' '}
-              {courseClass.teachers && courseClass.teachers.length > 0
-                ? courseClass.teachers.map((t) => t.name).join(', ')
-                : 'Não atribuído'}
-            </p>
-            <p className='mt-1 text-sm text-gray-600'>
-              <strong>Alunos:</strong> {courseClass.studentsCount || 0}
-            </p>
-          </div>
-          <IconButton
-            icon={FiEdit}
-            onClick={onEditCourseClass}
-            variant='primary'
-            tooltip='Editar turma'
-          />
-        </div>
-
-        <hr className='my-6' />
-
-        <div className='mb-4 flex items-center justify-between'>
-          <h2 className='text-2xl font-semibold text-gray-900'>Aulas</h2>
-          <Button onClick={onAddLesson}>
-            <FiPlus className='mr-2' />
-            Nova Aula
-          </Button>
+      {/* Aulas Section */}
+      <div
+        className='mb-5 rounded-[15px] p-8'
+        style={{
+          background: 'var(--bg-secondary, #ffffff)',
+          boxShadow: '0 2px 8px var(--card-shadow, rgba(0, 0, 0, 0.05))',
+        }}
+      >
+        <div className='mb-6 flex items-center justify-between'>
+          <h2
+            className='text-xl font-semibold'
+            style={{ color: 'var(--text-primary, #333333)' }}
+          >
+            Aulas Realizadas
+          </h2>
         </div>
 
         <LessonList
@@ -148,14 +130,25 @@ export default function CourseClassDetail({
           onDelete={onDeleteLesson}
           onPageChange={onLessonPageChange}
         />
+      </div>
 
-        <hr className='my-6' />
-
-        <div className='mb-4 flex items-center justify-between'>
-          <h2 className='text-2xl font-semibold text-gray-900'>Professores</h2>
-          <Button onClick={onAddTeacher}>
-            <FiPlus className='mr-2' />
-            Adicionar Professor
+      {/* Professores Section */}
+      <div
+        className='mb-5 rounded-[15px] p-8'
+        style={{
+          background: 'var(--bg-secondary, #ffffff)',
+          boxShadow: '0 2px 8px var(--card-shadow, rgba(0, 0, 0, 0.05))',
+        }}
+      >
+        <div className='mb-6 flex items-center justify-between'>
+          <h2
+            className='text-xl font-semibold'
+            style={{ color: 'var(--text-primary, #333333)' }}
+          >
+            Professores
+          </h2>
+          <Button variant='gradient' size='small' onClick={onAddTeacher}>
+            <FiPlus className='mr-2' /> Adicionar Professor
           </Button>
         </div>
 
@@ -167,14 +160,25 @@ export default function CourseClassDetail({
           onPageChange={onTeacherPageChange}
           onRemoveTeacher={onRemoveTeacher}
         />
+      </div>
 
-        <hr className='my-6' />
-
-        <div className='mb-4 flex items-center justify-between'>
-          <h2 className='text-2xl font-semibold text-gray-900'>Alunos</h2>
-          <Button onClick={onAddStudent}>
-            <FiPlus className='mr-2' />
-            Adicionar Aluno
+      {/* Alunos Section */}
+      <div
+        className='rounded-[15px] p-8'
+        style={{
+          background: 'var(--bg-secondary, #ffffff)',
+          boxShadow: '0 2px 8px var(--card-shadow, rgba(0, 0, 0, 0.05))',
+        }}
+      >
+        <div className='mb-6 flex items-center justify-between'>
+          <h2
+            className='text-xl font-semibold'
+            style={{ color: 'var(--text-primary, #333333)' }}
+          >
+            Alunos Matriculados
+          </h2>
+          <Button variant='gradient' size='small' onClick={onAddStudent}>
+            <FiPlus className='mr-2' /> Adicionar Alunos
           </Button>
         </div>
 
