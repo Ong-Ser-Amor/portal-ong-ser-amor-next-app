@@ -1,5 +1,5 @@
 import { Student } from '@/interfaces/Student';
-import Table from '@/components/ui/Table';
+import ListItem from '@/components/ui/ListItem';
 import Pagination from '@/components/ui/Pagination';
 import IconButton from '@/components/ui/IconButton';
 import { FiTrash2 } from 'react-icons/fi';
@@ -21,45 +21,57 @@ export default function CourseClassStudentList({
   onPageChange,
   onRemoveStudent,
 }: CourseClassStudentListProps) {
-  const formatDate = (dateString: string) => {
-    const [year, month, day] = dateString.split('T')[0].split('-');
-    return `${day}/${month}/${year}`;
+  const calculateAge = (dateString: string) => {
+    const birthDate = new Date(dateString);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return `${age} anos`;
   };
 
-  const studentColumns = [
-    {
-      header: 'Nome',
-      accessor: (student: Student) => student.name,
-    },
-    {
-      header: 'Data de Nascimento',
-      accessor: (student: Student) => formatDate(student.birthDate),
-    },
-    {
-      header: 'Ações',
-      accessor: (student: Student) => (
-        <div className='flex justify-end space-x-1' onClick={(e) => e.stopPropagation()}>
-          <IconButton
-            icon={FiTrash2}
-            onClick={() => onRemoveStudent(student.id)}
-            variant='danger'
-            tooltip='Remover aluno da turma'
-          />
-        </div>
-      ),
-      align: 'right' as const,
-    },
-  ];
+  if (loading) {
+    return (
+      <div className='flex justify-center p-8'>
+        <div
+          className='h-12 w-12 animate-spin rounded-full border-t-2 border-b-2'
+          style={{ borderColor: 'var(--accent-primary)' }}
+        ></div>
+      </div>
+    );
+  }
+
+  if (students.length === 0) {
+    return (
+      <div className='text-center p-8' style={{ color: 'var(--text-secondary)' }}>
+        Nenhum aluno matriculado ainda.
+      </div>
+    );
+  }
 
   return (
     <div>
-      <Table
-        columns={studentColumns}
-        data={students}
-        keyExtractor={(student) => student.id}
-        isLoading={loading}
-        emptyMessage='Nenhum aluno matriculado ainda.'
-      />
+      <div className='space-y-3'>
+        {students.map((student) => (
+          <ListItem
+            key={student.id}
+            title={student.name}
+            subtitle={calculateAge(student.birthDate)}
+            actions={
+              <IconButton
+                icon={FiTrash2}
+                onClick={() => onRemoveStudent(student.id)}
+                variant='danger'
+                tooltip='Remover aluno da turma'
+              />
+            }
+          />
+        ))}
+      </div>
       {totalPages > 0 && (
         <Pagination
           currentPage={currentPage}

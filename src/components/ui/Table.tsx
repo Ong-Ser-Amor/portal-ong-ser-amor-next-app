@@ -1,6 +1,6 @@
 'use client';
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 
 interface Column<T> {
   header: string;
@@ -26,34 +26,65 @@ export default function Table<T>({
   emptyMessage = 'Nenhum dado encontrado',
   onRowClick,
 }: TableProps<T>) {
+  const [themeVersion, setThemeVersion] = useState(0);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setThemeVersion((v) => v + 1);
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   if (isLoading) {
     return (
       <div className='flex justify-center p-8'>
-        <div className='h-12 w-12 animate-spin rounded-full border-t-2 border-b-2 border-blue-500'></div>
+        <div
+          className='h-12 w-12 animate-spin rounded-full border-t-2 border-b-2'
+          style={{ borderColor: 'var(--accent-primary)' }}
+        ></div>
       </div>
     );
   }
   return (
-    <div className='overflow-x-auto'>
-      <table className='min-w-full divide-y divide-gray-200'>
-        <thead className='bg-gray-50'>
+    <div className='overflow-x-auto mt-5'>
+      <table className='w-full' style={{ borderCollapse: 'collapse' }}>
+        <thead>
           <tr>
             {columns.map((column, index) => (
               <th
                 key={index}
-                className={`px-6 py-3 text-${column.align || 'left'} text-xs font-medium tracking-wider text-gray-700 uppercase ${column.width ? `w-${column.width}` : ''}`}
+                className='text-left'
+                style={{
+                  padding: '15px',
+                  background: 'var(--hover-bg)',
+                  color: 'var(--text-primary)',
+                  fontWeight: 600,
+                  fontSize: '14px',
+                  borderBottom: '1px solid var(--border-color)',
+                }}
               >
                 {column.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className='divide-y divide-gray-200 bg-white'>
+        <tbody>
           {data.length === 0 ? (
             <tr>
               <td
                 colSpan={columns.length}
-                className='px-6 py-4 text-center text-sm text-gray-600'
+                className='text-center'
+                style={{
+                  padding: '15px',
+                  color: 'var(--text-secondary)',
+                  borderBottom: '1px solid var(--border-color)',
+                }}
               >
                 {emptyMessage}
               </td>
@@ -63,7 +94,16 @@ export default function Table<T>({
               <tr
                 key={keyExtractor(item)}
                 onClick={onRowClick ? () => onRowClick(item) : undefined}
-                className={onRowClick ? 'cursor-pointer hover:bg-gray-50 transition-colors' : ''}
+                className={onRowClick ? 'cursor-pointer transition-colors' : ''}
+                style={{
+                  transition: 'background 0.3s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--hover-bg)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                }}
               >
                 {columns.map((column, index) => {
                   const cellContent =
@@ -74,7 +114,12 @@ export default function Table<T>({
                   return (
                     <td
                       key={index}
-                      className={`px-6 py-4 whitespace-nowrap text-${column.align || 'left'} text-gray-900`}
+                      className='text-left'
+                      style={{
+                        padding: '15px',
+                        color: 'var(--text-secondary)',
+                        borderBottom: '1px solid var(--border-color)',
+                      }}
                     >
                       {cellContent}
                     </td>

@@ -4,7 +4,8 @@ import { Lesson } from '@/interfaces/Lesson';
 import Table from '@/components/ui/Table';
 import Pagination from '@/components/ui/Pagination';
 import IconButton from '@/components/ui/IconButton';
-import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import Button from '@/components/ui/Button';
+import { FiEdit, FiTrash2, FiClipboard } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 
 interface LessonListProps {
@@ -33,7 +34,7 @@ export default function LessonList({
     return `${day}/${month}/${year}`;
   };
 
-  const handleRowClick = (lesson: Lesson) => {
+  const handleAttendanceClick = (lesson: Lesson) => {
     router.push(`/lessons/${lesson.id}`);
   };
 
@@ -49,7 +50,14 @@ export default function LessonList({
     {
       header: 'Ações',
       accessor: (lesson: Lesson) => (
-        <div className='flex justify-end space-x-1' onClick={(e) => e.stopPropagation()}>
+        <div className='flex gap-2'>
+          <Button
+            variant='secondary'
+            size='small'
+            onClick={() => handleAttendanceClick(lesson)}
+          >
+            <FiClipboard className='mr-1' /> Chamada
+          </Button>
           <IconButton
             icon={FiEdit}
             onClick={() => onEdit(lesson)}
@@ -64,7 +72,6 @@ export default function LessonList({
           />
         </div>
       ),
-      align: 'right' as const,
     },
   ];
 
@@ -76,7 +83,6 @@ export default function LessonList({
         keyExtractor={(lesson) => lesson.id}
         isLoading={loading}
         emptyMessage='Nenhuma aula cadastrada ainda.'
-        onRowClick={handleRowClick}
       />
       {totalPages > 0 && (
         <Pagination

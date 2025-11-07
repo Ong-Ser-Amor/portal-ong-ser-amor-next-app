@@ -1,6 +1,6 @@
 'use client';
 
-import { ButtonHTMLAttributes } from 'react';
+import { ButtonHTMLAttributes, useEffect, useState } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'gradient' | 'secondary' | 'danger' | 'success';
@@ -21,6 +21,20 @@ const Button: React.FC<ButtonProps> = ({
   disabled,
   ...props
 }) => {
+  const [themeVersion, setThemeVersion] = useState(0);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setThemeVersion((v) => v + 1);
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
   const baseStyles =
     'inline-flex items-center justify-center border-0 cursor-pointer font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
@@ -32,7 +46,7 @@ const Button: React.FC<ButtonProps> = ({
   const variantStyles = {
     primary: 'text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 shadow-sm',
     gradient: 'text-white shadow-sm',
-    secondary: 'text-gray-700 focus:ring-blue-500',
+    secondary: 'focus:ring-blue-500',
     danger: 'text-white bg-red-600 hover:bg-red-700 focus:ring-red-500 shadow-sm',
     success: 'text-gray-800 font-bold focus:ring-green-500',
   };
@@ -49,6 +63,7 @@ const Button: React.FC<ButtonProps> = ({
     }),
     ...(variant === 'secondary' && {
       background: 'var(--hover-bg, #f5f5f5)',
+      color: 'var(--text-primary, #212121)',
     }),
     ...(variant === 'success' && {
       background: 'var(--accent-tertiary, #cddc39)',
