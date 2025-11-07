@@ -1,5 +1,8 @@
+'use client';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { FiLogOut } from 'react-icons/fi';
 import ThemeSelector from './ThemeSelector';
 
@@ -28,6 +31,23 @@ export default function Header({ children }: HeaderProps) {
   const router = useRouter();
   const { logout, user } = useAuth();
 
+  // Estado para forçar re-renderização quando o tema mudar
+  const [, setThemeVersion] = useState(0);
+
+  useEffect(() => {
+    // Observa mudanças na classe do body (mudança de tema)
+    const observer = new MutationObserver(() => {
+      setThemeVersion((v) => v + 1);
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -39,10 +59,12 @@ export default function Header({ children }: HeaderProps) {
 
   return (
     <header
-      className='sticky top-0 z-100 flex h-20 items-center justify-between bg-white px-6'
-      style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)' }}
+      className='sticky top-0 z-100 flex h-20 items-center justify-between px-6'
+      style={{ 
+        background: 'var(--bg-secondary, #ffffff)',
+        boxShadow: '0 2px 8px var(--card-shadow, rgba(0, 0, 0, 0.05))' 
+      }}
     >
-      {' '}
       <div className='flex items-center'>{children}</div>
       <div className='flex items-center gap-4'>
         {/* Seletor de Tema */}
@@ -52,15 +74,28 @@ export default function Header({ children }: HeaderProps) {
         {user && (
           <div className='flex items-center gap-3'>
             {/* Avatar */}
-            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-gray-400 to-gray-500 text-sm font-bold text-white'>
+            <div 
+              className='flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white'
+              style={{
+                background: 'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)'
+              }}
+            >
               {getInitials(user.name)}
             </div>
             {/* User Details */}
             <div className='hidden md:flex md:flex-col'>
-              <h4 className='text-sm font-bold text-gray-800'>
+              <h4 
+                className='text-sm font-bold'
+                style={{ color: 'var(--text-primary, #333333)' }}
+              >
                 {getDisplayName(user.name)}
               </h4>
-              <p className='text-xs text-gray-500'>Professor</p>
+              <p 
+                className='text-xs'
+                style={{ color: 'var(--text-secondary, #666666)' }}
+              >
+                Professor
+              </p>
             </div>
           </div>
         )}
@@ -68,7 +103,24 @@ export default function Header({ children }: HeaderProps) {
         {/* Botão Sair */}
         <button
           onClick={handleLogout}
-          className='rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-200'
+          className='transition-colors'
+          style={{
+            padding: '8px 16px',
+            borderRadius: '10px',
+            background: 'var(--hover-bg, #f5f5f5)',
+            color: 'var(--text-primary, #333333)',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '600',
+            lineHeight: '1.2'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--border-color, #f0f0f0)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'var(--hover-bg, #f5f5f5)';
+          }}
           title='Sair do sistema'
         >
           Sair
