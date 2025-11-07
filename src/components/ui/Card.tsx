@@ -1,8 +1,9 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 import IconButton from './IconButton';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import { useThemeObserver } from '@/hooks/useThemeObserver';
 
 interface CardProps {
   title: string;
@@ -27,22 +28,7 @@ export default function Card({
   badge,
   children,
 }: CardProps) {
-  // Estado para forçar re-renderização quando o tema mudar
-  const [, setThemeVersion] = useState(0);
-
-  useEffect(() => {
-    // Observa mudanças na classe do body (mudança de tema)
-    const observer = new MutationObserver(() => {
-      setThemeVersion((v) => v + 1);
-    });
-
-    observer.observe(document.body, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  useThemeObserver();
   return (
     <div
       onClick={onClick}

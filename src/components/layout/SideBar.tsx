@@ -12,6 +12,7 @@ import {
   FiSettings,
   FiX,
 } from 'react-icons/fi';
+import { useThemeObserver } from '@/hooks/useThemeObserver';
 
 interface SidebarProps {
   mobileOpen: boolean;
@@ -44,22 +45,7 @@ export default function Sidebar({
     Estoque: false,
   });
 
-  // Estado para forçar re-renderização quando o tema mudar
-  const [, setThemeVersion] = useState(0);
-
-  useEffect(() => {
-    // Observa mudanças na classe do body (mudança de tema)
-    const observer = new MutationObserver(() => {
-      setThemeVersion((v) => v + 1);
-    });
-
-    observer.observe(document.body, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  useThemeObserver();
 
   // Fechar o menu mobile quando mudar de rota
   useEffect(() => {

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Divider from './Divider';
+import { useThemeObserver } from '@/hooks/useThemeObserver';
 
 interface PaginationProps {
   currentPage: number;
@@ -22,22 +22,7 @@ const Pagination: React.FC<PaginationProps> = ({
   itemsPerPageOptions = [5, 10, 20, 50, 100],
   onItemsPerPageChange,
 }) => {
-  // Estado para forçar re-renderização quando o tema mudar
-  const [, setThemeVersion] = useState(0);
-
-  useEffect(() => {
-    // Observa mudanças na classe do body (mudança de tema)
-    const observer = new MutationObserver(() => {
-      setThemeVersion((v) => v + 1);
-    });
-
-    observer.observe(document.body, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  useThemeObserver();
 
   // Não renderizar paginação se houver apenas uma página
   if (totalPages <= 1) return null;

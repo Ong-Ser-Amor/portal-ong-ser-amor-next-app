@@ -1,6 +1,7 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
+import { useThemeObserver } from '@/hooks/useThemeObserver';
 
 interface ListItemProps {
   title: string;
@@ -10,20 +11,7 @@ interface ListItemProps {
 }
 
 export default function ListItem({ title, subtitle, actions, onClick }: ListItemProps) {
-  const [themeVersion, setThemeVersion] = useState(0);
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setThemeVersion((v) => v + 1);
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  useThemeObserver();
 
   return (
     <div

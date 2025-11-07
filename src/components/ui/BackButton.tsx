@@ -1,7 +1,7 @@
 'use client';
 
 import { FiArrowLeft } from 'react-icons/fi';
-import { useEffect, useState } from 'react';
+import { useThemeObserver } from '@/hooks/useThemeObserver';
 
 interface BackButtonProps {
   onClick: () => void;
@@ -9,20 +9,7 @@ interface BackButtonProps {
 }
 
 export default function BackButton({ onClick, label = 'Voltar' }: BackButtonProps) {
-  const [themeVersion, setThemeVersion] = useState(0);
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setThemeVersion((v) => v + 1);
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  useThemeObserver();
 
   return (
     <button

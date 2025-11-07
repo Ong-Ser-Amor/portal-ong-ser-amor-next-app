@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useThemeObserver } from '@/hooks/useThemeObserver';
 
 interface DividerProps {
   className?: string;
@@ -11,21 +11,7 @@ const Divider: React.FC<DividerProps> = ({
   className = '', 
   spacing = 'md' 
 }) => {
-  // Estado para forçar re-renderização quando o tema mudar
-  const [, setThemeVersion] = useState(0);
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setThemeVersion((v) => v + 1);
-    });
-
-    observer.observe(document.body, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  useThemeObserver();
 
   // Define os espaçamentos baseado na prop
   const spacingClasses = {

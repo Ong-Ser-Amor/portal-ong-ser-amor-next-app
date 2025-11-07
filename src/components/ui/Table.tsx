@@ -1,6 +1,7 @@
 'use client';
 
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode } from 'react';
+import { useThemeObserver } from '@/hooks/useThemeObserver';
 
 interface Column<T> {
   header: string;
@@ -26,20 +27,7 @@ export default function Table<T>({
   emptyMessage = 'Nenhum dado encontrado',
   onRowClick,
 }: TableProps<T>) {
-  const [themeVersion, setThemeVersion] = useState(0);
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setThemeVersion((v) => v + 1);
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  useThemeObserver();
 
   if (isLoading) {
     return (
