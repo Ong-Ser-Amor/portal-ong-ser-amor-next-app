@@ -75,11 +75,19 @@ const SearchBar: React.FC<SearchBarProps> = ({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         autoFocus={autoFocus}
-        className='w-full pl-10 pr-10 py-2 text-sm border-2 rounded-[10px] bg-transparent outline-none focus:ring-2 focus:ring-blue-500'
+        className='w-full pl-10 pr-10 py-2 text-sm border-2 rounded-[10px] bg-transparent outline-none transition-all'
         style={{
           background: 'var(--bg-primary, #f5f5f5)',
           borderColor: 'var(--border-color, #f0f0f0)',
           color: 'var(--text-primary, #333333)',
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.borderColor = 'var(--accent-primary, #2196f3)';
+          e.currentTarget.style.boxShadow = '0 0 0 2px var(--accent-primary, #2196f3)33';
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.borderColor = 'var(--border-color, #f0f0f0)';
+          e.currentTarget.style.boxShadow = 'none';
         }}
       />
       {inputValue && (
