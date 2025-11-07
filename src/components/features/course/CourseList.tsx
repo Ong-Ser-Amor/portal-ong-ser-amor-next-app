@@ -95,7 +95,6 @@ export default function CourseList({
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={onPageChange}
-            className='mt-8 flex justify-center'
           />
         )}
       </div>
