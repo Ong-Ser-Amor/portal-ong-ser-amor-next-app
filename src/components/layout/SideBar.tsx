@@ -44,6 +44,23 @@ export default function Sidebar({
     Estoque: false,
   });
 
+  // Estado para forçar re-renderização quando o tema mudar
+  const [, setThemeVersion] = useState(0);
+
+  useEffect(() => {
+    // Observa mudanças na classe do body (mudança de tema)
+    const observer = new MutationObserver(() => {
+      setThemeVersion((v) => v + 1);
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   // Fechar o menu mobile quando mudar de rota
   useEffect(() => {
     if (prevPathnameRef.current !== pathname && mobileOpen) {
@@ -102,27 +119,46 @@ export default function Sidebar({
 
       {/* Sidebar */}
       <div
-        className={`fixed h-full ${collapsed ? 'w-20' : 'w-[260px]'} flex flex-col bg-white text-gray-800 ${mobileOpen ? 'left-0 z-50' : '-left-64 md:left-0 md:z-101'} `}
+        className={`fixed h-full ${collapsed ? 'w-20' : 'w-[260px]'} flex flex-col ${mobileOpen ? 'left-0 z-50' : '-left-64 md:left-0 md:z-101'} `}
         style={{ 
-          boxShadow: '2px 0 10px rgba(0, 0, 0, 0.05)',
+          background: 'var(--bg-secondary, #ffffff)',
+          boxShadow: '2px 0 10px var(--card-shadow, rgba(0, 0, 0, 0.05))',
           transition: 'width 0.3s ease'
         }}
       >
         {/* Header com Logo e Toggle */}
-        <div className='relative border-b-2 border-gray-200 px-5 py-6'>
+        <div 
+          className='relative px-5 py-6'
+          style={{ 
+            borderBottom: '2px solid var(--border-color, #f0f0f0)' 
+          }}
+        >
           {!collapsed && (
             <div className='flex items-center gap-3'>
               {/* Logo Icon com Gradiente */}
-              <div className='flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-blue-500 to-blue-600 text-xl font-bold text-white shadow-md'>
+              <div 
+                className='flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-xl text-xl font-bold text-white shadow-md'
+                style={{
+                  background: 'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)'
+                }}
+              >
                 SA
               </div>
 
               {/* Logo Text */}
               <div className='flex flex-col'>
-                <h2 className='text-lg leading-tight font-bold text-gray-800'>
+                <h2 
+                  className='text-lg leading-tight font-bold'
+                  style={{ color: 'var(--text-primary, #333333)' }}
+                >
                   ONG Ser Amor
                 </h2>
-                <p className='text-xs text-gray-500'>Portal</p>
+                <p 
+                  className='text-xs'
+                  style={{ color: 'var(--text-tertiary, #999999)' }}
+                >
+                  Portal
+                </p>
               </div>
             </div>
           )}
@@ -130,8 +166,18 @@ export default function Sidebar({
           {/* Toggle Button */}
           <button
             onClick={toggleSidebar}
-            className={`${collapsed ? 'left-1/2 -translate-x-1/2' : 'right-3'} absolute top-1/2 hidden -translate-y-1/2 rounded-lg bg-gray-100 p-2 text-gray-600 hover:bg-gray-200 md:block`}
-            style={{ transition: 'all 0.3s' }}
+            className={`${collapsed ? 'left-1/2 -translate-x-1/2' : 'right-3'} absolute top-1/2 hidden -translate-y-1/2 rounded-lg p-2 md:block`}
+            style={{ 
+              transition: 'all 0.3s',
+              background: 'var(--hover-bg, #f5f5f5)',
+              color: 'var(--text-secondary, #666666)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--border-color, #f0f0f0)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--hover-bg, #f5f5f5)';
+            }}
             title={collapsed ? 'Expandir menu' : 'Recolher menu'}
           >
             {collapsed ? (
@@ -158,8 +204,30 @@ export default function Sidebar({
                   <div>
                     <button
                       onClick={() => toggleSubmenu(item.label)}
-                      className={`flex w-full items-center justify-between ${collapsed ? 'justify-center' : ''} rounded-lg p-3 ${isSubmenuActive(item.submenu) ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
-                      style={{ transition: 'all 0.3s' }}
+                      className={`flex w-full items-center justify-between ${collapsed ? 'justify-center' : ''} rounded-lg p-3 font-medium`}
+                      style={{
+                        transition: 'all 0.3s',
+                        ...(isSubmenuActive(item.submenu)
+                          ? {
+                              background: 'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)',
+                              color: '#ffffff',
+                            }
+                          : {
+                              color: 'var(--text-secondary, #666666)',
+                            }),
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSubmenuActive(item.submenu!)) {
+                          e.currentTarget.style.background = 'var(--hover-bg, #f5f5f5)';
+                          e.currentTarget.style.color = 'var(--text-primary, #333333)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isSubmenuActive(item.submenu!)) {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.color = 'var(--text-secondary, #666666)';
+                        }
+                      }}
                     >
                       <div className='flex items-center'>
                         <span className={collapsed ? '' : 'mr-3'}>
@@ -181,12 +249,30 @@ export default function Sidebar({
                           <li key={subItem.path}>
                             <Link href={subItem.path}>
                               <div
-                                className={`flex items-center rounded-lg p-2 ${
-                                  isActive(subItem.path)
-                                    ? 'bg-blue-600 text-white'
-                                    : 'text-gray-600 hover:bg-gray-100'
-                                }`}
-                                style={{ transition: 'all 0.3s' }}
+                                className='flex items-center rounded-lg p-2'
+                                style={{
+                                  transition: 'all 0.3s',
+                                  ...(isActive(subItem.path)
+                                    ? {
+                                        background: 'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)',
+                                        color: '#ffffff',
+                                      }
+                                    : {
+                                        color: 'var(--text-secondary, #666666)',
+                                      }),
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (!isActive(subItem.path)) {
+                                    e.currentTarget.style.background = 'var(--hover-bg, #f5f5f5)';
+                                    e.currentTarget.style.color = 'var(--text-primary, #333333)';
+                                  }
+                                }}
+                                onMouseLeave={(e) => {
+                                  if (!isActive(subItem.path)) {
+                                    e.currentTarget.style.background = 'transparent';
+                                    e.currentTarget.style.color = 'var(--text-secondary, #666666)';
+                                  }
+                                }}
                               >
                                 <span className='mr-2'>{subItem.icon}</span>
                                 <span>{subItem.label}</span>
@@ -200,19 +286,37 @@ export default function Sidebar({
                 ) : (
                   <Link href={item.path || '#'}>
                     <div
-                      className={`mx-3 flex items-center ${collapsed ? 'justify-center' : ''} rounded-lg px-5 py-3.5 ${
-                        isActive(item.path || '')
-                          ? 'bg-blue-600 text-white'
-                          : 'text-gray-600 hover:bg-gray-200'
-                      }`}
-                      style={{ transition: 'all 0.3s' }}
+                      className={`mx-3 flex items-center ${collapsed ? 'justify-center' : ''} rounded-lg px-5 py-3.5 font-medium`}
+                      style={{
+                        transition: 'all 0.3s',
+                        ...(isActive(item.path || '')
+                          ? {
+                              background: 'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)',
+                              color: '#ffffff',
+                            }
+                          : {
+                              color: 'var(--text-secondary, #666666)',
+                            }),
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive(item.path || '')) {
+                          e.currentTarget.style.background = 'var(--hover-bg, #f5f5f5)';
+                          e.currentTarget.style.color = 'var(--text-primary, #333333)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive(item.path || '')) {
+                          e.currentTarget.style.background = 'transparent';
+                          e.currentTarget.style.color = 'var(--text-secondary, #666666)';
+                        }
+                      }}
                       title={collapsed ? item.label : ''}
                     >
                       <span className={collapsed ? '' : 'mr-3'}>
                         {item.icon}
                       </span>
                       {!collapsed && (
-                        <span className='font-medium'>{item.label}</span>
+                        <span>{item.label}</span>
                       )}
                     </div>
                   </Link>
