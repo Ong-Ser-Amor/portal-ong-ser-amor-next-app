@@ -1,3 +1,5 @@
+'use client';
+
 import Button from '@/components/ui/Button';
 import Form from '@/components/ui/Form';
 import Input from '@/components/ui/Input';
