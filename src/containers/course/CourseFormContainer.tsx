@@ -1,5 +1,3 @@
-'use client';
-
 import CourseForm, {
   CourseFormData,
 } from '@/components/features/course/CourseForm';
