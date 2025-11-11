@@ -3,7 +3,7 @@ import Form from '@/components/ui/Form';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import { CourseClass, CourseClassStatusEnum } from '@/interfaces/CourseClass';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, Controller } from 'react-hook-form';
 
 export interface CourseClassFormData {
   courseId: number;
@@ -29,8 +29,8 @@ const CourseClassForm: React.FC<CourseClassFormProps> = ({
   onCancel,
 }) => {
   const {
-    register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useFormContext<CourseClassFormData>();
 
@@ -38,32 +38,46 @@ const CourseClassForm: React.FC<CourseClassFormProps> = ({
     <Form onSubmit={handleSubmit(onSubmit)}>
       <div className='space-y-4'>
         <div>
-          <Input
-            id='name'
-            label='Nome da Turma'
-            type='text'
-            {...register('name', { required: 'O nome da turma é obrigatório.' })}
-            placeholder='Ex: Turma A - Manhã'
-            disabled={isLoading}
-            error={errors.name}
-            required
+          <Controller
+            name='name'
+            control={control}
+            rules={{ required: 'O nome da turma é obrigatório.' }}
+            render={({ field }) => (
+              <Input
+                id='name'
+                label='Nome da Turma'
+                type='text'
+                placeholder='Ex: Turma A - Manhã'
+                disabled={isLoading}
+                error={errors.name}
+                required
+                {...field}
+              />
+            )}
           />
           {errors.name && (
-            <div className='mt-2 text-sm text-red-600'>{errors.name.message}</div>
+            <div className='mt-2 text-sm text-red-600'>
+              {errors.name.message}
+            </div>
           )}
         </div>
 
         <div>
-          <Input
-            id='startDate'
-            label='Data de Início'
-            type='date'
-            {...register('startDate', {
-              required: 'A data de início é obrigatória.',
-            })}
-            disabled={isLoading}
-            error={errors.startDate}
-            required
+          <Controller
+            name='startDate'
+            control={control}
+            rules={{ required: 'A data de início é obrigatória.' }}
+            render={({ field }) => (
+              <Input
+                id='startDate'
+                label='Data de Início'
+                type='date'
+                disabled={isLoading}
+                error={errors.startDate}
+                required
+                {...field}
+              />
+            )}
           />
           {errors.startDate && (
             <div className='mt-2 text-sm text-red-600'>
@@ -73,16 +87,21 @@ const CourseClassForm: React.FC<CourseClassFormProps> = ({
         </div>
 
         <div>
-          <Input
-            id='endDate'
-            label='Data de Término'
-            type='date'
-            {...register('endDate', {
-              required: 'A data de término é obrigatória.',
-            })}
-            disabled={isLoading}
-            error={errors.endDate}
-            required
+          <Controller
+            name='endDate'
+            control={control}
+            rules={{ required: 'A data de término é obrigatória.' }}
+            render={({ field }) => (
+              <Input
+                id='endDate'
+                label='Data de Término'
+                type='date'
+                disabled={isLoading}
+                error={errors.endDate}
+                required
+                {...field}
+              />
+            )}
           />
           {errors.endDate && (
             <div className='mt-2 text-sm text-red-600'>
@@ -91,18 +110,34 @@ const CourseClassForm: React.FC<CourseClassFormProps> = ({
           )}
         </div>
 
-        <Select
-          id='status'
-          label='Status'
-          options={[
-            { value: CourseClassStatusEnum.EM_FORMACAO, label: 'Em Formação' },
-            { value: CourseClassStatusEnum.EM_ANDAMENTO, label: 'Em Andamento' },
-            { value: CourseClassStatusEnum.FINALIZADA, label: 'Finalizada' },
-            { value: CourseClassStatusEnum.CANCELADA, label: 'Cancelada' },
-          ]}
-          {...register('status', { required: 'O status é obrigatório.' })}
-          disabled={isLoading}
-          error={errors.status}
+        <Controller
+          name='status'
+          control={control}
+          rules={{ required: 'O status é obrigatório.' }}
+          render={({ field }) => (
+            <Select
+              id='status'
+              label='Status'
+              options={[
+                {
+                  value: CourseClassStatusEnum.EM_FORMACAO,
+                  label: 'Em Formação',
+                },
+                {
+                  value: CourseClassStatusEnum.EM_ANDAMENTO,
+                  label: 'Em Andamento',
+                },
+                {
+                  value: CourseClassStatusEnum.FINALIZADA,
+                  label: 'Finalizada',
+                },
+                { value: CourseClassStatusEnum.CANCELADA, label: 'Cancelada' },
+              ]}
+              disabled={isLoading}
+              error={errors.status}
+              {...field}
+            />
+          )}
         />
       </div>
 
