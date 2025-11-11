@@ -66,7 +66,7 @@ export default function LocationList({
     <div className='container mx-auto px-4'>
       <section className='py-5'>
         <div className='rounded-lg bg-white p-6 shadow-md'>
-          <h2 className='mb-6 text-xl font-bold text-black'>Locais v2</h2>
+          <h2 className='mb-6 text-xl font-bold text-black'>Locais v3</h2>
           <div className='mb-5 flex flex-wrap items-center justify-between'>
             <div className='flex flex-wrap gap-2.5'>
               <input

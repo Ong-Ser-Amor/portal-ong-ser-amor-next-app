@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { locationService } from '@/services/location/locationService';
-import { Location, LocationPaginated } from '@/interfaces/Location';
-import LocationForm from '@/components/features/location/LocationForm';
-import { useLocations } from '@/hooks/location/useLocationQueries';
-import { useDeleteLocation } from '@/hooks/location/useLocationMutations';
 import LocationList from '@/components/features/location/LocationList';
+import LocationForm from '@/components/features/location/LocationForm';
 import DeleteConfirmModal from '@/components/ui/DeleteConfirmModal';
+import { Location } from '@/interfaces/Location';
+import { useDeleteLocation } from '@/hooks/location/useLocationMutations';
+import { useLocations } from '@/hooks/location/useLocationQueries';
+import { useState } from 'react';
 
 const LocationListContainer: React.FC = () => {
   const [searchInput, setSearchInput] = useState<string>('');
@@ -110,7 +109,7 @@ const LocationListContainer: React.FC = () => {
       <LocationForm
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        locationId={editingLocation?.id}
+        locationToEdit={editingLocation}
         onSuccess={handleLocationSuccess}
       />
 

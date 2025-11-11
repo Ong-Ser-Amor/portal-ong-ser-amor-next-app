@@ -9,19 +9,21 @@ import Button from '@/components/ui/Button';
 import Form from '@/components/ui/Form';
 import { useForm } from 'react-hook-form';
 
+import { Location } from '@/interfaces/Location';
+
 interface LocationFormProps {
-  locationId?: number;
+  locationToEdit?: Location | null;
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export default function LocationForm({
-  locationId,
+const LocationForm: React.FC<LocationFormProps> = ({
+  locationToEdit,
   isOpen,
   onClose,
   onSuccess,
-}: LocationFormProps) {
+}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,25 +60,27 @@ export default function LocationForm({
   useEffect(() => {
     if (isOpen) {
       // Resetar o formulário quando abrir
-      reset({
-        name: '',
-        address: '',
-      });
-
-      // Carregar dados da localização se for edição
-      if (locationId) {
-        loadLocation(locationId);
+      if (locationToEdit) {
+        reset({
+          name: locationToEdit.name ?? '',
+          address: locationToEdit.address ?? '',
+        });
+      } else {
+        reset({
+          name: '',
+          address: '',
+        });
       }
     }
-  }, [isOpen, locationId, reset, loadLocation]);
+  }, [isOpen, locationToEdit, reset]);
 
   const onSubmit = async (data: LocationDto) => {
     try {
       setLoading(true);
       setError(null);
 
-      if (locationId) {
-        await locationService.updateLocation(locationId, data);
+      if (locationToEdit && locationToEdit.id) {
+        await locationService.updateLocation(locationToEdit.id, data);
       } else {
         await locationService.createLocation(data);
       }
@@ -112,7 +116,7 @@ export default function LocationForm({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={locationId ? 'Editar Localização' : 'Nova Localização'}
+      title={locationToEdit ? 'Editar Localização' : 'Nova Localização'}
       footer={modalFooter}
     >
       <Form onSubmit={handleSubmit(onSubmit)} error={error}>
@@ -133,4 +137,6 @@ export default function LocationForm({
       </Form>
     </Modal>
   );
-}
+};
+
+export default LocationForm;
