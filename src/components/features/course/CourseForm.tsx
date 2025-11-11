@@ -2,7 +2,7 @@ import Button from '@/components/ui/Button';
 import Form from '@/components/ui/Form';
 import Input from '@/components/ui/Input';
 import { Course } from '@/interfaces/Course';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, Controller } from 'react-hook-form';
 
 export interface CourseFormData {
   name: string;
@@ -22,24 +22,32 @@ const CourseForm: React.FC<CourseFormProps> = ({
   onCancel,
 }) => {
   const {
-    register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useFormContext<CourseFormData>();
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
       <div className='mb-4'>
-        <Input
-          id='name'
-          label='Nome do Curso'
-          type='text'
-          {...register('name', { required: 'O nome do curso é obrigatório.' })}
-          placeholder='Digite o nome do curso'
-          disabled={isLoading}
-          error={errors.name}
-          required
+        <Controller
+          name='name'
+          control={control}
+          rules={{ required: 'O nome do curso é obrigatório.' }}
+          render={({ field }) => (
+            <Input
+              id='name'
+              label='Nome do Curso'
+              type='text'
+              placeholder='Digite o nome do curso'
+              disabled={isLoading}
+              error={errors.name}
+              required
+              {...field}
+            />
+          )}
         />
+
         {errors.name && (
           <div className='mt-2 text-sm text-red-600'>{errors.name.message}</div>
         )}
