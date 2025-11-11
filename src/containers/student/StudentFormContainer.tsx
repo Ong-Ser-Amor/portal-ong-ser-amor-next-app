@@ -40,11 +40,13 @@ const StudentFormContainer: React.FC<StudentFormContainerProps> = ({
   const updateStudent = useUpdateStudent();
 
   useEffect(() => {
-    methods.reset({
-      name: studentToEdit?.name || '',
-      birthDate: studentToEdit?.birthDate || '',
-    });
-  }, [studentToEdit, isOpen, methods]);
+    if (isOpen) {
+      methods.reset({
+        name: studentToEdit?.name || '',
+        birthDate: studentToEdit?.birthDate || '',
+      });
+    }
+  }, [studentToEdit, isOpen]);
 
   const handleFormSubmit = async (data: StudentFormData) => {
     setIsLoading(true);
