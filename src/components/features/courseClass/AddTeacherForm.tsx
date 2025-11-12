@@ -1,40 +1,56 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { useFormContext, Controller } from 'react-hook-form';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import Form from '@/components/ui/Form';
+
+export interface AddTeacherFormData {
+  teacherId: string;
+}
 
 interface AddTeacherFormProps {
-  loading?: boolean;
-  onSubmit: (teacherId: number) => void;
+  isLoading?: boolean;
+  onSubmit: (data: AddTeacherFormData) => void | Promise<void>;
   onCancel: () => void;
 }
 
 export default function AddTeacherForm({
-  loading = false,
+  isLoading = false,
   onSubmit,
   onCancel,
 }: AddTeacherFormProps) {
-  const [teacherId, setTeacherId] = useState<string>('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (teacherId && !isNaN(Number(teacherId))) {
-      onSubmit(Number(teacherId));
-    }
-  };
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useFormContext<AddTeacherFormData>();
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-4'>
-      <div>
-        <Input
-          id='teacherId'
-          label='ID do Professor'
-          type='number'
-          value={teacherId}
-          onChange={(e) => setTeacherId(e.target.value)}
-          disabled={loading}
-          placeholder='Digite o ID do professor'
-          required
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      <div className='mb-4'>
+        <Controller
+          name='teacherId'
+          control={control}
+          rules={{
+            required: 'O ID do professor é obrigatório.',
+            validate: (v) => v !== '' && !isNaN(Number(v)) || 'Informe um ID válido.',
+          }}
+          render={({ field }) => (
+            <Input
+              id='teacherId'
+              label='ID do Professor'
+              type='number'
+              disabled={isLoading}
+              placeholder='Digite o ID do professor'
+              required
+              error={errors.teacherId}
+              {...field}
+            />
+          )}
         />
+        {errors.teacherId && (
+          <div className='mt-2 text-sm text-red-600'>{errors.teacherId.message}</div>
+        )}
         <p className='mt-1 text-xs text-gray-500'>
           Informe o ID do usuário que será professor desta turma
         </p>
@@ -45,19 +61,19 @@ export default function AddTeacherForm({
           type='button'
           variant='secondary'
           onClick={onCancel}
-          disabled={loading}
+          disabled={isLoading}
         >
           Cancelar
         </Button>
         <Button
           type='submit'
-          disabled={!teacherId || loading}
-          isLoading={loading}
+          disabled={isLoading}
+          isLoading={isLoading}
           loadingText='Adicionando...'
         >
           Adicionar
         </Button>
       </div>
-    </form>
+    </Form>
   );
 }
