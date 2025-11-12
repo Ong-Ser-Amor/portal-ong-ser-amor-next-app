@@ -1,141 +1,88 @@
-'use client';
-
-import { useState, useEffect, useCallback } from 'react';
-import { locationService } from '@/services/location/locationService';
-import { LocationDto } from '@/interfaces/Location';
-import Modal from '@/components/ui/Modal';
-import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Form from '@/components/ui/Form';
-import { useForm } from 'react-hook-form';
-
+import Input from '@/components/ui/Input';
 import { Location } from '@/interfaces/Location';
+import { useFormContext, Controller } from 'react-hook-form';
+
+export interface LocationFormData {
+  name: string;
+  address?: string;
+}
 
 interface LocationFormProps {
+  isLoading?: boolean;
   locationToEdit?: Location | null;
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
+  onSubmit: (data: LocationFormData) => void;
+  onCancel: () => void;
 }
 
 const LocationForm: React.FC<LocationFormProps> = ({
+  isLoading = false,
   locationToEdit,
-  isOpen,
-  onClose,
-  onSuccess,
+  onSubmit,
+  onCancel,
 }) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const {
-    register,
     handleSubmit,
-    reset,
-    setValue,
+    control,
     formState: { errors },
-  } = useForm<LocationDto>({
-    defaultValues: {
-      name: '',
-      address: '',
-    },
-  });
-
-  const loadLocation = useCallback(
-    async (id: number) => {
-      try {
-        setLoading(true);
-        const location = await locationService.getLocation(id);
-        setValue('name', location.name as string);
-        setValue('address', location.address ?? '');
-      } catch (err) {
-        setError('Erro ao carregar localização');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [setValue, setLoading, setError],
-  );
-
-  useEffect(() => {
-    if (isOpen) {
-      // Resetar o formulário quando abrir
-      if (locationToEdit) {
-        reset({
-          name: locationToEdit.name ?? '',
-          address: locationToEdit.address ?? '',
-        });
-      } else {
-        reset({
-          name: '',
-          address: '',
-        });
-      }
-    }
-  }, [isOpen, locationToEdit, reset]);
-
-  const onSubmit = async (data: LocationDto) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      if (locationToEdit && locationToEdit.id) {
-        await locationService.updateLocation(locationToEdit.id, data);
-      } else {
-        await locationService.createLocation(data);
-      }
-
-      onSuccess();
-      onClose();
-    } catch (err) {
-      setError('Erro ao salvar localização');
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const modalFooter = (
-    <>
-      <Button type='button' variant='secondary' onClick={onClose}>
-        Cancelar
-      </Button>
-      <Button
-        type='submit'
-        variant='primary'
-        isLoading={loading}
-        loadingText='Salvando...'
-        onClick={handleSubmit(onSubmit)}
-      >
-        Salvar
-      </Button>
-    </>
-  );
+  } = useFormContext<LocationFormData>();
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={locationToEdit ? 'Editar Localização' : 'Nova Localização'}
-      footer={modalFooter}
-    >
-      <Form onSubmit={handleSubmit(onSubmit)} error={error}>
-        <Input
-          id='name'
-          label='Nome'
-          type='text'
-          error={errors.name}
-          {...register('name', { required: 'Nome é obrigatório' })}
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      <div className='mb-4'>
+        <Controller
+          name='name'
+          control={control}
+          rules={{ required: 'O nome é obrigatório.' }}
+          render={({ field }) => (
+            <Input
+              id='name'
+              label='Nome'
+              type='text'
+              placeholder='Digite o nome do local'
+              disabled={isLoading}
+              error={errors.name}
+              required
+              {...field}
+            />
+          )}
         />
-        <Input
-          id='address'
-          label='Endereço'
-          type='text'
-          error={errors.address}
-          {...register('address')}
+        {errors.name && (
+          <div className='mt-2 text-sm text-red-600'>{errors.name.message}</div>
+        )}
+      </div>
+      <div className='mb-4'>
+        <Controller
+          name='address'
+          control={control}
+          render={({ field }) => (
+            <Input
+              id='address'
+              label='Endereço'
+              type='text'
+              placeholder='Digite o endereço'
+              disabled={isLoading}
+              error={errors.address}
+              {...field}
+            />
+          )}
         />
-      </Form>
-    </Modal>
+      </div>
+      <div className='mt-6 flex justify-end space-x-2'>
+        <Button
+          type='button'
+          variant='secondary'
+          onClick={onCancel}
+          disabled={isLoading}
+        >
+          Cancelar
+        </Button>
+        <Button type='submit' isLoading={isLoading} loadingText='Salvando...'>
+          {locationToEdit ? 'Atualizar' : 'Criar'}
+        </Button>
+      </div>
+    </Form>
   );
 };
 

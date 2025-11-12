@@ -1,7 +1,7 @@
 'use client';
 
 import LocationList from '@/components/features/location/LocationList';
-import LocationForm from '@/components/features/location/LocationForm';
+import LocationFormContainer from './LocationFormContainer';
 import DeleteConfirmModal from '@/components/ui/DeleteConfirmModal';
 import { Location } from '@/interfaces/Location';
 import { useDeleteLocation } from '@/hooks/location/useLocationMutations';
@@ -106,7 +106,7 @@ const LocationListContainer: React.FC = () => {
         onPageChange={handlePageChange}
       />
 
-      <LocationForm
+      <LocationFormContainer
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         locationToEdit={editingLocation}
