@@ -1,3 +1,5 @@
+'use client';
+
 import StudentForm, {
   StudentFormData,
 } from '@/components/features/student/StudentForm';

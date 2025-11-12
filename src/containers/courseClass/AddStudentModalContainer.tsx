@@ -1,8 +1,10 @@
 'use client';
 
+
 import { useState, useEffect } from 'react';
+import { useForm, FormProvider } from 'react-hook-form';
 import Modal from '@/components/ui/Modal';
-import AddStudentForm from '@/components/features/courseClass/AddStudentForm';
+import AddStudentForm, { AddStudentFormData } from '@/components/features/courseClass/AddStudentForm';
 import { useStudents } from '@/hooks/student/useStudentQueries';
 import { useAddStudentToCourseClass } from '@/hooks/courseClass/useCourseClassMutations';
 import { toast } from 'react-toastify';
@@ -16,14 +18,14 @@ interface AddStudentModalContainerProps {
   onSuccess: () => void;
 }
 
-export default function AddStudentModalContainer({
+const AddStudentModalContainer: React.FC<AddStudentModalContainerProps> = ({
   isOpen,
   onClose,
   courseClassId,
   enrolledStudentIds,
   onSuccess,
-}: AddStudentModalContainerProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
   const { students, loading: loadingStudents } = useStudents(1, 1000);
   const addStudent = useAddStudentToCourseClass();
 
@@ -31,19 +33,29 @@ export default function AddStudentModalContainer({
     (student) => !enrolledStudentIds.includes(student.id),
   );
 
-  const handleSubmit = async (studentId: number) => {
+  const methods = useForm<AddStudentFormData>({
+    defaultValues: { studentId: '' },
+  });
+
+  useEffect(() => {
+    methods.reset({ studentId: '' });
+  }, [isOpen, methods]);
+
+  const handleFormSubmit = async (data: AddStudentFormData) => {
+    setIsLoading(true);
     try {
-      setIsSubmitting(true);
-      await addStudent(courseClassId, studentId);
+      const studentId = data.studentId;
+      if (!studentId || isNaN(Number(studentId))) return;
+      await addStudent(courseClassId, Number(studentId));
       toast.success('Aluno adicionado à turma com sucesso!');
-      onSuccess();
+      if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
       const message = getApiErrorMessage(error);
       toast.error(message || 'Erro ao adicionar aluno à turma.');
       console.error('Erro ao adicionar aluno:', error);
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
@@ -63,13 +75,17 @@ export default function AddStudentModalContainer({
           Todos os alunos já estão matriculados nesta turma.
         </div>
       ) : (
-        <AddStudentForm
-          students={availableStudents}
-          loading={isSubmitting}
-          onSubmit={handleSubmit}
-          onCancel={onClose}
-        />
+        <FormProvider {...methods}>
+          <AddStudentForm
+            students={availableStudents}
+            isLoading={isLoading}
+            onSubmit={handleFormSubmit}
+            onCancel={onClose}
+          />
+        </FormProvider>
       )}
     </Modal>
   );
-}
+};
+
+export default AddStudentModalContainer;

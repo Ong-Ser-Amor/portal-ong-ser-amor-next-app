@@ -1,12 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useForm, FormProvider } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Modal from '@/components/ui/Modal';
-import AttendanceForm from '@/components/features/attendance/AttendanceForm';
-import { Attendance, AttendanceItem, BulkAttendanceDto } from '@/interfaces/Attendance';
+import AttendanceForm, {
+  AttendanceFormData,
+} from '@/components/features/attendance/AttendanceForm';
+import {
+  Attendance,
+  AttendanceItem,
+  BulkAttendanceDto,
+} from '@/interfaces/Attendance';
 import { Student } from '@/interfaces/Student';
-import { useCreateAttendances, useUpdateAttendances } from '@/hooks/attendance/useAttendanceMutations';
+import {
+  useCreateAttendances,
+  useUpdateAttendances,
+} from '@/hooks/attendance/useAttendanceMutations';
 import { courseClassService } from '@/services/courseClass/courseClassService';
 import { getApiErrorMessage } from '@/utils/errorUtils';
 
@@ -33,11 +43,36 @@ export default function AttendanceFormContainer({
   const { updateAttendances, loading: updateLoading } = useUpdateAttendances();
   const loading = createLoading || updateLoading;
 
+  const methods = useForm<AttendanceFormData>({
+    defaultValues: {
+      attendances: [],
+    },
+  });
+
   useEffect(() => {
     if (isOpen) {
       fetchStudents();
     }
   }, [isOpen, courseClassId]);
+
+  // Reseta o formulário quando o modal abre ou quando mudam os alunos/atendances existentes
+  useEffect(() => {
+    if (isOpen && students.length > 0) {
+      // Prepara a lista inicial de chamadas
+      const initialAttendances = students.map((student) => {
+        const existing = existingAttendances.find(
+          (att) => att.student.id === student.id,
+        );
+        return {
+          studentId: student.id,
+          studentName: student.name,
+          present: existing ? existing.present : false,
+          notes: existing ? existing.notes || '' : '',
+        };
+      });
+      methods.reset({ attendances: initialAttendances });
+    }
+  }, [isOpen, students, existingAttendances, methods]);
 
   const fetchStudents = async () => {
     setLoadingStudents(true);
@@ -45,14 +80,13 @@ export default function AttendanceFormContainer({
       const data = await courseClassService.getStudents(courseClassId);
       setStudents(data);
     } catch (error) {
-      console.error('Erro ao buscar alunos:', error);
       toast.error('Erro ao carregar lista de alunos.');
     } finally {
       setLoadingStudents(false);
     }
   };
 
-  const handleSubmit = async (attendanceItems: AttendanceItem[]) => {
+  const handleFormSubmit = async (attendanceItems: AttendanceItem[]) => {
     try {
       const isEditing = existingAttendances.length > 0;
 
@@ -90,12 +124,11 @@ export default function AttendanceFormContainer({
         await createAttendances(lessonId, bulkData);
         toast.success('Chamada registrada com sucesso!');
       }
-      
+
       onSuccess();
     } catch (error) {
       const message = getApiErrorMessage(error);
       toast.error(message || 'Erro ao salvar chamada.');
-      console.error('Erro ao salvar chamada:', error);
     }
   };
 
@@ -110,16 +143,18 @@ export default function AttendanceFormContainer({
     >
       {loadingStudents ? (
         <div className='flex justify-center py-8'>
-          <div className='h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-blue-500'></div>
+          <div className='h-12 w-12 animate-spin rounded-full border-t-2 border-b-2 border-blue-500'></div>
         </div>
       ) : (
-        <AttendanceForm
-          students={students}
-          existingAttendances={existingAttendances}
-          isLoading={loading}
-          onSubmit={handleSubmit}
-          onCancel={onClose}
-        />
+        <FormProvider {...methods}>
+          <AttendanceForm
+            students={students}
+            existingAttendances={existingAttendances}
+            isLoading={loading}
+            onSubmit={handleFormSubmit}
+            onCancel={onClose}
+          />
+        </FormProvider>
       )}
     </Modal>
   );

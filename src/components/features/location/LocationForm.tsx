@@ -1,24 +1,24 @@
 import Button from '@/components/ui/Button';
 import Form from '@/components/ui/Form';
 import Input from '@/components/ui/Input';
-import { Student } from '@/interfaces/Student';
+import { Location } from '@/interfaces/Location';
 import { useFormContext, Controller } from 'react-hook-form';
 
-export interface StudentFormData {
+export interface LocationFormData {
   name: string;
-  birthDate: string;
+  address?: string;
 }
 
-interface StudentFormProps {
+interface LocationFormProps {
   isLoading?: boolean;
-  studentToEdit?: Student | null;
-  onSubmit: (data: StudentFormData) => void;
+  locationToEdit?: Location | null;
+  onSubmit: (data: LocationFormData) => void;
   onCancel: () => void;
 }
 
-const StudentForm: React.FC<StudentFormProps> = ({
+const LocationForm: React.FC<LocationFormProps> = ({
   isLoading = false,
-  studentToEdit,
+  locationToEdit,
   onSubmit,
   onCancel,
 }) => {
@@ -26,7 +26,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
     handleSubmit,
     control,
     formState: { errors },
-  } = useFormContext<StudentFormData>();
+  } = useFormContext<LocationFormData>();
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -34,13 +34,13 @@ const StudentForm: React.FC<StudentFormProps> = ({
         <Controller
           name='name'
           control={control}
-          rules={{ required: 'O nome do aluno é obrigatório.' }}
+          rules={{ required: 'O nome é obrigatório.' }}
           render={({ field }) => (
             <Input
               id='name'
-              label='Nome do Aluno'
+              label='Nome'
               type='text'
-              placeholder='Digite o nome do aluno'
+              placeholder='Digite o nome do local'
               disabled={isLoading}
               error={errors.name}
               required
@@ -54,26 +54,20 @@ const StudentForm: React.FC<StudentFormProps> = ({
       </div>
       <div className='mb-4'>
         <Controller
-          name='birthDate'
+          name='address'
           control={control}
-          rules={{ required: 'A data de nascimento é obrigatória.' }}
           render={({ field }) => (
             <Input
-              id='birthDate'
-              label='Data de Nascimento'
-              type='date'
+              id='address'
+              label='Endereço'
+              type='text'
+              placeholder='Digite o endereço'
               disabled={isLoading}
-              error={errors.birthDate}
-              required
+              error={errors.address}
               {...field}
             />
           )}
         />
-        {errors.birthDate && (
-          <div className='mt-2 text-sm text-red-600'>
-            {errors.birthDate.message}
-          </div>
-        )}
       </div>
       <div className='mt-6 flex justify-end space-x-2'>
         <Button
@@ -85,11 +79,11 @@ const StudentForm: React.FC<StudentFormProps> = ({
           Cancelar
         </Button>
         <Button type='submit' isLoading={isLoading} loadingText='Salvando...'>
-          {studentToEdit ? 'Atualizar' : 'Criar'}
+          {locationToEdit ? 'Atualizar' : 'Criar'}
         </Button>
       </div>
     </Form>
   );
 };
 
-export default StudentForm;
+export default LocationForm;

@@ -1,15 +1,16 @@
-import Pagination from '@/components/ui/Pagination';
-import Table from '@/components/ui/Table';
-import IconButton from '@/components/ui/IconButton';
-import { Student } from '@/interfaces/Student';
-import { FaFilter, FaPlus } from 'react-icons/fa';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import Table from '@/components/ui/Table';
+import { Location } from '@/interfaces/Location';
+import React from 'react';
 import PageHeader from '@/components/layout/PageHeader';
 import SearchBar from '@/components/ui/SearchBar';
 import Button from '@/components/ui/Button';
+import { FaFilter, FaPlus } from 'react-icons/fa6';
+import Pagination from '@/components/ui/Pagination';
+import IconButton from '@/components/ui/IconButton';
 
-interface StudentListProps {
-  students: Student[];
+interface LocationListProps {
+  locations: Location[];
   loading: boolean;
   error: string | null;
   searchInput: string;
@@ -17,14 +18,14 @@ interface StudentListProps {
   totalPages: number;
   onSearchInputChange: (value: string) => void;
   onFilterClick: () => void;
-  onAddStudent: () => void;
-  onEditStudent: (student: Student) => void;
-  onDeleteClick: (studentId: number) => void;
+  onAddLocation: () => void;
+  onEditLocation: (location: Location) => void;
+  onDeleteClick: (locationId: number) => void;
   onPageChange: (page: number) => void;
 }
 
-export default function StudentList({
-  students,
+export default function LocationList({
+  locations,
   loading,
   error,
   searchInput,
@@ -32,28 +33,28 @@ export default function StudentList({
   totalPages,
   onSearchInputChange,
   onFilterClick,
-  onAddStudent,
-  onEditStudent,
+  onAddLocation,
+  onEditLocation,
   onDeleteClick,
   onPageChange,
-}: StudentListProps) {
-  const studentColumns = [
-    { header: 'Nome', accessor: (student: Student) => student.name },
+}: LocationListProps) {
+  const locationColumns = [
+    { header: 'Nome', accessor: (location: Location) => location.name },
     {
       header: 'Ações',
-      accessor: (student: Student) => (
+      accessor: (location: Location) => (
         <div className='flex justify-end space-x-1'>
           <IconButton
             icon={FiEdit}
-            onClick={() => onEditStudent(student)}
+            onClick={() => onEditLocation(location)}
             variant='primary'
-            tooltip='Editar aluno'
+            tooltip='Editar local'
           />
           <IconButton
             icon={FiTrash2}
-            onClick={() => onDeleteClick(student.id)}
+            onClick={() => onDeleteClick(location.id)}
             variant='danger'
-            tooltip='Excluir aluno'
+            tooltip='Excluir local'
           />
         </div>
       ),
@@ -63,18 +64,18 @@ export default function StudentList({
 
   return (
     <div className='container mx-auto px-4 py-5'>
-      <PageHeader title='Alunos' breadcrumb='Gestão de Alunos'>
+      <PageHeader title='Locais' breadcrumb='Gestão de Locais'>
         <SearchBar
           value={searchInput}
           onChange={onSearchInputChange}
-          placeholder='Buscar alunos...'
+          placeholder='Buscar locais...'
           onSearch={onFilterClick}
         />
         <Button variant='secondary' size='small' onClick={onFilterClick}>
           <FaFilter className='mr-2' /> Filtrar
         </Button>
-        <Button variant='gradient' size='small' onClick={onAddStudent}>
-          <FaPlus className='mr-2' /> Novo Aluno
+        <Button variant='gradient' size='small' onClick={onAddLocation}>
+          <FaPlus className='mr-2' /> Novo Local
         </Button>
       </PageHeader>
 
@@ -88,28 +89,28 @@ export default function StudentList({
         {loading ? (
           <div className='py-8 text-center'>
             <div
-              className='mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-t-2'
+              className='mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-t-2 border-b-2'
               style={{ borderColor: 'var(--accent-primary, #2196f3)' }}
             />
             <p style={{ color: 'var(--text-secondary, #666666)' }}>
-              Carregando alunos...
+              Carregando locais...
             </p>
           </div>
         ) : error ? (
           <div className='py-8 text-center text-red-500'>{error}</div>
-        ) : students.length === 0 ? (
+        ) : locations.length === 0 ? (
           <div className='py-8 text-center'>
             <p style={{ color: 'var(--text-secondary, #666666)' }}>
-              Nenhum aluno encontrado.
+              Nenhum local encontrado.
             </p>
           </div>
         ) : (
           <Table
-            columns={studentColumns}
-            data={students}
-            keyExtractor={(student) => student.id}
+            columns={locationColumns}
+            data={locations}
+            keyExtractor={(location) => location.id}
             isLoading={loading}
-            emptyMessage='Nenhum aluno encontrado.'
+            emptyMessage='Nenhum local encontrado.'
           />
         )}
         {totalPages > 0 && (

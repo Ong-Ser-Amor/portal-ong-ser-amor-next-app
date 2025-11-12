@@ -1,12 +1,17 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Modal from '@/components/ui/Modal';
-import LessonForm, { LessonFormData } from '@/components/features/lesson/LessonForm';
+import LessonForm, {
+  LessonFormData,
+} from '@/components/features/lesson/LessonForm';
 import { Lesson } from '@/interfaces/Lesson';
-import { useCreateLesson, useUpdateLesson } from '@/hooks/lesson/useLessonMutations';
+import {
+  useCreateLesson,
+  useUpdateLesson,
+} from '@/hooks/lesson/useLessonMutations';
 import { getApiErrorMessage } from '@/utils/errorUtils';
 
 interface LessonFormContainerProps {
@@ -17,13 +22,15 @@ interface LessonFormContainerProps {
   onSuccess: () => void;
 }
 
-export default function LessonFormContainer({
+const LessonFormContainer: React.FC<LessonFormContainerProps> = ({
   isOpen,
   onClose,
   courseClassId,
   lessonToEdit,
   onSuccess,
-}: LessonFormContainerProps) {
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const methods = useForm<LessonFormData>({
     defaultValues: {
       courseClassId,
@@ -32,10 +39,8 @@ export default function LessonFormContainer({
     },
   });
 
-  const { createLesson, loading: createLoading } = useCreateLesson();
-  const { updateLesson, loading: updateLoading } = useUpdateLesson();
-
-  const isLoading = createLoading || updateLoading;
+  const { createLesson } = useCreateLesson();
+  const { updateLesson } = useUpdateLesson();
 
   useEffect(() => {
     if (lessonToEdit) {
@@ -54,21 +59,26 @@ export default function LessonFormContainer({
     }
   }, [lessonToEdit, courseClassId, methods]);
 
-  const handleSubmit = async (data: LessonFormData) => {
+  const handleFormSubmit = async (data: LessonFormData) => {
+    setIsLoading(true);
     try {
       if (lessonToEdit) {
         await updateLesson(lessonToEdit.id, data, lessonToEdit);
-        toast.success('Aula atualizada com sucesso!');
       } else {
         await createLesson(data);
-        toast.success('Aula criada com sucesso!');
       }
-      onSuccess();
-      methods.reset();
+      toast.success(
+        lessonToEdit
+          ? 'Aula atualizada com sucesso!'
+          : 'Aula criada com sucesso!',
+      );
+      if (onSuccess) onSuccess();
+      onClose();
     } catch (error) {
-      const message = getApiErrorMessage(error);
-      toast.error(message || 'Erro ao salvar aula.');
-      console.error('Erro ao salvar aula:', error);
+      const friendlyMessage = getApiErrorMessage(error, 'aula');
+      toast.error(friendlyMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -86,12 +96,13 @@ export default function LessonFormContainer({
       <FormProvider {...methods}>
         <LessonForm
           isLoading={isLoading}
-          courseClassId={courseClassId}
           lessonToEdit={lessonToEdit}
-          onSubmit={handleSubmit}
+          onSubmit={handleFormSubmit}
           onCancel={handleClose}
         />
       </FormProvider>
     </Modal>
   );
-}
+};
+
+export default LessonFormContainer;

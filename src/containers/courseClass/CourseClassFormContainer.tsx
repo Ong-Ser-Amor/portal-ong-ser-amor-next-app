@@ -1,3 +1,5 @@
+'use client';
+
 import CourseClassForm, {
   CourseClassFormData,
 } from '@/components/features/courseClass/CourseClassForm';
@@ -6,7 +8,11 @@ import {
   useCreateCourseClass,
   useUpdateCourseClass,
 } from '@/hooks/courseClass/useCourseClassMutations';
-import { CourseClass, CourseClassDto, CourseClassStatusEnum } from '@/interfaces/CourseClass';
+import {
+  CourseClass,
+  CourseClassDto,
+  CourseClassStatusEnum,
+} from '@/interfaces/CourseClass';
 import { getApiErrorMessage } from '@/utils/errorUtils';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -79,7 +85,9 @@ const CourseClassFormContainer: React.FC<CourseClassFormContainerProps> = ({
           startDate: new Date(courseClassToEdit.startDate)
             .toISOString()
             .split('T')[0],
-          endDate: new Date(courseClassToEdit.endDate).toISOString().split('T')[0],
+          endDate: new Date(courseClassToEdit.endDate)
+            .toISOString()
+            .split('T')[0],
           status: courseClassToEdit.status,
         };
 

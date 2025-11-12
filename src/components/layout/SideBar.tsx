@@ -87,6 +87,11 @@ export default function Sidebar({
       label: 'Students',
     },
     {
+      path: '/locations',
+      icon: <span className='text-xl'>📍</span>,
+      label: 'Locais',
+    },
+    {
       path: '/configuracoes',
       icon: <FiSettings size={20} />,
       label: 'Configurações',
@@ -106,26 +111,27 @@ export default function Sidebar({
       {/* Sidebar */}
       <div
         className={`fixed h-full ${collapsed ? 'w-20' : 'w-[260px]'} flex flex-col ${mobileOpen ? 'left-0 z-50' : '-left-64 md:left-0 md:z-101'} `}
-        style={{ 
+        style={{
           background: 'var(--bg-secondary, #ffffff)',
           boxShadow: '2px 0 10px var(--card-shadow, rgba(0, 0, 0, 0.05))',
-          transition: 'width 0.3s ease'
+          transition: 'width 0.3s ease',
         }}
       >
         {/* Header com Logo e Toggle */}
-        <div 
+        <div
           className='relative px-5 py-6'
-          style={{ 
-            borderBottom: '2px solid var(--border-color, #f0f0f0)' 
+          style={{
+            borderBottom: '2px solid var(--border-color, #f0f0f0)',
           }}
         >
           {!collapsed && (
             <div className='flex items-center gap-3'>
               {/* Logo Icon com Gradiente */}
-              <div 
+              <div
                 className='flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-xl text-xl font-bold text-white shadow-md'
                 style={{
-                  background: 'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)'
+                  background:
+                    'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)',
                 }}
               >
                 SA
@@ -133,13 +139,13 @@ export default function Sidebar({
 
               {/* Logo Text */}
               <div className='flex flex-col'>
-                <h2 
+                <h2
                   className='text-lg leading-tight font-bold'
                   style={{ color: 'var(--text-primary, #333333)' }}
                 >
                   ONG Ser Amor
                 </h2>
-                <p 
+                <p
                   className='text-xs'
                   style={{ color: 'var(--text-tertiary, #999999)' }}
                 >
@@ -153,10 +159,10 @@ export default function Sidebar({
           <button
             onClick={toggleSidebar}
             className={`${collapsed ? 'left-1/2 -translate-x-1/2' : 'right-3'} absolute top-1/2 hidden -translate-y-1/2 rounded-lg p-2 md:block`}
-            style={{ 
+            style={{
               transition: 'all 0.3s',
               background: 'var(--hover-bg, #f5f5f5)',
-              color: 'var(--text-secondary, #666666)'
+              color: 'var(--text-secondary, #666666)',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'var(--border-color, #f0f0f0)';
@@ -195,7 +201,8 @@ export default function Sidebar({
                         transition: 'all 0.3s',
                         ...(isSubmenuActive(item.submenu)
                           ? {
-                              background: 'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)',
+                              background:
+                                'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)',
                               color: '#ffffff',
                             }
                           : {
@@ -204,14 +211,17 @@ export default function Sidebar({
                       }}
                       onMouseEnter={(e) => {
                         if (!isSubmenuActive(item.submenu!)) {
-                          e.currentTarget.style.background = 'var(--hover-bg, #f5f5f5)';
-                          e.currentTarget.style.color = 'var(--text-primary, #333333)';
+                          e.currentTarget.style.background =
+                            'var(--hover-bg, #f5f5f5)';
+                          e.currentTarget.style.color =
+                            'var(--text-primary, #333333)';
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!isSubmenuActive(item.submenu!)) {
                           e.currentTarget.style.background = 'transparent';
-                          e.currentTarget.style.color = 'var(--text-secondary, #666666)';
+                          e.currentTarget.style.color =
+                            'var(--text-secondary, #666666)';
                         }
                       }}
                     >
@@ -240,7 +250,8 @@ export default function Sidebar({
                                   transition: 'all 0.3s',
                                   ...(isActive(subItem.path)
                                     ? {
-                                        background: 'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)',
+                                        background:
+                                          'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)',
                                         color: '#ffffff',
                                       }
                                     : {
@@ -249,14 +260,18 @@ export default function Sidebar({
                                 }}
                                 onMouseEnter={(e) => {
                                   if (!isActive(subItem.path)) {
-                                    e.currentTarget.style.background = 'var(--hover-bg, #f5f5f5)';
-                                    e.currentTarget.style.color = 'var(--text-primary, #333333)';
+                                    e.currentTarget.style.background =
+                                      'var(--hover-bg, #f5f5f5)';
+                                    e.currentTarget.style.color =
+                                      'var(--text-primary, #333333)';
                                   }
                                 }}
                                 onMouseLeave={(e) => {
                                   if (!isActive(subItem.path)) {
-                                    e.currentTarget.style.background = 'transparent';
-                                    e.currentTarget.style.color = 'var(--text-secondary, #666666)';
+                                    e.currentTarget.style.background =
+                                      'transparent';
+                                    e.currentTarget.style.color =
+                                      'var(--text-secondary, #666666)';
                                   }
                                 }}
                               >
@@ -277,7 +292,8 @@ export default function Sidebar({
                         transition: 'all 0.3s',
                         ...(isActive(item.path || '')
                           ? {
-                              background: 'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)',
+                              background:
+                                'linear-gradient(135deg, var(--accent-primary, #2196f3) 0%, var(--accent-secondary, #1976d2) 100%)',
                               color: '#ffffff',
                             }
                           : {
@@ -286,14 +302,17 @@ export default function Sidebar({
                       }}
                       onMouseEnter={(e) => {
                         if (!isActive(item.path || '')) {
-                          e.currentTarget.style.background = 'var(--hover-bg, #f5f5f5)';
-                          e.currentTarget.style.color = 'var(--text-primary, #333333)';
+                          e.currentTarget.style.background =
+                            'var(--hover-bg, #f5f5f5)';
+                          e.currentTarget.style.color =
+                            'var(--text-primary, #333333)';
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!isActive(item.path || '')) {
                           e.currentTarget.style.background = 'transparent';
-                          e.currentTarget.style.color = 'var(--text-secondary, #666666)';
+                          e.currentTarget.style.color =
+                            'var(--text-secondary, #666666)';
                         }
                       }}
                       title={collapsed ? item.label : ''}
@@ -301,9 +320,7 @@ export default function Sidebar({
                       <span className={collapsed ? '' : 'mr-3'}>
                         {item.icon}
                       </span>
-                      {!collapsed && (
-                        <span>{item.label}</span>
-                      )}
+                      {!collapsed && <span>{item.label}</span>}
                     </div>
                   </Link>
                 )}
