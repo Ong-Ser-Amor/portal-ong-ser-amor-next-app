@@ -1,70 +1,83 @@
-import { useEffect, useState } from 'react';
 import Button from '@/components/ui/Button';
+import Form from '@/components/ui/Form';
 import Select from '@/components/ui/Select';
 import { Student } from '@/interfaces/Student';
+import { useFormContext, Controller } from 'react-hook-form';
+
+export interface AddStudentFormData {
+  studentId: string;
+}
 
 interface AddStudentFormProps {
   students: Student[];
-  loading?: boolean;
-  onSubmit: (studentId: number) => void;
+  isLoading?: boolean;
+  onSubmit: (data: AddStudentFormData) => void | Promise<void>;
   onCancel: () => void;
 }
 
 export default function AddStudentForm({
   students,
-  loading = false,
+  isLoading = false,
   onSubmit,
   onCancel,
 }: AddStudentFormProps) {
-  const [selectedStudentId, setSelectedStudentId] = useState<string>('');
-
-  useEffect(() => {
-    if (students.length > 0 && !selectedStudentId) {
-      setSelectedStudentId(String(students[0].id));
-    }
-  }, [students, selectedStudentId]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedStudentId) {
-      onSubmit(Number(selectedStudentId));
-    }
-  };
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useFormContext<AddStudentFormData>();
 
   const studentOptions = students.map((student) => ({
-    value: student.id,
+    value: String(student.id),
     label: student.name,
   }));
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-4'>
-      <Select
-        id='student'
-        label='Aluno'
-        options={studentOptions}
-        value={selectedStudentId}
-        onChange={(e) => setSelectedStudentId(e.target.value)}
-        disabled={loading}
-      />
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      <div className='mb-4'>
+        <Controller
+          name='studentId'
+          control={control}
+          rules={{
+            required: 'Selecione um aluno.',
+            validate: (v) => v !== '' || 'Selecione um aluno.',
+          }}
+          render={({ field }) => (
+            <Select
+              id='studentId'
+              label='Aluno'
+              options={studentOptions}
+              disabled={isLoading}
+              error={errors.studentId}
+              {...field}
+            />
+          )}
+        />
+        {errors.studentId && (
+          <div className='mt-2 text-sm text-red-600'>
+            {errors.studentId.message}
+          </div>
+        )}
+      </div>
 
       <div className='flex justify-end space-x-2'>
         <Button
           type='button'
           variant='secondary'
           onClick={onCancel}
-          disabled={loading}
+          disabled={isLoading}
         >
           Cancelar
         </Button>
         <Button
           type='submit'
-          disabled={!selectedStudentId || loading}
-          isLoading={loading}
+          disabled={isLoading}
+          isLoading={isLoading}
           loadingText='Adicionando...'
         >
           Adicionar
         </Button>
       </div>
-    </form>
+    </Form>
   );
 }
