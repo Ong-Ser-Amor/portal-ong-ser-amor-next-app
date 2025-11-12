@@ -2,61 +2,78 @@ import Button from '@/components/ui/Button';
 import Form from '@/components/ui/Form';
 import Input from '@/components/ui/Input';
 import { Lesson } from '@/interfaces/Lesson';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, Controller } from 'react-hook-form';
 
 export interface LessonFormData {
   courseClassId: number;
   date: string;
-  topic?: string;
+  topic: string;
 }
 
 interface LessonFormProps {
   isLoading?: boolean;
-  courseClassId: number;
   lessonToEdit?: Lesson | null;
-  onSubmit: (data: LessonFormData) => void;
+  onSubmit: (data: LessonFormData) => void | Promise<void>;
   onCancel: () => void;
 }
 
 const LessonForm: React.FC<LessonFormProps> = ({
   isLoading = false,
-  courseClassId,
   lessonToEdit,
   onSubmit,
   onCancel,
 }) => {
   const {
-    register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useFormContext<LessonFormData>();
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      <div className='space-y-4'>
-        <Input
-          id='date'
-          label='Data da Aula'
-          type='date'
-          {...register('date', {
-            required: 'A data da aula é obrigatória.',
-          })}
-          disabled={isLoading}
-          error={errors.date}
-          required
+      <div className='mb-4'>
+        <Controller
+          name='date'
+          control={control}
+          rules={{ required: 'A data da aula é obrigatória.' }}
+          render={({ field }) => (
+            <Input
+              id='date'
+              label='Data da Aula'
+              type='date'
+              disabled={isLoading}
+              error={errors.date}
+              required
+              {...field}
+            />
+          )}
         />
-
-        <Input
-          id='topic'
-          label='Tema'
-          type='text'
-          {...register('topic')}
-          placeholder='Ex: Introdução ao Python'
-          disabled={isLoading}
-          error={errors.topic}
-        />
+        {errors.date && (
+          <div className='mt-2 text-sm text-red-600'>{errors.date.message}</div>
+        )}
       </div>
-
+      <div className='mb-4'>
+        <Controller
+          name='topic'
+          control={control}
+          render={({ field }) => (
+            <Input
+              id='topic'
+              label='Tema'
+              type='text'
+              placeholder='Ex: Introdução ao Python'
+              disabled={isLoading}
+              error={errors.topic}
+              {...field}
+            />
+          )}
+        />
+        {errors.topic && (
+          <div className='mt-2 text-sm text-red-600'>
+            {errors.topic.message}
+          </div>
+        )}
+      </div>
       <div className='mt-6 flex justify-end space-x-2'>
         <Button
           type='button'
