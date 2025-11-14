@@ -1,6 +1,6 @@
 import { Location } from '@/interfaces/Location';
 import Card from '@/components/ui/Card';
-import React from 'react';
+import { useRouter } from 'next/navigation';
 
 interface LocationCardProps {
   location: Location;
@@ -8,21 +8,25 @@ interface LocationCardProps {
   onDelete: (locationId: number) => void;
 }
 
-
 export default function LocationCard({
   location,
   onEdit,
   onDelete,
 }: LocationCardProps) {
+  const router = useRouter();
   const handleEdit = () => {
     onEdit(location);
   };
   const handleDelete = () => {
     onDelete(location.id);
   };
+  const handleCardClick = () => {
+    router.push(`/locations/${location.id}`);
+  };
   return (
     <Card
       title={location.name || ''}
+      onClick={handleCardClick}
       onEdit={handleEdit}
       onDelete={handleDelete}
     >

@@ -18,6 +18,7 @@ interface LocationListProps {
   onAddLocation: () => void;
   onEditLocation: (location: Location) => void;
   onDeleteClick: (locationId: number) => void;
+  onLocationClick?: (location: Location) => void;
   onPageChange: (page: number) => void;
 }
 
