@@ -15,7 +15,6 @@ const CourseListContainer: React.FC = () => {
   // Estados para o modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Estados para confirmação de exclusão
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -30,7 +29,8 @@ const CourseListContainer: React.FC = () => {
     currentPage,
     itemsPerPage,
   );
-  const deleteCourse = useDeleteCourse();
+  const { mutateAsync: deleteCourse, isPending: isSubmitting } =
+    useDeleteCourse();
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -59,15 +59,17 @@ const CourseListContainer: React.FC = () => {
     if (courseToDelete === null) return;
 
     try {
-      setIsSubmitting(true);
-      await deleteCourse.deleteCourse(courseToDelete);
-      setCurrentPage(1);
+      await deleteCourse(courseToDelete);
+
       setCourseToDelete(null);
       setDeleteConfirmOpen(false);
-    } catch (err) {
-      toast.error('Erro ao excluir curso. Por favor, tente novamente.');
-    } finally {
-      setIsSubmitting(false);
+
+      // Lógica de paginação: Se esvaziou a página atual, volte uma
+      if (courses.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
+    } catch (error) {
+      console.error('Falha ao excluir curso:', error);
     }
   };
 
@@ -78,10 +80,14 @@ const CourseListContainer: React.FC = () => {
     setCourseToDelete(null);
   };
 
-  const handleCourseSuccess = async () => {
-    setCurrentPage(1);
+  const handleCourseSuccess = () => {
     setIsModalOpen(false);
     setEditingCourse(null);
+
+    // se a alteração for uma criação, volte para a primeira página
+    if (!editingCourse && currentPage !== 1) {
+      setCurrentPage(1);
+    }
   };
 
   return (
