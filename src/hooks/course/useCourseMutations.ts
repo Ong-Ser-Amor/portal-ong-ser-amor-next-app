@@ -6,8 +6,7 @@ import { toast } from 'react-toastify';
 
 interface UpdateCourseVariables {
   id: number;
-  originalData: CourseDto;
-  updatedData?: CourseDto;
+  data: CourseDto;
 }
 
 export function useCreateCourse() {
@@ -44,8 +43,8 @@ export function useUpdateCourse() {
 
   return useMutation({
     // A mutationFn agora recebe as 'UpdateCourseVariables'
-    mutationFn: ({ id, originalData, updatedData }: UpdateCourseVariables) =>
-      courseService.updateCourse(id, originalData, updatedData),
+    mutationFn: ({ id, data }: UpdateCourseVariables) =>
+      courseService.updateCourse(id, data),
 
     // 'data' é o curso retornado, 'variables' são os parâmetros passados
     onSuccess: (data: Course, variables) => {

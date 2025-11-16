@@ -52,8 +52,7 @@ const CourseFormContainer: React.FC<CourseFormContainerProps> = ({
 
         await updateCourse({
           id: courseToEdit.id,
-          originalData: dto,
-          updatedData: dto,
+          data: dto,
         });
       } else {
         await createCourse({ name: data.name });
