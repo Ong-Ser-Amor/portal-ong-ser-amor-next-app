@@ -1,7 +1,5 @@
-import { Course, CoursePaginated } from '@/interfaces/Course';
 import { courseService } from '@/services/course/courseService';
 import { useQuery } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from 'react';
 
 export function useCourses(page: number = 1, limit: number = 10) {
   const { data, isLoading, isError, error, refetch } = useQuery({
