@@ -7,6 +7,7 @@ import { Course } from '@/interfaces/Course';
 import { useDeleteCourse } from '@/hooks/course/useCourseMutations';
 import { useCourses } from '@/hooks/course/useCourseQueries';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 const CourseListContainer: React.FC = () => {
   const [searchInput, setSearchInput] = useState<string>('');
@@ -64,8 +65,7 @@ const CourseListContainer: React.FC = () => {
       setCourseToDelete(null);
       setDeleteConfirmOpen(false);
     } catch (err) {
-      console.error('Erro ao excluir curso:', err);
-      alert('Erro ao excluir curso. Verifique o console para mais detalhes.');
+      toast.error('Erro ao excluir curso. Por favor, tente novamente.');
     } finally {
       setIsSubmitting(false);
     }
