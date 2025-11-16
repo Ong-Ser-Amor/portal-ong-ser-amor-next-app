@@ -37,7 +37,6 @@ const CourseListContainer: React.FC = () => {
 
   const handleFilterClick = () => {
     setCurrentPage(1);
-    refetch(1, itemsPerPage);
   };
 
   const handleAddCourse = () => {
@@ -62,7 +61,6 @@ const CourseListContainer: React.FC = () => {
       setIsSubmitting(true);
       await deleteCourse.deleteCourse(courseToDelete);
       setCurrentPage(1);
-      refetch(1, itemsPerPage);
       setCourseToDelete(null);
       setDeleteConfirmOpen(false);
     } catch (err) {
@@ -82,7 +80,6 @@ const CourseListContainer: React.FC = () => {
 
   const handleCourseSuccess = async () => {
     setCurrentPage(1);
-    refetch(1, itemsPerPage);
     setIsModalOpen(false);
     setEditingCourse(null);
   };
