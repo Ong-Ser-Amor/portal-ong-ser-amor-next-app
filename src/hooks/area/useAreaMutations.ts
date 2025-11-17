@@ -1,51 +1,59 @@
-import { useState } from 'react';
-import { Area, CreateAreaDto, UpdateAreaDto } from '@/interfaces/Area';
+import { AreaDto, UpdateAreaDto } from '@/interfaces/Area';
 import { areaService } from '@/services/area/areaService';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
+import { getApiErrorMessage } from '@/utils/errorUtils';
+
+interface UpdateAreaVariables {
+  id: number;
+  originalData: UpdateAreaDto;
+  updatedData: UpdateAreaDto;
+}
 
 export function useCreateArea() {
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const createArea = async (data: CreateAreaDto): Promise<Area> => {
-    setError(null);
-    try {
-      return await areaService.createArea(data);
-    } catch (err) {
-      setError('Erro ao criar área.');
-      throw err;
-    }
-  };
-
-  return { createArea, error };
+  return useMutation({
+    mutationFn: (data: AreaDto) => areaService.createArea(data),
+    onSuccess: () => {
+      toast.success('Ambiente criado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['areas'] });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'ambiente'));
+    },
+  });
 }
 
 export function useUpdateArea() {
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const updateArea = async (id: number, data: UpdateAreaDto): Promise<Area> => {
-    setError(null);
-    try {
-      return await areaService.updateArea(id, data);
-    } catch (err) {
-      setError('Erro ao atualizar área.');
-      throw err;
-    }
-  };
+  return useMutation({
+    mutationFn: ({ id, originalData, updatedData }: UpdateAreaVariables) =>
+      areaService.updateArea(id, originalData, updatedData),
 
-  return { updateArea, error };
+    onSuccess: (data, variables) => {
+      toast.success('Ambiente atualizado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['areas'] });
+      queryClient.invalidateQueries({ queryKey: ['area', variables.id] });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'ambiente'));
+    },
+  });
 }
 
 export function useDeleteArea() {
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const deleteArea = async (id: number): Promise<void> => {
-    setError(null);
-    try {
-      await areaService.deleteArea(id);
-    } catch (err) {
-      setError('Erro ao excluir área.');
-      throw err;
-    }
-  };
-
-  return { deleteArea, error };
+  return useMutation({
+    mutationFn: (id: number) => areaService.deleteArea(id),
+    onSuccess: () => {
+      toast.success('Ambiente excluído com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['areas'] });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'ambiente'));
+    },
+  });
 }

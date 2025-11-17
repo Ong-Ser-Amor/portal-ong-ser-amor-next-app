@@ -2,13 +2,15 @@
 
 import Modal from '@/components/ui/Modal';
 
-import { Area, CreateAreaDto, UpdateAreaDto } from '@/interfaces/Area';
-import { getApiErrorMessage } from '@/utils/errorUtils';
-import { useEffect, useState } from 'react';
+import { Area, AreaDto, UpdateAreaDto } from '@/interfaces/Area';
+import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
 import { useCreateArea, useUpdateArea } from '@/hooks/area/useAreaMutations';
-import AreaForm from './AreaForm';
+import AreaForm from '../../components/features/area/AreaForm';
+
+interface AreaFormData {
+  name: string;
+}
 
 interface AreaFormContainerProps {
   isOpen: boolean;
@@ -25,16 +27,15 @@ const AreaFormContainer: React.FC<AreaFormContainerProps> = ({
   areaToEdit,
   onSuccess,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const methods = useForm<CreateAreaDto>({
+  const methods = useForm<AreaDto>({
     defaultValues: {
       name: areaToEdit?.name || '',
     },
   });
 
-  const { createArea } = useCreateArea();
-  const { updateArea } = useUpdateArea();
+  const { mutateAsync: createArea, isPending: isCreating } = useCreateArea();
+  const { mutateAsync: updateArea, isPending: isUpdating } = useUpdateArea();
+  const isLoading = isCreating || isUpdating;
 
   useEffect(() => {
     methods.reset({
@@ -42,31 +43,31 @@ const AreaFormContainer: React.FC<AreaFormContainerProps> = ({
     });
   }, [areaToEdit, isOpen, methods, locationId]);
 
-  const handleFormSubmit = async (data: CreateAreaDto) => {
-    setIsLoading(true);
-
+  const handleFormSubmit = async (data: AreaFormData) => {
     try {
       if (areaToEdit) {
-        await updateArea(areaToEdit.id, { name: data.name });
-        toast.success('Ambiente atualizado com sucesso!');
+        const formDto: UpdateAreaDto = { name: data.name };
+        const originalDto: UpdateAreaDto = { name: areaToEdit.name };
+
+        await updateArea({
+          id: areaToEdit.id,
+          originalData: originalDto,
+          updatedData: formDto,
+        });
       } else {
-        await createArea({ name: data.name, locationId });
-        toast.success('Ambiente criado com sucesso!');
+        const formDto: AreaDto = {
+          name: data.name,
+          locationId: locationId,
+        };
+
+        await createArea(formDto);
       }
 
-      methods.reset();
-      onSuccess();
+      if (onSuccess) onSuccess();
+      onClose();
     } catch (error) {
-      const message = getApiErrorMessage(error);
-      toast.error(message || 'Erro ao salvar ambiente.');
-    } finally {
-      setIsLoading(false);
+      console.error('Falha ao salvar ambiente:', error);
     }
-  };
-
-  const handleCancel = () => {
-    methods.reset();
-    onClose();
   };
 
   return (
@@ -80,7 +81,7 @@ const AreaFormContainer: React.FC<AreaFormContainerProps> = ({
           isLoading={isLoading}
           areaToEdit={areaToEdit}
           onSubmit={handleFormSubmit}
-          onCancel={handleCancel}
+          onCancel={onClose}
         />
       </FormProvider>
     </Modal>

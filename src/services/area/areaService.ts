@@ -1,15 +1,11 @@
-import {
-  Area,
-  CreateAreaDto,
-  UpdateAreaDto,
-  AreaPaginated,
-} from '@/interfaces/Area';
+import { Area, UpdateAreaDto, AreaPaginated, AreaDto } from '@/interfaces/Area';
 import { apiService } from '../api/apiService';
+import { getChangedFields, hasNoChanges } from '@/utils/patchUtils';
 
 const baseUrl = '/areas';
 
 export const areaService = {
-  async createArea(data: CreateAreaDto): Promise<Area> {
+  async createArea(data: AreaDto): Promise<Area> {
     try {
       const response = await apiService.post<Area>(
         baseUrl,
@@ -17,7 +13,7 @@ export const areaService = {
       );
       return response;
     } catch (error) {
-      console.error('Erro ao criar área:', error);
+      console.error('Erro ao criar ambiente:', error);
       throw error;
     }
   },
@@ -52,15 +48,26 @@ export const areaService = {
     }
   },
 
-  async updateArea(id: number, data: UpdateAreaDto): Promise<Area> {
+  async updateArea(
+    id: number,
+    originalData: UpdateAreaDto,
+    updatedData: UpdateAreaDto,
+  ): Promise<Area> {
     try {
+      const changes = getChangedFields(originalData, updatedData);
+
+      if (hasNoChanges(changes)) {
+        return await this.getArea(id);
+      }
+
       const response = await apiService.patch<Area>(
         `${baseUrl}/${id}`,
-        data as unknown as Record<string, unknown>,
+        changes as unknown as Record<string, unknown>,
       );
+
       return response;
     } catch (error) {
-      console.error(`Erro ao atualizar área ${id}:`, error);
+      console.error(`Erro ao atualizar ambiente ${id}:`, error);
       throw error;
     }
   },

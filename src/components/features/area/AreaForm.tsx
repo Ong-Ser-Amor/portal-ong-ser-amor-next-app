@@ -1,13 +1,13 @@
 import Button from '@/components/ui/Button';
 import Form from '@/components/ui/Form';
 import Input from '@/components/ui/Input';
-import { Area, CreateAreaDto } from '@/interfaces/Area';
+import { Area, AreaDto } from '@/interfaces/Area';
 import { useFormContext, Controller } from 'react-hook-form';
 
 interface AreaFormProps {
   isLoading?: boolean;
   areaToEdit?: Area | null;
-  onSubmit: (data: CreateAreaDto) => void;
+  onSubmit: (data: AreaDto) => void;
   onCancel: () => void;
 }
 
@@ -21,7 +21,7 @@ const AreaForm: React.FC<AreaFormProps> = ({
     handleSubmit,
     control,
     formState: { errors },
-  } = useFormContext<CreateAreaDto>();
+  } = useFormContext<AreaDto>();
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>

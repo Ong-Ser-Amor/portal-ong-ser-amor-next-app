@@ -2,14 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-toastify';
-import { getApiErrorMessage } from '@/utils/errorUtils';
 import AreaFormContainer from '../area/AreaFormContainer';
 import LocationFormContainer from './LocationFormContainer';
 import LocationDetail from '@/components/features/location/LocationDetail';
 import { useDeleteArea } from '@/hooks/area/useAreaMutations';
 import { Area } from '@/interfaces/Area';
-import { useArea, useAreas } from '@/hooks/area/useAreaQueries';
+import { useAreas } from '@/hooks/area/useAreaQueries';
 import { useLocation } from '@/hooks/location/useLocationQueries';
 
 interface LocationDetailContainerProps {
@@ -35,6 +33,9 @@ export default function LocationDetailContainer({
     refetch: refetchAreas,
   } = useAreas(locationId, currentPage, itemsPerPage);
 
+  const { mutateAsync: deleteArea, isPending: isDeletingArea } =
+    useDeleteArea();
+
   const [isEditLocationModalOpen, setIsEditLocationModalOpen] = useState(false);
   const [isAddAreaModalOpen, setIsAddAreaModalOpen] = useState(false);
   const [isEditAreaModalOpen, setIsEditAreaModalOpen] = useState(false);
@@ -57,17 +58,15 @@ export default function LocationDetailContainer({
     setIsEditAreaModalOpen(true);
   };
 
-  const { deleteArea } = useDeleteArea();
-
   const handleDeleteArea = async (areaId: number) => {
     if (confirm('Tem certeza que deseja excluir esta área?')) {
       try {
         await deleteArea(areaId);
-        toast.success('Área excluída com sucesso!');
-        refetchAreas();
+
+        if (areas.length === 1 && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        }
       } catch (error) {
-        const message = getApiErrorMessage(error);
-        toast.error(message || 'Erro ao excluir área.');
         console.error('Erro ao deletar área:', error);
       }
     }
@@ -79,11 +78,13 @@ export default function LocationDetailContainer({
   };
 
   const handleAreaSuccess = () => {
-    setCurrentPage(1);
-    refetchAreas();
     setIsAddAreaModalOpen(false);
     setIsEditAreaModalOpen(false);
     setSelectedArea(null);
+
+    if (!selectedArea && currentPage !== 1) {
+      setCurrentPage(1);
+    }
   };
 
   const handlePageChange = (page: number) => {
