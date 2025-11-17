@@ -1,10 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import Modal from '@/components/ui/Modal';
-import LocationForm, { LocationFormData } from '@/components/features/location/LocationForm';
+import LocationForm, {
+  LocationFormData,
+} from '@/components/features/location/LocationForm';
 import { Location, LocationDto } from '@/interfaces/Location';
-import { locationService } from '@/services/location/locationService';
-import { toast } from 'react-toastify';
+import {
+  useCreateLocation,
+  useUpdateLocation,
+} from '@/hooks/location/useLocationMutations';
 
 interface LocationFormContainerProps {
   isOpen: boolean;
@@ -19,14 +23,18 @@ const LocationFormContainer: React.FC<LocationFormContainerProps> = ({
   locationToEdit,
   onSuccess,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
   const methods = useForm<LocationFormData>({
     defaultValues: {
       name: '',
       address: '',
     },
   });
+
+  const { mutateAsync: createLocation, isPending: isCreating } =
+    useCreateLocation();
+  const { mutateAsync: updateLocation, isPending: isUpdating } =
+    useUpdateLocation();
+  const isLoading = isCreating || isUpdating;
 
   useEffect(() => {
     if (isOpen) {
@@ -38,20 +46,31 @@ const LocationFormContainer: React.FC<LocationFormContainerProps> = ({
   }, [isOpen, locationToEdit, methods]);
 
   const handleFormSubmit = async (data: LocationFormData) => {
-    setIsLoading(true);
     try {
-      if (locationToEdit && locationToEdit.id) {
-        await locationService.updateLocation(locationToEdit.id, data);
+      const formDto: LocationDto = {
+        name: data.name,
+        address: data.address,
+      };
+
+      if (locationToEdit) {
+        const originalDto: LocationDto = {
+          name: locationToEdit.name,
+          address: locationToEdit.address,
+        };
+
+        await updateLocation({
+          id: locationToEdit.id,
+          originalData: originalDto,
+          updatedData: formDto,
+        });
       } else {
-        await locationService.createLocation(data);
+        await createLocation(formDto);
       }
-      toast.success('Localização salva com sucesso!');
-      onSuccess();
+
+      if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
-      toast.error('Erro ao salvar localização.');
-    } finally {
-      setIsLoading(false);
+      console.error('Falha ao salvar local:', error);
     }
   };
 

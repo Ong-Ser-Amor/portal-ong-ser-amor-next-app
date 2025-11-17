@@ -1,55 +1,59 @@
 import { LocationDto } from '@/interfaces/Location';
 import { locationService } from '@/services/location/locationService';
-import { useState } from 'react';
+import { getApiErrorMessage } from '@/utils/errorUtils';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
+
+interface UpdateLocationVariables {
+  id: number;
+  originalData: LocationDto;
+  updatedData: LocationDto;
+}
 
 export function useCreateLocation() {
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const createLocation = async (data: LocationDto) => {
-    setError(null);
-    try {
-      await locationService.createLocation(data);
-    } catch (err) {
-      setError('Erro ao criar localização.');
-      throw err;
-    }
-  };
-
-  return { createLocation, error };
+  return useMutation({
+    mutationFn: (data: LocationDto) => locationService.createLocation(data),
+    onSuccess: () => {
+      toast.success('Local criado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'local'));
+    },
+  });
 }
 
 export function useUpdateLocation() {
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const updateLocation = async (
-    id: number,
-    originalData: LocationDto,
-    updatedData?: LocationDto,
-  ) => {
-    setError(null);
-    try {
-      await locationService.updateLocation(id, originalData, updatedData);
-    } catch (err) {
-      setError('Erro ao atualizar localização.');
-      throw err;
-    }
-  };
+  return useMutation({
+    mutationFn: ({ id, originalData, updatedData }: UpdateLocationVariables) =>
+      locationService.updateLocation(id, originalData, updatedData),
 
-  return { updateLocation, error };
+    onSuccess: (data, variables) => {
+      toast.success('Local atualizado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
+      queryClient.invalidateQueries({ queryKey: ['location', variables.id] });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'local'));
+    },
+  });
 }
 
 export function useDeleteLocation() {
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const deleteLocation = async (id: number) => {
-    setError(null);
-    try {
-      await locationService.deleteLocation(id);
-    } catch (err) {
-      setError('Erro ao excluir localização.');
-      throw err;
-    }
-  };
-
-  return { deleteLocation, error };
+  return useMutation({
+    mutationFn: (id: number) => locationService.deleteLocation(id),
+    onSuccess: () => {
+      toast.success('Local excluído com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'local'));
+    },
+  });
 }

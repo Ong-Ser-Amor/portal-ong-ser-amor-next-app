@@ -14,7 +14,6 @@ const LocationListContainer: React.FC = () => {
   // Estados para o modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Estados para confirmação de exclusão
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -29,7 +28,8 @@ const LocationListContainer: React.FC = () => {
     currentPage,
     itemsPerPage,
   );
-  const deleteLocation = useDeleteLocation();
+  const { mutateAsync: deleteLocation, isPending: isSubmitting } =
+    useDeleteLocation();
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -37,7 +37,6 @@ const LocationListContainer: React.FC = () => {
 
   const handleFilterClick = () => {
     setCurrentPage(1);
-    refetch(1, itemsPerPage);
   };
 
   const handleAddLocation = () => {
@@ -59,19 +58,16 @@ const LocationListContainer: React.FC = () => {
     if (locationToDelete === null) return;
 
     try {
-      setIsSubmitting(true);
-      await deleteLocation.deleteLocation(locationToDelete);
-      setCurrentPage(1);
-      refetch(1, itemsPerPage);
+      await deleteLocation(locationToDelete);
+
       setLocationToDelete(null);
       setDeleteConfirmOpen(false);
+
+      if (locations.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
     } catch (err) {
-      console.error('Erro ao excluir localização:', err);
-      alert(
-        'Erro ao excluir localização. Verifique o console para mais detalhes.',
-      );
-    } finally {
-      setIsSubmitting(false);
+      console.error('Erro ao excluir local:', err);
     }
   };
 
@@ -83,10 +79,12 @@ const LocationListContainer: React.FC = () => {
   };
 
   const handleLocationSuccess = async () => {
-    setCurrentPage(1);
-    refetch(1, itemsPerPage);
     setIsModalOpen(false);
     setEditingLocation(null);
+
+    if (!editingLocation && currentPage !== 1) {
+      setCurrentPage(1);
+    }
   };
 
   return (
