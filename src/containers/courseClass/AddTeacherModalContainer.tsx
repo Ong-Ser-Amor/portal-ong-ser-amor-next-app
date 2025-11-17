@@ -1,14 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import Modal from '@/components/ui/Modal';
 import AddTeacherForm, {
   AddTeacherFormData,
 } from '@/components/features/courseClass/AddTeacherForm';
 import { useAddTeacherToCourseClass } from '@/hooks/courseClass/useCourseClassMutations';
-import { toast } from 'react-toastify';
-import { getApiErrorMessage } from '@/utils/errorUtils';
 
 interface AddTeacherModalContainerProps {
   isOpen: boolean;
@@ -23,33 +21,29 @@ const AddTeacherModalContainer: React.FC<AddTeacherModalContainerProps> = ({
   courseClassId,
   onSuccess,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
   const methods = useForm<AddTeacherFormData>({
     defaultValues: { teacherId: '' },
   });
 
-  const addTeacher = useAddTeacherToCourseClass();
+  // Hook de Mutação
+  const { mutateAsync: addTeacher, isPending: isAdding } =
+    useAddTeacherToCourseClass();
 
   useEffect(() => {
     methods.reset({ teacherId: '' });
   }, [isOpen, methods]);
 
   const handleFormSubmit = async (data: AddTeacherFormData) => {
-    setIsLoading(true);
     try {
-      const teacherId = data.teacherId;
-      if (!teacherId || isNaN(Number(teacherId))) return;
-      await addTeacher(courseClassId, Number(teacherId));
-      toast.success('Professor adicionado à turma com sucesso!');
+      const teacherId = Number(data.teacherId);
+      if (!teacherId) return;
+
+      await addTeacher({ courseClassId, teacherId });
+
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
-      const message = getApiErrorMessage(error);
-      toast.error(message || 'Erro ao adicionar professor à turma.');
       console.error('Erro ao adicionar professor:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -62,7 +56,7 @@ const AddTeacherModalContainer: React.FC<AddTeacherModalContainerProps> = ({
     >
       <FormProvider {...methods}>
         <AddTeacherForm
-          isLoading={isLoading}
+          isLoading={isAdding}
           onSubmit={handleFormSubmit}
           onCancel={onClose}
         />
