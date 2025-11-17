@@ -20,8 +20,12 @@ export const courseService = {
 
   async getCourses(page = 1, limit = 10): Promise<CoursePaginated> {
     try {
+      const params = new URLSearchParams();
+      params.append('page', String(page));
+      params.append('take', String(limit));
+
       const response = await apiService.get<CoursePaginated>(
-        `${baseUrl}?page=${page}&take=${limit}`,
+        `${baseUrl}?${params.toString()}`,
       );
 
       return response;
