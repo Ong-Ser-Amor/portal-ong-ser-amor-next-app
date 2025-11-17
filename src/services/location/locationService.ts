@@ -25,8 +25,12 @@ export const locationService = {
 
   async getLocations(page = 1, limit = 10): Promise<LocationPaginated> {
     try {
+      const params = new URLSearchParams();
+      params.append('page', String(page));
+      params.append('take', String(limit));
+
       const response = await apiService.get<LocationPaginated>(
-        `${baseUrl}?page=${page}&take=${limit}`,
+        `${baseUrl}?${params.toString()}`,
       );
 
       return response;
