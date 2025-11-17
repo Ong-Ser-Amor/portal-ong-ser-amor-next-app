@@ -29,9 +29,9 @@ export const assetCategoryService = {
       const params = new URLSearchParams();
       params.append('page', String(page));
       params.append('take', String(limit));
-      const query = params.toString() ? `?${params.toString()}` : '';
+
       const response = await apiService.get<AssetCategoryPaginated>(
-        `${baseUrl}${query}`,
+        `${baseUrl}?${params.toString()}`,
       );
       return response;
     } catch (error) {

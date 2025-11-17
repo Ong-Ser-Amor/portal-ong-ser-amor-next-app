@@ -15,7 +15,6 @@ const AssetCategoryListContainer: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAssetCategory, setEditingAssetCategory] =
     useState<AssetCategory | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Estados para confirmação de exclusão
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -32,14 +31,15 @@ const AssetCategoryListContainer: React.FC = () => {
     currentPage,
     itemsPerPage,
   );
-  const deleteAssetCategory = useDeleteAssetCategory();
+  const { mutateAsync: deleteAssetCategory, isPending: isSubmitting } =
+    useDeleteAssetCategory();
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
   const handleFilterClick = () => {
     setCurrentPage(1);
-    refetch(1, itemsPerPage);
   };
 
   const handleAddAssetCategory = () => {
@@ -61,19 +61,17 @@ const AssetCategoryListContainer: React.FC = () => {
     if (assetCategoryToDelete === null) return;
 
     try {
-      setIsSubmitting(true);
-      await deleteAssetCategory.deleteAssetCategory(assetCategoryToDelete);
-      setCurrentPage(1);
-      refetch(1, itemsPerPage);
+      await deleteAssetCategory(assetCategoryToDelete);
+
       setAssetCategoryToDelete(null);
       setDeleteConfirmOpen(false);
+
+      // Paginação Inteligente
+      if (assetCategories.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
     } catch (err) {
       console.error('Erro ao excluir categoria de patrimônio:', err);
-      alert(
-        'Erro ao excluir categoria de patrimônio. Verifique o console para mais detalhes.',
-      );
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -84,11 +82,13 @@ const AssetCategoryListContainer: React.FC = () => {
     setAssetCategoryToDelete(null);
   };
 
-  const handleAssetCategorySuccess = async () => {
-    setCurrentPage(1);
-    refetch(1, itemsPerPage);
+  const handleAssetCategorySuccess = () => {
     setIsModalOpen(false);
     setEditingAssetCategory(null);
+
+    if (!editingAssetCategory && currentPage !== 1) {
+      setCurrentPage(1);
+    }
   };
 
   return (

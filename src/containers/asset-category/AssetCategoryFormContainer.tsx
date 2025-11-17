@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import Modal from '@/components/ui/Modal';
-import { toast } from 'react-toastify';
-import { assetCategoryService } from '@/services/assetCategory/assetCategoryService';
 import AssetCategoryForm from '@/components/features/asset-category/AssetCategoryForm';
 import { AssetCategory, AssetCategoryDto } from '@/interfaces/AssetCategory';
+import {
+  useCreateAssetCategory,
+  useUpdateAssetCategory,
+} from '@/hooks/assetCategory/useAssetCategoryMutations';
 
 interface AssetCategoryFormContainerProps {
   isOpen: boolean;
@@ -19,13 +21,18 @@ const AssetCategoryFormContainer: React.FC<AssetCategoryFormContainerProps> = ({
   assetCategoryToEdit,
   onSuccess,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
   const methods = useForm<AssetCategoryDto>({
     defaultValues: {
       name: '',
     },
   });
+
+  const { mutateAsync: createAssetCategory, isPending: isCreating } =
+    useCreateAssetCategory();
+  const { mutateAsync: updateAssetCategory, isPending: isUpdating } =
+    useUpdateAssetCategory();
+
+  const isLoading = isCreating || isUpdating;
 
   useEffect(() => {
     if (isOpen) {
@@ -34,24 +41,24 @@ const AssetCategoryFormContainer: React.FC<AssetCategoryFormContainerProps> = ({
       });
     }
   }, [isOpen, assetCategoryToEdit, methods]);
+
   const handleFormSubmit = async (data: AssetCategoryDto) => {
-    setIsLoading(true);
     try {
-      if (assetCategoryToEdit && assetCategoryToEdit.id) {
-        await assetCategoryService.updateAssetCategory(
-          assetCategoryToEdit.id,
-          data,
-        );
+      const formDto: AssetCategoryDto = { name: data.name };
+
+      if (assetCategoryToEdit) {
+        await updateAssetCategory({
+          id: assetCategoryToEdit.id,
+          data: formDto,
+        });
       } else {
-        await assetCategoryService.createAssetCategory(data);
+        await createAssetCategory(formDto);
       }
-      toast.success('Categoria de patrimônio salva com sucesso!');
-      onSuccess();
+
+      if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
-      toast.error('Erro ao salvar categoria de patrimônio.');
-    } finally {
-      setIsLoading(false);
+      console.error('Erro ao salvar categoria:', error);
     }
   };
 

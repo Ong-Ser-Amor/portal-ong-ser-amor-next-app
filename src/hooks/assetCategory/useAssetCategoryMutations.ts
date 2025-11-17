@@ -1,56 +1,63 @@
-import { useState } from 'react';
-import { AssetCategory, AssetCategoryDto } from '@/interfaces/AssetCategory';
+import { AssetCategoryDto } from '@/interfaces/AssetCategory';
 import { assetCategoryService } from '@/services/assetCategory/assetCategoryService';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
+import { getApiErrorMessage } from '@/utils/errorUtils';
+
+interface UpdateAssetCategoryVariables {
+  id: number;
+  data: AssetCategoryDto;
+}
 
 export function useCreateAssetCategory() {
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const createAssetCategory = async (
-    data: AssetCategoryDto,
-  ): Promise<AssetCategory> => {
-    setError(null);
-    try {
-      return await assetCategoryService.createAssetCategory(data);
-    } catch (err) {
-      setError('Erro ao criar categoria de ativo.');
-      throw err;
-    }
-  };
+  return useMutation({
+    mutationFn: (data: AssetCategoryDto) =>
+      assetCategoryService.createAssetCategory(data),
 
-  return { createAssetCategory, error };
+    onSuccess: () => {
+      toast.success('Categoria criada com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['assetCategories'] });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'categoria de patrimônio'));
+    },
+  });
 }
 
 export function useUpdateAssetCategory() {
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const updateAssetCategory = async (
-    id: number,
-    data: AssetCategoryDto,
-  ): Promise<AssetCategory> => {
-    setError(null);
-    try {
-      return await assetCategoryService.updateAssetCategory(id, data);
-    } catch (err) {
-      setError('Erro ao atualizar categoria de ativo.');
-      throw err;
-    }
-  };
+  return useMutation({
+    mutationFn: ({ id, data }: UpdateAssetCategoryVariables) =>
+      assetCategoryService.updateAssetCategory(id, data),
 
-  return { updateAssetCategory, error };
+    onSuccess: (data, variables) => {
+      toast.success('Categoria atualizada com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['assetCategories'] });
+      queryClient.invalidateQueries({
+        queryKey: ['assetCategory', variables.id],
+      });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'categoria de patrimônio'));
+    },
+  });
 }
 
 export function useDeleteAssetCategory() {
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const deleteAssetCategory = async (id: number): Promise<void> => {
-    setError(null);
-    try {
-      await assetCategoryService.deleteAssetCategory(id);
-    } catch (err) {
-      setError('Erro ao excluir categoria de ativo.');
-      throw err;
-    }
-  };
+  return useMutation({
+    mutationFn: (id: number) => assetCategoryService.deleteAssetCategory(id),
 
-  return { deleteAssetCategory, error };
+    onSuccess: () => {
+      toast.success('Categoria excluída com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['assetCategories'] });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'categoria de patrimônio'));
+    },
+  });
 }
