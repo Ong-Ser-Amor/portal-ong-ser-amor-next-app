@@ -9,6 +9,7 @@ import { useDeleteArea } from '@/hooks/area/useAreaMutations';
 import { Area } from '@/interfaces/Area';
 import { useAreas } from '@/hooks/area/useAreaQueries';
 import { useLocation } from '@/hooks/location/useLocationQueries';
+import DeleteConfirmModal from '@/components/ui/DeleteConfirmModal';
 
 interface LocationDetailContainerProps {
   locationId: number;
@@ -26,6 +27,7 @@ export default function LocationDetailContainer({
     loading: locationLoading,
     refetch: refetchLocation,
   } = useLocation(locationId);
+
   const {
     areas,
     loading: areasLoading,
@@ -33,13 +35,15 @@ export default function LocationDetailContainer({
     refetch: refetchAreas,
   } = useAreas(locationId, currentPage, itemsPerPage);
 
-  const { mutateAsync: deleteArea, isPending: isDeletingArea } =
-    useDeleteArea();
+  const { mutateAsync: deleteArea, isPending: isSubmitting } = useDeleteArea();
 
   const [isEditLocationModalOpen, setIsEditLocationModalOpen] = useState(false);
-  const [isAddAreaModalOpen, setIsAddAreaModalOpen] = useState(false);
-  const [isEditAreaModalOpen, setIsEditAreaModalOpen] = useState(false);
+
+  const [isAreaModalOpen, setIsAreaModalOpen] = useState(false);
   const [selectedArea, setSelectedArea] = useState<Area | null>(null);
+
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [areaToDelete, setAreaToDelete] = useState<number | null>(null);
 
   const handleBack = () => {
     router.push('/locations');
@@ -50,25 +54,34 @@ export default function LocationDetailContainer({
   };
 
   const handleAddArea = () => {
-    setIsAddAreaModalOpen(true);
+    setSelectedArea(null);
+    setIsAreaModalOpen(true);
   };
 
   const handleEditArea = (area: Area) => {
     setSelectedArea(area);
-    setIsEditAreaModalOpen(true);
+    setIsAreaModalOpen(true);
   };
 
-  const handleDeleteArea = async (areaId: number) => {
-    if (confirm('Tem certeza que deseja excluir esta área?')) {
-      try {
-        await deleteArea(areaId);
+  const handleDeleteAreaClick = (areaId: number) => {
+    setAreaToDelete(areaId);
+    setDeleteConfirmOpen(true);
+  };
 
-        if (areas.length === 1 && currentPage > 1) {
-          setCurrentPage(currentPage - 1);
-        }
-      } catch (error) {
-        console.error('Erro ao deletar área:', error);
+  const handleDeleteAreaConfirm = async () => {
+    if (areaToDelete === null) return;
+
+    try {
+      await deleteArea(areaToDelete);
+
+      setAreaToDelete(null);
+      setDeleteConfirmOpen(false);
+
+      if (areas.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
       }
+    } catch (error) {
+      console.error('Erro ao deletar área:', error);
     }
   };
 
@@ -78,13 +91,17 @@ export default function LocationDetailContainer({
   };
 
   const handleAreaSuccess = () => {
-    setIsAddAreaModalOpen(false);
-    setIsEditAreaModalOpen(false);
-    setSelectedArea(null);
-
+    setIsAreaModalOpen(false);
+    // Se estava criando um novo (selectedArea era null), volta pra pag 1
     if (!selectedArea && currentPage !== 1) {
       setCurrentPage(1);
     }
+    setSelectedArea(null);
+  };
+
+  const handleCloseAreaModal = () => {
+    setIsAreaModalOpen(false);
+    setSelectedArea(null);
   };
 
   const handlePageChange = (page: number) => {
@@ -104,7 +121,7 @@ export default function LocationDetailContainer({
         onEditLocation={handleEditLocation}
         onAddArea={handleAddArea}
         onEditArea={handleEditArea}
-        onDeleteArea={handleDeleteArea}
+        onDeleteArea={handleDeleteAreaClick}
       />
 
       {/* Modal de Edição do Local */}
@@ -115,21 +132,22 @@ export default function LocationDetailContainer({
         onSuccess={handleLocationSuccess}
       />
 
-      {/* Modal de Adicionar Área */}
+      {/* Modal de editar Área */}
       <AreaFormContainer
-        isOpen={isAddAreaModalOpen}
-        onClose={() => setIsAddAreaModalOpen(false)}
-        locationId={locationId}
-        onSuccess={handleAreaSuccess}
-      />
-
-      {/* Modal de Editar Área */}
-      <AreaFormContainer
-        isOpen={isEditAreaModalOpen}
-        onClose={() => setIsEditAreaModalOpen(false)}
+        isOpen={isAreaModalOpen}
+        onClose={handleCloseAreaModal}
         locationId={locationId}
         areaToEdit={selectedArea}
         onSuccess={handleAreaSuccess}
+      />
+
+      {/* Modal de Deleção Padronizado */}
+      <DeleteConfirmModal
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDeleteAreaConfirm}
+        message='Tem certeza que deseja excluir este ambiente?'
+        isLoading={isSubmitting}
       />
     </>
   );
