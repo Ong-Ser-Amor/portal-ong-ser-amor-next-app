@@ -1,55 +1,60 @@
 import { StudentDto } from '@/interfaces/Student';
 import { studentService } from '@/services/student/studentService';
+import { getApiErrorMessage } from '@/utils/errorUtils';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
+
+interface UpdateStudentVariables {
+  id: number;
+  originalData: StudentDto;
+  updatedData: StudentDto;
+}
 
 export function useCreateStudent() {
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const createStudent = async (data: StudentDto) => {
-    setError(null);
-    try {
-      await studentService.createStudent(data);
-    } catch (err) {
-      setError('Erro ao criar aluno.');
-      throw err;
-    }
-  };
-
-  return { createStudent, error };
+  return useMutation({
+    mutationFn: (data: StudentDto) => studentService.createStudent(data),
+    onSuccess: () => {
+      toast.success('Aluno criado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'aluno'));
+    },
+  });
 }
 
 export function useUpdateStudent() {
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const updateStudent = async (
-    id: number,
-    originalData: StudentDto,
-    updatedData?: StudentDto,
-  ) => {
-    setError(null);
-    try {
-      await studentService.updateStudent(id, originalData, updatedData);
-    } catch (err) {
-      setError('Erro ao atualizar aluno.');
-      throw err;
-    }
-  };
+  return useMutation({
+    mutationFn: ({ id, originalData, updatedData }: UpdateStudentVariables) =>
+      studentService.updateStudent(id, originalData, updatedData),
 
-  return { updateStudent, error };
+    onSuccess: (updatedStudent, variables) => {
+      toast.success('Aluno atualizado com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+      queryClient.invalidateQueries({ queryKey: ['student', variables.id] });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'aluno'));
+    },
+  });
 }
 
 export function useDeleteStudent() {
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const deleteStudent = async (id: number) => {
-    setError(null);
-    try {
-      await studentService.deleteStudent(id);
-    } catch (err) {
-      setError('Erro ao excluir aluno.');
-      throw err;
-    }
-  };
-
-  return { deleteStudent, error };
+  return useMutation({
+    mutationFn: (id: number) => studentService.deleteStudent(id),
+    onSuccess: () => {
+      toast.success('Aluno excluído com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
+    onError: (error) => {
+      toast.error(getApiErrorMessage(error, 'aluno'));
+    },
+  });
 }

@@ -1,4 +1,4 @@
-import { Student, StudentDto, StudentPaginated } from '@/interfaces/Student';
+import { Student, StudentPaginated, StudentDto } from '@/interfaces/Student';
 import { apiService } from '../api/apiService';
 import { getChangedFields, hasNoChanges } from '@/utils/patchUtils';
 
@@ -14,7 +14,7 @@ export const studentService = {
 
       return response;
     } catch (error) {
-      console.error('Erro ao criar curso:', error);
+      console.error('Erro ao criar aluno:', error);
       throw error;
     }
   },
@@ -45,34 +45,24 @@ export const studentService = {
   async updateStudent(
     id: number,
     originalData: StudentDto,
-    updatedData?: StudentDto,
+    updatedData: StudentDto,
   ): Promise<Student> {
     try {
-      let dataToSend: Partial<StudentDto>;
+      const changes = getChangedFields(originalData, updatedData);
 
-      if (updatedData) {
-        // Modo com comparação: detectar apenas os campos que foram alterados
-        const changes = getChangedFields(originalData, updatedData);
-
-        // Se não há mudanças, retornar o aluno atual sem fazer a requisição
-        if (hasNoChanges(changes)) {
-          return await this.getStudent(id);
-        }
-
-        dataToSend = changes;
-      } else {
-        // Modo legacy: enviar todos os dados
-        dataToSend = originalData;
+      // Se não há mudanças, retornar o aluno atual sem fazer a requisição
+      if (hasNoChanges(changes)) {
+        return await this.getStudent(id);
       }
 
       const response = await apiService.patch<Student>(
         `${baseUrl}/${id}`,
-        dataToSend as unknown as Record<string, unknown>,
+        changes as unknown as Record<string, unknown>,
       );
 
       return response;
     } catch (error) {
-      console.error(`Erro ao atualizar curso ${id}:`, error);
+      console.error(`Erro ao atualizar aluno ${id}:`, error);
       throw error;
     }
   },

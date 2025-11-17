@@ -9,10 +9,8 @@ import {
   useUpdateStudent,
 } from '@/hooks/student/useStudentMutations';
 import { Student, StudentDto } from '@/interfaces/Student';
-import { getApiErrorMessage } from '@/utils/errorUtils';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
 
 interface StudentFormContainerProps {
   isOpen: boolean;
@@ -27,8 +25,6 @@ const StudentFormContainer: React.FC<StudentFormContainerProps> = ({
   studentToEdit,
   onSuccess,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
   const methods = useForm<StudentFormData>({
     defaultValues: {
       name: studentToEdit?.name || '',
@@ -36,8 +32,12 @@ const StudentFormContainer: React.FC<StudentFormContainerProps> = ({
     },
   });
 
-  const createStudent = useCreateStudent();
-  const updateStudent = useUpdateStudent();
+  const { mutateAsync: createStudent, isPending: isCreating } =
+    useCreateStudent();
+  const { mutateAsync: updateStudent, isPending: isUpdating } =
+    useUpdateStudent();
+
+  const isLoading = isCreating || isUpdating;
 
   useEffect(() => {
     methods.reset({
@@ -47,26 +47,31 @@ const StudentFormContainer: React.FC<StudentFormContainerProps> = ({
   }, [studentToEdit, isOpen, methods]);
 
   const handleFormSubmit = async (data: StudentFormData) => {
-    setIsLoading(true);
-
     try {
+      const formDto: StudentDto = {
+        name: data.name,
+        birthDate: data.birthDate,
+      };
+
       if (studentToEdit) {
-        const dto: StudentDto = { name: data.name, birthDate: data.birthDate };
-        await updateStudent.updateStudent(studentToEdit.id, dto);
-      } else {
-        await createStudent.createStudent({
-          name: data.name,
-          birthDate: data.birthDate,
+        const originalDto: StudentDto = {
+          name: studentToEdit.name,
+          birthDate: studentToEdit.birthDate,
+        };
+
+        await updateStudent({
+          id: studentToEdit.id,
+          originalData: originalDto,
+          updatedData: formDto,
         });
+      } else {
+        await createStudent(formDto);
       }
-      toast.success('Aluno salvo com sucesso!');
+
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
-      const friendlyMessage = getApiErrorMessage(error, 'aluno');
-      toast.error(friendlyMessage);
-    } finally {
-      setIsLoading(false);
+      console.error('Falha ao salvar aluno:', error);
     }
   };
 
