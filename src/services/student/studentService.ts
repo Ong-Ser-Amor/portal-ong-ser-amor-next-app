@@ -21,13 +21,17 @@ export const studentService = {
 
   async getStudents(page = 1, limit = 10): Promise<StudentPaginated> {
     try {
+      const params = new URLSearchParams();
+      params.append('page', String(page));
+      params.append('take', String(limit));
+
       const response = await apiService.get<StudentPaginated>(
-        `${baseUrl}?page=${page}&take=${limit}`,
+        `${baseUrl}?${params.toString()}`,
       );
 
       return response;
     } catch (error) {
-      console.error('Erro ao buscar cursos paginados:', error);
+      console.error('Erro ao buscar alunos paginados:', error);
       throw error;
     }
   },
