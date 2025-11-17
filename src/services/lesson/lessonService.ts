@@ -1,6 +1,11 @@
 import { apiService } from '@/services/api/apiService';
-import { getChangedFields } from '@/utils/patchUtils';
-import { Lesson, LessonDto, LessonPaginated } from '@/interfaces/Lesson';
+import { getChangedFields, hasNoChanges } from '@/utils/patchUtils';
+import {
+  Lesson,
+  LessonDto,
+  LessonPaginated,
+  UpdateLessonDto,
+} from '@/interfaces/Lesson';
 
 const baseUrl = '/lessons';
 
@@ -30,19 +35,19 @@ export const lessonService = {
 
   async updateLesson(
     id: number,
-    data: Partial<LessonDto>,
-    originalData: Lesson,
+    originalData: UpdateLessonDto,
+    updatedData: UpdateLessonDto,
   ): Promise<Lesson> {
     try {
-      const changedFields = getChangedFields(originalData, data);
+      const changes = getChangedFields(originalData, updatedData);
 
-      if (Object.keys(changedFields).length === 0) {
-        return originalData;
+      if (hasNoChanges(changes)) {
+        return await this.getLesson(id);
       }
 
       const response = await apiService.patch<Lesson>(
         `${baseUrl}/${id}`,
-        changedFields as unknown as Record<string, unknown>,
+        changes as unknown as Record<string, unknown>,
       );
       return response;
     } catch (error) {
@@ -63,11 +68,15 @@ export const lessonService = {
   async getLessonsByCourseClass(
     courseClassId: number,
     page = 1,
-    take = 10,
+    limit = 10,
   ): Promise<LessonPaginated> {
     try {
+      const params = new URLSearchParams();
+      params.append('page', String(page));
+      params.append('take', String(limit));
+
       const response = await apiService.get<LessonPaginated>(
-        `/course-classes/${courseClassId}/lessons?page=${page}&take=${take}`,
+        `/course-classes/${courseClassId}/lessons?${params.toString()}`,
       );
       return response;
     } catch (error) {

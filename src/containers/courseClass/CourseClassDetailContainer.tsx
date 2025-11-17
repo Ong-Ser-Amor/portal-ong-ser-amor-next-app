@@ -19,8 +19,6 @@ import CourseClassFormContainer from '@/containers/courseClass/CourseClassFormCo
 import AddStudentModalContainer from '@/containers/courseClass/AddStudentModalContainer';
 import AddTeacherModalContainer from '@/containers/courseClass/AddTeacherModalContainer';
 import { Lesson } from '@/interfaces/Lesson';
-import { toast } from 'react-toastify';
-import { getApiErrorMessage } from '@/utils/errorUtils';
 
 interface CourseClassDetailContainerProps {
   courseClassId: number;
@@ -31,11 +29,13 @@ export default function CourseClassDetailContainer({
 }: CourseClassDetailContainerProps) {
   const router = useRouter();
 
+  // Estados de paginação
   const [currentLessonPage, setCurrentLessonPage] = useState(1);
   const [currentStudentPage, setCurrentStudentPage] = useState(1);
   const [currentTeacherPage, setCurrentTeacherPage] = useState(1);
   const itemsPerPage = 10;
 
+  // Hooks de Query
   const {
     courseClass,
     loading: courseClassLoading,
@@ -46,31 +46,28 @@ export default function CourseClassDetailContainer({
     students,
     loading: studentsLoading,
     meta: studentMeta,
-    refetch: refetchStudents,
   } = useStudentsByCourseClass(courseClassId, currentStudentPage, itemsPerPage);
 
   const {
     teachers,
     loading: teachersLoading,
     meta: teacherMeta,
-    refetch: refetchTeachers,
   } = useTeachersByCourseClass(courseClassId, currentTeacherPage, itemsPerPage);
 
   const {
     lessons,
     loading: lessonsLoading,
     meta: lessonMeta,
-    refetch: refetchLessons,
   } = useLessonsByCourseClass(courseClassId, currentLessonPage, itemsPerPage);
 
-  const deleteLesson = useDeleteLesson();
-
+  // Hooks de Mutação
+  const { mutateAsync: deleteLesson, isPending: isDeletingLesson } =
+    useDeleteLesson();
   const { mutateAsync: removeStudent, isPending: isRemovingStudent } =
     useRemoveStudentFromCourseClass();
   const { mutateAsync: removeTeacher, isPending: isRemovingTeacher } =
     useRemoveTeacherFromCourseClass();
 
-  // Estados de Modal
   const [isEditCourseClassModalOpen, setIsEditCourseClassModalOpen] =
     useState(false);
   const [isAddLessonModalOpen, setIsAddLessonModalOpen] = useState(false);
@@ -87,22 +84,18 @@ export default function CourseClassDetailContainer({
     }
   };
 
-  // --- Ações da Turma ---
+  // Ações da Turma
 
-  const handleEditCourseClass = () => {
-    setIsEditCourseClassModalOpen(true);
-  };
+  const handleEditCourseClass = () => setIsEditCourseClassModalOpen(true);
 
   const handleCourseClassSuccess = () => {
     refetchCourseClass();
     setIsEditCourseClassModalOpen(false);
   };
 
-  // --- Ações de Aula (Legacy Pattern) ---
+  // Ações de Aula
 
-  const handleAddLesson = () => {
-    setIsAddLessonModalOpen(true);
-  };
+  const handleAddLesson = () => setIsAddLessonModalOpen(true);
 
   const handleEditLesson = (lesson: Lesson) => {
     setSelectedLesson(lesson);
@@ -113,8 +106,10 @@ export default function CourseClassDetailContainer({
     if (confirm('Tem certeza que deseja excluir esta aula?')) {
       try {
         await deleteLesson(lessonId);
-        setCurrentLessonPage(1);
-        refetchLessons();
+
+        if (lessons.length === 1 && currentLessonPage > 1) {
+          setCurrentLessonPage(currentLessonPage - 1);
+        }
       } catch (error) {
         console.error('Erro ao deletar aula:', error);
       }
@@ -122,60 +117,48 @@ export default function CourseClassDetailContainer({
   };
 
   const handleLessonSuccess = () => {
-    setCurrentLessonPage(1);
-    refetchLessons();
     setIsAddLessonModalOpen(false);
     setIsEditLessonModalOpen(false);
     setSelectedLesson(null);
+
+    if (!selectedLesson && currentLessonPage !== 1) {
+      setCurrentLessonPage(1);
+    }
   };
 
-  // --- Ações de Aluno ---
-
-  const handleAddStudent = () => {
-    setIsAddStudentModalOpen(true);
-  };
+  // Ações de Aluno
+  const handleAddStudent = () => setIsAddStudentModalOpen(true);
 
   const handleRemoveStudent = async (studentId: number) => {
     if (confirm('Tem certeza que deseja remover este aluno da turma?')) {
       try {
         await removeStudent({ courseClassId, studentId });
-
-        if (students.length === 1 && currentStudentPage > 1) {
+        if (students.length === 1 && currentStudentPage > 1)
           setCurrentStudentPage(currentStudentPage - 1);
-        }
       } catch (error) {
         console.error('Erro ao remover aluno:', error);
       }
     }
   };
 
-  const handleStudentSuccess = () => {
-    setIsAddStudentModalOpen(false);
-  };
+  const handleStudentSuccess = () => setIsAddStudentModalOpen(false);
 
-  // --- Ações de Professor (New Pattern) ---
-
-  const handleAddTeacher = () => {
-    setIsAddTeacherModalOpen(true);
-  };
+  // Ações de Professor
+  const handleAddTeacher = () => setIsAddTeacherModalOpen(true);
 
   const handleRemoveTeacher = async (teacherId: number) => {
     if (confirm('Tem certeza que deseja remover este professor da turma?')) {
       try {
         await removeTeacher({ courseClassId, teacherId });
-
-        if (teachers.length === 1 && currentTeacherPage > 1) {
+        if (teachers.length === 1 && currentTeacherPage > 1)
           setCurrentTeacherPage(currentTeacherPage - 1);
-        }
       } catch (error) {
         console.error('Erro ao remover professor:', error);
       }
     }
   };
 
-  const handleTeacherSuccess = () => {
-    setIsAddTeacherModalOpen(false);
-  };
+  const handleTeacherSuccess = () => setIsAddTeacherModalOpen(false);
 
   return (
     <>

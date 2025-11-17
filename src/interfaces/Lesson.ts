@@ -1,3 +1,5 @@
+import { PaginatedResponse } from './Pagination';
+
 export interface Lesson {
   id: number;
   courseClassId: number;
@@ -11,11 +13,9 @@ export interface LessonDto {
   topic?: string;
 }
 
-export interface LessonPaginated {
-  data: Lesson[];
-  meta: {
-    total: number;
-    page: number;
-    totalPages: number;
-  };
+export interface UpdateLessonDto {
+  date: string;
+  topic?: string;
 }
+
+export type LessonPaginated = PaginatedResponse<Lesson>;
