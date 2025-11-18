@@ -1,29 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
 import { attendanceService } from '@/services/attendance/attendanceService';
-import { Attendance } from '@/interfaces/Attendance';
+import { useQuery } from '@tanstack/react-query';
 
 export const useAttendancesByLesson = (lessonId: number) => {
-  const [attendances, setAttendances] = useState<Attendance[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ['attendances', lessonId],
+    queryFn: () => attendanceService.getAttendancesByLesson(lessonId),
+    enabled: !!lessonId,
+    // staleTime: 0, // Opcional: para ter dados frescos sempre que abrir a chamada
+  });
 
-  const fetchAttendances = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await attendanceService.getAttendancesByLesson(lessonId);
-      setAttendances(data);
-    } catch (err) {
-      console.error('Error fetching attendances:', err);
-      setError('Erro ao carregar chamadas.');
-    } finally {
-      setLoading(false);
-    }
-  }, [lessonId]);
-
-  useEffect(() => {
-    fetchAttendances();
-  }, [fetchAttendances]);
-
-  return { attendances, loading, error, refetch: fetchAttendances };
+  return {
+    attendances: data || [],
+    loading: isLoading,
+    error: isError ? (error as Error).message : null,
+    refetch,
+  };
 };
