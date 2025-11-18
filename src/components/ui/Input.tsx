@@ -13,8 +13,8 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, id, className, ...props }, ref) => {
-    const { isDark } = useThemeObserver();
-    const [isFocused, setIsFocused] = useState(false);
+  const { isDark } = useThemeObserver();
+  const [isFocused, setIsFocused] = useState(false);
 
     return (
       <div className='mb-2'>
@@ -28,7 +28,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             border: `2px solid ${isFocused ? 'var(--accent-primary)' : 'var(--border-color)'}`,
             borderRadius: '8px',
             background: 'var(--bg-secondary)',
-            color: isDark ? '#f5f5f5' : '#333',
+            color: isDark ? '#fff' : '#333',
             fontSize: '16px',
             outline: 'none',
             transition: 'border-color 0.2s',

@@ -51,6 +51,19 @@ body.theme-dark {
   --hover-bg: #3a3a3a;
   --card-shadow: rgba(0, 0, 0, 0.3);
 }
+/* Placeholder branco no tema dark */
+body.theme-dark input::placeholder {
+  color: #fff !important;
+  opacity: 1;
+}
+/* Texto digitado branco no tema dark */
+body.theme-dark input {
+  color: #fff !important;
+}
+/* Ícone de calendário branco no tema dark (input do tipo date) */
+body.theme-dark input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
 
 /* Tema Blue (Azul - tema atual/clássico) */
 body.theme-blue {
