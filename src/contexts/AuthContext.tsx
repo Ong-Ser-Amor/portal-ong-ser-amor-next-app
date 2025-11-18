@@ -6,19 +6,21 @@ import {
   useState,
   useEffect,
   ReactNode,
+  useCallback,
 } from 'react';
 import { useRouter } from 'next/navigation';
 import { SignInDto } from '@/interfaces/auth/SignInDto';
 import Cookies from 'js-cookie';
 import { User } from '@/interfaces/User';
 import { authService } from '@/services/authService';
+import { AuthResponse } from '@/interfaces/auth/AuthResponse';
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (credentials: SignInDto) => Promise<void>;
+  setAuthSession: (data: AuthResponse) => void;
   logout: () => void;
 }
 
@@ -48,52 +50,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (credentials: SignInDto) => {
-    setIsLoading(true);
-    try {
-      const response = await authService.signIn(credentials);
+  const setAuthSession = useCallback(
+    (data: AuthResponse) => {
+      if (!data.access_token) return;
 
-      if (!response.access_token) {
-        throw new Error('Token de acesso não recebido do servidor');
-      }
+      setToken(data.access_token);
+      setUser(data.user || null);
 
-      setToken(response.access_token);
-      setUser(response.user || null);
-
-      // Salvar nos cookies com segurança
-      Cookies.set('token', response.access_token, {
-        expires: 1,
+      Cookies.set('token', data.access_token, {
+        expires: 1, // 1 dia
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
       });
 
-      if (response.user) {
-        Cookies.set('user', JSON.stringify(response.user), {
+      if (data.user) {
+        Cookies.set('user', JSON.stringify(data.user), {
           expires: 1,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'strict',
         });
       }
 
-      // Pequeno atraso para garantir que o estado seja atualizado antes do redirecionamento
-      setTimeout(() => {
-        router.push('/courses');
-      }, 100);
-    } catch (error) {
-      console.error('Erro no login:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      router.push('/courses');
+    },
+    [router],
+  );
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null);
     setToken(null);
     Cookies.remove('token');
     Cookies.remove('user');
     router.push('/');
-  };
+  }, [router]);
 
   return (
     <AuthContext.Provider
@@ -102,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token,
         isLoading,
         isAuthenticated: !!token,
-        login,
+        setAuthSession,
         logout,
       }}
     >
