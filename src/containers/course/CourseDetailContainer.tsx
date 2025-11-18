@@ -9,8 +9,6 @@ import CourseDetail from '@/components/features/course/CourseDetail';
 import CourseFormContainer from './CourseFormContainer';
 import CourseClassFormContainer from '../courseClass/CourseClassFormContainer';
 import { CourseClass } from '@/interfaces/CourseClass';
-import { toast } from 'react-toastify';
-import { getApiErrorMessage } from '@/utils/errorUtils';
 
 interface CourseDetailContainerProps {
   courseId: number;
