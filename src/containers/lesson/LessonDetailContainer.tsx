@@ -7,6 +7,7 @@ import { useAttendancesByLesson } from '@/hooks/attendance/useAttendanceQueries'
 import { useDeleteAllAttendances } from '@/hooks/attendance/useAttendanceMutations';
 import LessonDetail from '@/components/features/lesson/LessonDetail';
 import AttendanceFormContainer from '@/containers/attendance/AttendanceFormContainer';
+import DeleteConfirmModal from '@/components/ui/DeleteConfirmModal';
 
 interface LessonDetailContainerProps {
   lessonId: number;
@@ -78,6 +79,14 @@ export default function LessonDetailContainer({
           onSuccess={handleAttendanceSuccess}
         />
       )}
+
+      <DeleteConfirmModal
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDeleteAttendanceConfirm}
+        message='Tem certeza que deseja excluir TODA a chamada desta aula? Esta ação não pode ser desfeita.'
+        isLoading={isDeleting}
+      />
     </>
   );
 }
