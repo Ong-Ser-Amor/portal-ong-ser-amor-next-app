@@ -1,6 +1,11 @@
-import { CourseClass, CourseClassDto, CourseClassPaginated } from '@/interfaces/CourseClass';
+import {
+  CourseClass,
+  CourseClassDto,
+  CourseClassPaginated,
+  UpdateCourseClassDto,
+} from '@/interfaces/CourseClass';
 import { Student, StudentPaginated } from '@/interfaces/Student';
-import { User, UserPaginated } from '@/interfaces/User';
+import { UserPaginated } from '@/interfaces/User';
 import { Lesson } from '@/interfaces/Lesson';
 import { apiService } from '../api/apiService';
 import { getChangedFields, hasNoChanges } from '@/utils/patchUtils';
@@ -22,10 +27,14 @@ export const courseClassService = {
     limit = 10,
   ): Promise<CourseClassPaginated> {
     try {
+      const params = new URLSearchParams();
+      params.append('page', String(page));
+      params.append('take', String(limit));
+
       const response = await apiService.get<CourseClassPaginated>(
-        `/courses/${courseId}/classes?page=${page}&take=${limit}`,
+        `/courses/${courseId}/classes?${params.toString()}`,
       );
-      
+
       return response;
     } catch (error) {
       console.error(`Erro ao buscar turmas do curso ${courseId}:`, error);
@@ -59,30 +68,19 @@ export const courseClassService = {
 
   async updateCourseClass(
     id: number,
-    originalData: CourseClassDto,
-    updatedData?: CourseClassDto,
+    originalData: UpdateCourseClassDto,
+    updatedData: UpdateCourseClassDto,
   ): Promise<CourseClass> {
     try {
-      let dataToSend: Partial<CourseClassDto>;
+      const changes = getChangedFields(originalData, updatedData);
 
-      if (updatedData) {
-        // Modo com comparação: detectar apenas os campos que foram alterados
-        const changes = getChangedFields(originalData, updatedData);
-
-        // Se não há mudanças, retornar a turma atual sem fazer a requisição
-        if (hasNoChanges(changes)) {
-          return await this.getCourseClass(id);
-        }
-
-        dataToSend = changes;
-      } else {
-        // Modo legacy: enviar todos os dados
-        dataToSend = originalData;
+      if (hasNoChanges(changes)) {
+        return await this.getCourseClass(id);
       }
 
       const response = await apiService.patch<CourseClass>(
         `${baseUrl}/${id}`,
-        dataToSend as unknown as Record<string, unknown>,
+        changes as unknown as Record<string, unknown>,
       );
 
       return response;
@@ -111,10 +109,7 @@ export const courseClassService = {
         data as unknown as Record<string, unknown>,
       );
     } catch (error) {
-      console.error(
-        `Erro ao adicionar aluno ${studentId} na turma ${courseClassId}:`,
-        error,
-      );
+      console.error(`Erro ao adicionar aluno ${studentId}:`, error);
       throw error;
     }
   },
@@ -134,18 +129,19 @@ export const courseClassService = {
   async getStudentsPaginated(
     courseClassId: number,
     page: number = 1,
-    limit: number = 10,
+    limit = 10,
   ): Promise<StudentPaginated> {
     try {
+      const params = new URLSearchParams();
+      params.append('page', String(page));
+      params.append('take', String(limit));
+
       const response = await apiService.get<StudentPaginated>(
-        `${baseUrl}/${courseClassId}/students/paginated?page=${page}&take=${limit}`,
+        `${baseUrl}/${courseClassId}/students/paginated?${params.toString()}`,
       );
       return response;
     } catch (error) {
-      console.error(
-        `Erro ao buscar alunos paginados da turma ${courseClassId}:`,
-        error,
-      );
+      console.error(`Erro ao buscar alunos paginados:`, error);
       throw error;
     }
   },
@@ -156,16 +152,12 @@ export const courseClassService = {
         `${baseUrl}/${courseClassId}/students/${studentId}`,
       );
     } catch (error) {
-      console.error(
-        `Erro ao remover aluno ${studentId} da turma ${courseClassId}:`,
-        error,
-      );
+      console.error(`Erro ao remover aluno ${studentId}:`, error);
       throw error;
     }
   },
 
   // ========== Métodos de Relacionamento: Professores ==========
-
   async addTeacher(courseClassId: number, teacherId: number): Promise<void> {
     try {
       const data: AddTeacherDto = { teacherId };
@@ -174,10 +166,7 @@ export const courseClassService = {
         data as unknown as Record<string, unknown>,
       );
     } catch (error) {
-      console.error(
-        `Erro ao adicionar professor ${teacherId} na turma ${courseClassId}:`,
-        error,
-      );
+      console.error(`Erro ao adicionar professor ${teacherId}:`, error);
       throw error;
     }
   },
@@ -185,18 +174,19 @@ export const courseClassService = {
   async getTeachers(
     courseClassId: number,
     page: number = 1,
-    limit: number = 10,
+    limit = 10,
   ): Promise<UserPaginated> {
     try {
+      const params = new URLSearchParams();
+      params.append('page', String(page));
+      params.append('take', String(limit));
+
       const response = await apiService.get<UserPaginated>(
-        `${baseUrl}/${courseClassId}/teachers?page=${page}&take=${limit}`,
+        `${baseUrl}/${courseClassId}/teachers?${params.toString()}`,
       );
       return response;
     } catch (error) {
-      console.error(
-        `Erro ao buscar professores da turma ${courseClassId}:`,
-        error,
-      );
+      console.error(`Erro ao buscar professores:`, error);
       throw error;
     }
   },
@@ -207,16 +197,12 @@ export const courseClassService = {
         `${baseUrl}/${courseClassId}/teachers/${teacherId}`,
       );
     } catch (error) {
-      console.error(
-        `Erro ao remover professor ${teacherId} da turma ${courseClassId}:`,
-        error,
-      );
+      console.error(`Erro ao remover professor ${teacherId}:`, error);
       throw error;
     }
   },
 
   // ========== Métodos de Relacionamento: Aulas ==========
-
   async getLessons(courseClassId: number): Promise<Lesson[]> {
     try {
       const response = await apiService.get<Lesson[]>(

@@ -1,26 +1,24 @@
-import { FiEdit, FiTrash2 } from 'react-icons/fi';
-import Table from '@/components/ui/Table';
+import LocationCard from './LocationCard';
 import { Location } from '@/interfaces/Location';
-import React from 'react';
 import PageHeader from '@/components/layout/PageHeader';
 import SearchBar from '@/components/ui/SearchBar';
 import Button from '@/components/ui/Button';
-import { FaFilter, FaPlus } from 'react-icons/fa6';
+import { FaFilter } from 'react-icons/fa6';
 import Pagination from '@/components/ui/Pagination';
-import IconButton from '@/components/ui/IconButton';
+import { PaginationMeta } from '@/interfaces/Pagination';
 
 interface LocationListProps {
   locations: Location[];
   loading: boolean;
   error: string | null;
   searchInput: string;
-  currentPage: number;
-  totalPages: number;
+  meta: PaginationMeta;
   onSearchInputChange: (value: string) => void;
   onFilterClick: () => void;
   onAddLocation: () => void;
   onEditLocation: (location: Location) => void;
   onDeleteClick: (locationId: number) => void;
+  onLocationClick?: (location: Location) => void;
   onPageChange: (page: number) => void;
 }
 
@@ -29,8 +27,7 @@ export default function LocationList({
   loading,
   error,
   searchInput,
-  currentPage,
-  totalPages,
+  meta,
   onSearchInputChange,
   onFilterClick,
   onAddLocation,
@@ -38,30 +35,6 @@ export default function LocationList({
   onDeleteClick,
   onPageChange,
 }: LocationListProps) {
-  const locationColumns = [
-    { header: 'Nome', accessor: (location: Location) => location.name },
-    {
-      header: 'Ações',
-      accessor: (location: Location) => (
-        <div className='flex justify-end space-x-1'>
-          <IconButton
-            icon={FiEdit}
-            onClick={() => onEditLocation(location)}
-            variant='primary'
-            tooltip='Editar local'
-          />
-          <IconButton
-            icon={FiTrash2}
-            onClick={() => onDeleteClick(location.id)}
-            variant='danger'
-            tooltip='Excluir local'
-          />
-        </div>
-      ),
-      align: 'right' as const,
-    },
-  ];
-
   return (
     <div className='container mx-auto px-4 py-5'>
       <PageHeader title='Locais' breadcrumb='Gestão de Locais'>
@@ -75,7 +48,7 @@ export default function LocationList({
           <FaFilter className='mr-2' /> Filtrar
         </Button>
         <Button variant='gradient' size='small' onClick={onAddLocation}>
-          <FaPlus className='mr-2' /> Novo Local
+          + Novo Local
         </Button>
       </PageHeader>
 
@@ -105,20 +78,19 @@ export default function LocationList({
             </p>
           </div>
         ) : (
-          <Table
-            columns={locationColumns}
-            data={locations}
-            keyExtractor={(location) => location.id}
-            isLoading={loading}
-            emptyMessage='Nenhum local encontrado.'
-          />
+          <div className='grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3'>
+            {locations.map((location) => (
+              <LocationCard
+                key={location.id}
+                location={location}
+                onEdit={onEditLocation}
+                onDelete={onDeleteClick}
+              />
+            ))}
+          </div>
         )}
-        {totalPages > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-          />
+        {meta.totalPages > 0 && (
+          <Pagination meta={meta} onPageChange={onPageChange} />
         )}
       </div>
     </div>

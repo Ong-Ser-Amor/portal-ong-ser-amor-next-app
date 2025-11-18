@@ -12,11 +12,10 @@ import {
   CourseClass,
   CourseClassDto,
   CourseClassStatusEnum,
+  UpdateCourseClassDto,
 } from '@/interfaces/CourseClass';
-import { getApiErrorMessage } from '@/utils/errorUtils';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
 
 interface CourseClassFormContainerProps {
   isOpen: boolean;
@@ -33,8 +32,6 @@ const CourseClassFormContainer: React.FC<CourseClassFormContainerProps> = ({
   courseClassToEdit,
   onSuccess,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
   const methods = useForm<CourseClassFormData>({
     defaultValues: {
       courseId: courseId,
@@ -49,8 +46,11 @@ const CourseClassFormContainer: React.FC<CourseClassFormContainerProps> = ({
     },
   });
 
-  const createCourseClass = useCreateCourseClass();
-  const updateCourseClass = useUpdateCourseClass();
+  const { mutateAsync: createCourseClass, isPending: isCreating } =
+    useCreateCourseClass();
+  const { mutateAsync: updateCourseClass, isPending: isUpdating } =
+    useUpdateCourseClass();
+  const isLoading = isCreating || isUpdating;
 
   useEffect(() => {
     methods.reset({
@@ -67,20 +67,18 @@ const CourseClassFormContainer: React.FC<CourseClassFormContainerProps> = ({
   }, [courseClassToEdit, isOpen, methods, courseId]);
 
   const handleFormSubmit = async (data: CourseClassFormData) => {
-    setIsLoading(true);
-
     try {
       if (courseClassToEdit) {
-        const dto: CourseClassDto = {
-          courseId: courseId,
+        const formDto: UpdateCourseClassDto = {
           name: data.name,
           startDate: data.startDate,
           endDate: data.endDate,
           status: data.status,
         };
 
-        const originalDto: CourseClassDto = {
-          courseId: courseId,
+        // UPDATE: Prepara o DTO Original (UpdateCourseClassDto)
+        // Nota: Precisamos formatar as datas do original para string YYYY-MM-DD para a comparação ser justa com o formDto
+        const originalDto: UpdateCourseClassDto = {
           name: courseClassToEdit.name,
           startDate: new Date(courseClassToEdit.startDate)
             .toISOString()
@@ -91,10 +89,13 @@ const CourseClassFormContainer: React.FC<CourseClassFormContainerProps> = ({
           status: courseClassToEdit.status,
         };
 
-        await updateCourseClass(courseClassToEdit.id, originalDto, dto);
-        toast.success('Turma atualizada com sucesso!');
+        await updateCourseClass({
+          id: courseClassToEdit.id,
+          originalData: originalDto,
+          updatedData: formDto,
+        });
       } else {
-        const dto: CourseClassDto = {
+        const formDto: CourseClassDto = {
           courseId: courseId,
           name: data.name,
           startDate: data.startDate,
@@ -102,23 +103,14 @@ const CourseClassFormContainer: React.FC<CourseClassFormContainerProps> = ({
           status: data.status,
         };
 
-        await createCourseClass(dto);
-        toast.success('Turma criada com sucesso!');
+        await createCourseClass(formDto);
       }
 
-      methods.reset();
-      onSuccess();
+      if (onSuccess) onSuccess();
+      onClose();
     } catch (error) {
-      const message = getApiErrorMessage(error);
-      toast.error(message || 'Erro ao salvar turma.');
-    } finally {
-      setIsLoading(false);
+      console.error('Erro ao salvar turma:', error);
     }
-  };
-
-  const handleCancel = () => {
-    methods.reset();
-    onClose();
   };
 
   return (
@@ -133,7 +125,7 @@ const CourseClassFormContainer: React.FC<CourseClassFormContainerProps> = ({
           courseId={courseId}
           courseClassToEdit={courseClassToEdit}
           onSubmit={handleFormSubmit}
-          onCancel={handleCancel}
+          onCancel={onClose}
         />
       </FormProvider>
     </Modal>

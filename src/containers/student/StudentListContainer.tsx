@@ -14,7 +14,6 @@ const StudentListContainer: React.FC = () => {
   // Estados para o modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Estados para confirmação de exclusão
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -29,7 +28,8 @@ const StudentListContainer: React.FC = () => {
     currentPage,
     itemsPerPage,
   );
-  const deleteStudent = useDeleteStudent();
+  const { mutateAsync: deleteStudent, isPending: isSubmitting } =
+    useDeleteStudent();
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -37,7 +37,6 @@ const StudentListContainer: React.FC = () => {
 
   const handleFilterClick = () => {
     setCurrentPage(1);
-    refetch(1, itemsPerPage);
   };
 
   const handleAddStudent = () => {
@@ -59,17 +58,16 @@ const StudentListContainer: React.FC = () => {
     if (studentToDelete === null) return;
 
     try {
-      setIsSubmitting(true);
-      await deleteStudent.deleteStudent(studentToDelete);
-      setCurrentPage(1);
-      refetch(1, itemsPerPage);
+      await deleteStudent(studentToDelete);
+
       setStudentToDelete(null);
       setDeleteConfirmOpen(false);
+
+      if (students.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
     } catch (err) {
       console.error('Erro ao excluir aluno:', err);
-      alert('Erro ao excluir aluno. Verifique o console para mais detalhes.');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -81,10 +79,12 @@ const StudentListContainer: React.FC = () => {
   };
 
   const handleStudentSuccess = async () => {
-    setCurrentPage(1);
-    refetch(1, itemsPerPage);
     setIsModalOpen(false);
     setEditingStudent(null);
+
+    if (!editingStudent && currentPage !== 1) {
+      setCurrentPage(1);
+    }
   };
 
   return (
@@ -94,8 +94,7 @@ const StudentListContainer: React.FC = () => {
         loading={loading}
         error={error}
         searchInput={searchInput}
-        currentPage={meta.currentPage}
-        totalPages={meta.totalPages}
+        meta={meta}
         onSearchInputChange={setSearchInput}
         onFilterClick={handleFilterClick}
         onAddStudent={handleAddStudent}

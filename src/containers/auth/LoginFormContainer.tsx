@@ -3,8 +3,9 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SignInDto } from '@/interfaces/auth/SignInDto';
-import { getLoginErrorMessage } from '@/utils/errorUtils';
+import { getApiErrorMessage, getLoginErrorMessage } from '@/utils/errorUtils';
 import LoginForm from '@/components/features/auth/LoginForm';
+import { useLogin } from '@/hooks/auth/useAuthMutations';
 
 interface LoginFormContainerProps {
   onSuccess?: () => void;
@@ -13,9 +14,11 @@ interface LoginFormContainerProps {
 const LoginFormContainer: React.FC<LoginFormContainerProps> = ({
   onSuccess,
 }) => {
-  const { login } = useAuth();
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const { setAuthSession } = useAuth();
+
+  const { mutateAsync: loginFn, isPending } = useLogin();
+
+  const [customError, setCustomError] = useState<string | null>(null);
 
   const methods = useForm<SignInDto>({
     defaultValues: {
@@ -25,29 +28,29 @@ const LoginFormContainer: React.FC<LoginFormContainerProps> = ({
   });
 
   const handleFormSubmit = async (data: SignInDto) => {
-    setIsLoading(true);
-    setError(null);
+    setCustomError(null);
     try {
-      await login(data);
+      const response = await loginFn(data);
+
+      setAuthSession(response);
+
       if (onSuccess) onSuccess();
-    } catch (err) {
-      const friendlyMessage = getLoginErrorMessage(err);
-      setError(friendlyMessage);
-    } finally {
-      setIsLoading(false);
+    } catch (error) {
+      const friendlyMessage = getApiErrorMessage(error, 'login');
+      setCustomError(friendlyMessage);
     }
   };
 
   const handleRetry = () => {
-    setError(null);
+    setCustomError(null);
     methods.handleSubmit(handleFormSubmit)();
   };
 
   return (
     <FormProvider {...methods}>
       <LoginForm
-        isLoading={isLoading}
-        error={error}
+        isLoading={isPending}
+        error={customError}
         onSubmit={handleFormSubmit}
         onRetry={handleRetry}
       />

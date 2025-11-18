@@ -11,17 +11,10 @@ export const authService = {
         credentials as unknown as Record<string, unknown>,
       );
 
-      // Armazenar o token nos cookies
-      Cookies.set('token', response.access_token, { expires: 1 }); // expira em 1 dia
-
       return response;
     } catch (error) {
       console.error('Erro ao fazer login:', error);
       throw error;
     }
-  },
-
-  async signOut(): Promise<void> {
-    Cookies.remove('token');
   },
 };

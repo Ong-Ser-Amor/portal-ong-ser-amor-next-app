@@ -7,20 +7,19 @@ import {
   useStudentsByCourseClass,
   useTeachersByCourseClass,
 } from '@/hooks/courseClass/useCourseClassQueries';
-import { useLessonsByCourseClass } from '@/hooks/lesson/useLessonQueries';
-import { useDeleteLesson } from '@/hooks/lesson/useLessonMutations';
 import {
   useRemoveStudentFromCourseClass,
   useRemoveTeacherFromCourseClass,
 } from '@/hooks/courseClass/useCourseClassMutations';
+import { useLessonsByCourseClass } from '@/hooks/lesson/useLessonQueries';
+import { useDeleteLesson } from '@/hooks/lesson/useLessonMutations';
 import CourseClassDetail from '@/components/features/courseClass/CourseClassDetail';
 import LessonFormContainer from '@/containers/lesson/LessonFormContainer';
 import CourseClassFormContainer from '@/containers/courseClass/CourseClassFormContainer';
 import AddStudentModalContainer from '@/containers/courseClass/AddStudentModalContainer';
 import AddTeacherModalContainer from '@/containers/courseClass/AddTeacherModalContainer';
+import DeleteConfirmModal from '@/components/ui/DeleteConfirmModal';
 import { Lesson } from '@/interfaces/Lesson';
-import { toast } from 'react-toastify';
-import { getApiErrorMessage } from '@/utils/errorUtils';
 
 interface CourseClassDetailContainerProps {
   courseClassId: number;
@@ -30,13 +29,14 @@ export default function CourseClassDetailContainer({
   courseClassId,
 }: CourseClassDetailContainerProps) {
   const router = useRouter();
+
+  // Estados de Paginação
   const [currentLessonPage, setCurrentLessonPage] = useState(1);
   const [currentStudentPage, setCurrentStudentPage] = useState(1);
   const [currentTeacherPage, setCurrentTeacherPage] = useState(1);
-  const lessonsPerPage = 10;
-  const studentsPerPage = 10;
-  const teachersPerPage = 10;
+  const itemsPerPage = 10;
 
+  // Hooks de Query
   const {
     courseClass,
     loading: courseClassLoading,
@@ -44,45 +44,53 @@ export default function CourseClassDetailContainer({
   } = useCourseClass(courseClassId);
 
   const {
-    lessons,
-    loading: lessonsLoading,
-    meta: lessonMeta,
-    refetch: refetchLessons,
-  } = useLessonsByCourseClass(courseClassId, currentLessonPage, lessonsPerPage);
-
-  const {
     students,
     loading: studentsLoading,
     meta: studentMeta,
-    refetch: refetchStudents,
-  } = useStudentsByCourseClass(
-    courseClassId,
-    currentStudentPage,
-    studentsPerPage,
-  );
+  } = useStudentsByCourseClass(courseClassId, currentStudentPage, itemsPerPage);
 
   const {
     teachers,
     loading: teachersLoading,
     meta: teacherMeta,
-    refetch: refetchTeachers,
-  } = useTeachersByCourseClass(
-    courseClassId,
-    currentTeacherPage,
-    teachersPerPage,
-  );
+  } = useTeachersByCourseClass(courseClassId, currentTeacherPage, itemsPerPage);
 
-  const deleteLesson = useDeleteLesson();
-  const removeStudent = useRemoveStudentFromCourseClass();
-  const removeTeacher = useRemoveTeacherFromCourseClass();
+  const {
+    lessons,
+    loading: lessonsLoading,
+    meta: lessonMeta,
+  } = useLessonsByCourseClass(courseClassId, currentLessonPage, itemsPerPage);
 
+  // Hooks de Mutação
+  const { mutateAsync: deleteLesson, isPending: isDeletingLesson } =
+    useDeleteLesson();
+  const { mutateAsync: removeStudent, isPending: isRemovingStudent } =
+    useRemoveStudentFromCourseClass();
+  const { mutateAsync: removeTeacher, isPending: isRemovingTeacher } =
+    useRemoveTeacherFromCourseClass();
+
+  // Estados de Modal (Formulários)
   const [isEditCourseClassModalOpen, setIsEditCourseClassModalOpen] =
     useState(false);
-  const [isAddLessonModalOpen, setIsAddLessonModalOpen] = useState(false);
-  const [isEditLessonModalOpen, setIsEditLessonModalOpen] = useState(false);
+  const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
+  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false);
   const [isAddTeacherModalOpen, setIsAddTeacherModalOpen] = useState(false);
-  const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
+
+  // Estados para Modal de Confirmação
+  // Aula
+  const [deleteLessonConfirmOpen, setDeleteLessonConfirmOpen] = useState(false);
+  const [lessonToDelete, setLessonToDelete] = useState<number | null>(null);
+
+  // Aluno
+  const [removeStudentConfirmOpen, setRemoveStudentConfirmOpen] =
+    useState(false);
+  const [studentToRemove, setStudentToRemove] = useState<number | null>(null);
+
+  // Professor
+  const [removeTeacherConfirmOpen, setRemoveTeacherConfirmOpen] =
+    useState(false);
+  const [teacherToRemove, setTeacherToRemove] = useState<number | null>(null);
 
   const handleBack = () => {
     if (courseClass?.course?.id) {
@@ -92,108 +100,112 @@ export default function CourseClassDetailContainer({
     }
   };
 
-  const handleEditCourseClass = () => {
-    setIsEditCourseClassModalOpen(true);
-  };
-
-  const handleAddLesson = () => {
-    setIsAddLessonModalOpen(true);
-  };
-
-  const handleEditLesson = (lesson: Lesson) => {
-    setSelectedLesson(lesson);
-    setIsEditLessonModalOpen(true);
-  };
-
-  const handleDeleteLesson = async (lessonId: number) => {
-    if (confirm('Tem certeza que deseja excluir esta aula?')) {
-      try {
-        await deleteLesson(lessonId);
-        toast.success('Aula excluída com sucesso!');
-        setCurrentLessonPage(1);
-        refetchLessons();
-      } catch (error) {
-        const message = getApiErrorMessage(error);
-        toast.error(message || 'Erro ao excluir aula.');
-        console.error('Erro ao deletar aula:', error);
-      }
-    }
-  };
-
-  const handleLessonPageChange = (page: number) => {
-    setCurrentLessonPage(page);
-  };
-
-  const handleStudentPageChange = (page: number) => {
-    setCurrentStudentPage(page);
-  };
-
-  const handleTeacherPageChange = (page: number) => {
-    setCurrentTeacherPage(page);
-  };
-
-  const handleAddStudent = () => {
-    setIsAddStudentModalOpen(true);
-  };
-
-  const handleAddTeacher = () => {
-    setIsAddTeacherModalOpen(true);
-  };
-
-  const handleRemoveStudent = async (studentId: number) => {
-    if (confirm('Tem certeza que deseja remover este aluno da turma?')) {
-      try {
-        await removeStudent(courseClassId, studentId);
-        toast.success('Aluno removido da turma com sucesso!');
-        setCurrentStudentPage(1);
-        refetchStudents();
-      } catch (error) {
-        const message = getApiErrorMessage(error);
-        toast.error(message || 'Erro ao remover aluno da turma.');
-        console.error('Erro ao remover aluno:', error);
-      }
-    }
-  };
-
-  const handleRemoveTeacher = async (teacherId: number) => {
-    if (confirm('Tem certeza que deseja remover este professor da turma?')) {
-      try {
-        await removeTeacher(courseClassId, teacherId);
-        toast.success('Professor removido da turma com sucesso!');
-        setCurrentTeacherPage(1);
-        refetchTeachers();
-      } catch (error) {
-        const message = getApiErrorMessage(error);
-        toast.error(message || 'Erro ao remover professor da turma.');
-        console.error('Erro ao remover professor:', error);
-      }
-    }
-  };
-
+  // Ações da Turma
+  const handleEditCourseClass = () => setIsEditCourseClassModalOpen(true);
   const handleCourseClassSuccess = () => {
     refetchCourseClass();
     setIsEditCourseClassModalOpen(false);
   };
 
+  // Ações de Aula (Lógica Unificada)
+
+  const handleAddLesson = () => {
+    setSelectedLesson(null);
+    setIsLessonModalOpen(true);
+  };
+
+  const handleEditLesson = (lesson: Lesson) => {
+    setSelectedLesson(lesson);
+    setIsLessonModalOpen(true);
+  };
+
+  const handleDeleteLessonClick = (lessonId: number) => {
+    setLessonToDelete(lessonId);
+    setDeleteLessonConfirmOpen(true);
+  };
+
+  const handleDeleteLessonConfirm = async () => {
+    if (lessonToDelete === null) return;
+
+    try {
+      await deleteLesson(lessonToDelete);
+
+      setLessonToDelete(null);
+      setDeleteLessonConfirmOpen(false);
+
+      if (lessons.length === 1 && currentLessonPage > 1) {
+        setCurrentLessonPage(currentLessonPage - 1);
+      }
+    } catch (error) {
+      console.error('Erro ao deletar aula:', error);
+    }
+  };
+
   const handleLessonSuccess = () => {
-    setCurrentLessonPage(1);
-    refetchLessons();
-    setIsAddLessonModalOpen(false);
-    setIsEditLessonModalOpen(false);
+    setIsLessonModalOpen(false);
+
+    if (!selectedLesson && currentLessonPage !== 1) {
+      setCurrentLessonPage(1);
+    }
     setSelectedLesson(null);
   };
 
-  const handleStudentSuccess = () => {
-    setCurrentStudentPage(1);
-    refetchStudents();
-    setIsAddStudentModalOpen(false);
+  const handleCloseLessonModal = () => {
+    setIsLessonModalOpen(false);
+    setSelectedLesson(null);
   };
 
-  const handleTeacherSuccess = () => {
-    setCurrentTeacherPage(1);
-    refetchTeachers();
-    setIsAddTeacherModalOpen(false);
+  // Ações de Aluno
+  const handleAddStudent = () => setIsAddStudentModalOpen(true);
+
+  const handleRemoveStudentClick = (studentId: number) => {
+    setStudentToRemove(studentId);
+    setRemoveStudentConfirmOpen(true);
   };
+
+  const handleRemoveStudentConfirm = async () => {
+    if (studentToRemove === null) return;
+    try {
+      await removeStudent({ courseClassId, studentId: studentToRemove });
+
+      setStudentToRemove(null);
+      setRemoveStudentConfirmOpen(false);
+
+      if (students.length === 1 && currentStudentPage > 1) {
+        setCurrentStudentPage(currentStudentPage - 1);
+      }
+    } catch (error) {
+      console.error('Erro ao remover aluno:', error);
+    }
+  };
+
+  const handleStudentSuccess = () => setIsAddStudentModalOpen(false);
+
+  // Ações de Professor
+  const handleAddTeacher = () => setIsAddTeacherModalOpen(true);
+
+  const handleRemoveTeacherClick = (teacherId: number) => {
+    setTeacherToRemove(teacherId);
+    setRemoveTeacherConfirmOpen(true);
+  };
+
+  const handleRemoveTeacherConfirm = async () => {
+    if (teacherToRemove === null) return;
+    try {
+      await removeTeacher({ courseClassId, teacherId: teacherToRemove });
+
+      setTeacherToRemove(null);
+      setRemoveTeacherConfirmOpen(false);
+
+      if (teachers.length === 1 && currentTeacherPage > 1) {
+        setCurrentTeacherPage(currentTeacherPage - 1);
+      }
+    } catch (error) {
+      console.error('Erro ao remover professor:', error);
+    }
+  };
+
+  const handleTeacherSuccess = () => setIsAddTeacherModalOpen(false);
 
   return (
     <>
@@ -203,29 +215,28 @@ export default function CourseClassDetailContainer({
         students={students}
         teachers={teachers}
         loading={courseClassLoading || lessonsLoading}
-        studentsLoading={studentsLoading}
-        teachersLoading={teachersLoading}
-        currentLessonPage={currentLessonPage}
-        totalLessonPages={lessonMeta?.totalPages ?? 0}
-        currentStudentPage={currentStudentPage}
-        totalStudentPages={studentMeta?.totalPages ?? 0}
-        currentTeacherPage={currentTeacherPage}
-        totalTeacherPages={teacherMeta?.totalPages ?? 0}
-        onLessonPageChange={handleLessonPageChange}
-        onStudentPageChange={handleStudentPageChange}
-        onTeacherPageChange={handleTeacherPageChange}
+        studentsLoading={studentsLoading || isRemovingStudent}
+        teachersLoading={teachersLoading || isRemovingTeacher}
+        // Paginação
+        lessonMeta={lessonMeta}
+        studentMeta={studentMeta}
+        teacherMeta={teacherMeta}
+        onLessonPageChange={setCurrentLessonPage}
+        onStudentPageChange={setCurrentStudentPage}
+        onTeacherPageChange={setCurrentTeacherPage}
+        // Ações
         onBack={handleBack}
         onEditCourseClass={handleEditCourseClass}
         onAddLesson={handleAddLesson}
         onEditLesson={handleEditLesson}
-        onDeleteLesson={handleDeleteLesson}
+        onDeleteLesson={handleDeleteLessonClick}
         onAddStudent={handleAddStudent}
-        onRemoveStudent={handleRemoveStudent}
+        onRemoveStudent={handleRemoveStudentClick}
         onAddTeacher={handleAddTeacher}
-        onRemoveTeacher={handleRemoveTeacher}
+        onRemoveTeacher={handleRemoveTeacherClick}
       />
 
-      {/* Modal de Editar Turma */}
+      {/* Modais de Edição/Criação */}
       {courseClass && (
         <CourseClassFormContainer
           isOpen={isEditCourseClassModalOpen}
@@ -236,27 +247,14 @@ export default function CourseClassDetailContainer({
         />
       )}
 
-      {/* Modal de Adicionar Aula */}
       <LessonFormContainer
-        isOpen={isAddLessonModalOpen}
-        onClose={() => setIsAddLessonModalOpen(false)}
-        courseClassId={courseClassId}
-        onSuccess={handleLessonSuccess}
-      />
-
-      {/* Modal de Editar Aula */}
-      <LessonFormContainer
-        isOpen={isEditLessonModalOpen}
-        onClose={() => {
-          setIsEditLessonModalOpen(false);
-          setSelectedLesson(null);
-        }}
+        isOpen={isLessonModalOpen}
+        onClose={handleCloseLessonModal}
         courseClassId={courseClassId}
         lessonToEdit={selectedLesson}
         onSuccess={handleLessonSuccess}
       />
 
-      {/* Modal de Adicionar Aluno */}
       <AddStudentModalContainer
         isOpen={isAddStudentModalOpen}
         onClose={() => setIsAddStudentModalOpen(false)}
@@ -265,12 +263,36 @@ export default function CourseClassDetailContainer({
         onSuccess={handleStudentSuccess}
       />
 
-      {/* Modal de Adicionar Professor */}
       <AddTeacherModalContainer
         isOpen={isAddTeacherModalOpen}
         onClose={() => setIsAddTeacherModalOpen(false)}
         courseClassId={courseClassId}
         onSuccess={handleTeacherSuccess}
+      />
+
+      {/* Modais de Confirmação */}
+      <DeleteConfirmModal
+        isOpen={deleteLessonConfirmOpen}
+        onClose={() => setDeleteLessonConfirmOpen(false)}
+        onConfirm={handleDeleteLessonConfirm}
+        message='Tem certeza que deseja excluir esta aula?'
+        isLoading={isDeletingLesson}
+      />
+
+      <DeleteConfirmModal
+        isOpen={removeStudentConfirmOpen}
+        onClose={() => setRemoveStudentConfirmOpen(false)}
+        onConfirm={handleRemoveStudentConfirm}
+        message='Tem certeza que deseja remover este aluno da turma?'
+        isLoading={isRemovingStudent}
+      />
+
+      <DeleteConfirmModal
+        isOpen={removeTeacherConfirmOpen}
+        onClose={() => setRemoveTeacherConfirmOpen(false)}
+        onConfirm={handleRemoveTeacherConfirm}
+        message='Tem certeza que deseja remover este professor da turma?'
+        isLoading={isRemovingTeacher}
       />
     </>
   );

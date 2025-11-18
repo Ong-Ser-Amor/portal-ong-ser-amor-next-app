@@ -1,171 +1,95 @@
-import { useCallback, useEffect, useState } from 'react';
-import { CourseClass } from '@/interfaces/CourseClass';
-import { Student } from '@/interfaces/Student';
-import { User } from '@/interfaces/User';
 import { courseClassService } from '@/services/courseClass/courseClassService';
+import { useQuery } from '@tanstack/react-query';
 
-export const useCourseClasses = (courseId: number, page = 1, limit = 10) => {
-  const [courseClasses, setCourseClasses] = useState<CourseClass[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [meta, setMeta] = useState<{
-    currentPage: number;
-    totalPages: number;
-    itemsPerPage: number;
-    totalItems: number;
-  } | null>(null);
+export function useCourseClasses(
+  courseId: number,
+  page: number = 1,
+  limit: number = 10,
+) {
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ['courseClasses', courseId, page, limit],
+    queryFn: () =>
+      courseClassService.getCourseClassesByCourse(courseId, page, limit),
+    enabled: !!courseId,
+    staleTime: 1000 * 60 * 5,
+  });
 
-  const fetchCourseClasses = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await courseClassService.getCourseClassesByCourse(courseId, page, limit);
-      
-      setCourseClasses(response.data ?? []);
-      setMeta(response.meta);
-    } catch (err) {
-      setError(err as Error);
-      console.error('Erro ao buscar turmas do curso:', err);
-      setCourseClasses([]);
-      setMeta(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [courseId, page, limit]);
+  return {
+    courseClasses: data?.data ?? [],
+    meta: data?.meta ?? {
+      currentPage: 1,
+      totalPages: 0,
+      itemsPerPage: limit,
+      totalItems: 0,
+    },
+    loading: isLoading,
+    error: isError ? (error as Error).message : null,
+    refetch,
+  };
+}
 
-  useEffect(() => {
-    fetchCourseClasses();
-  }, [fetchCourseClasses]);
+export function useCourseClass(id: number) {
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ['courseClass', id],
+    queryFn: () => courseClassService.getCourseClass(id),
+    enabled: !!id,
+  });
 
-  const refetch = useCallback(() => {
-    fetchCourseClasses();
-  }, [fetchCourseClasses]);
+  return {
+    courseClass: data ?? null,
+    loading: isLoading,
+    error: isError ? (error as Error).message : null,
+    refetch,
+  };
+}
 
-  return { courseClasses, loading, error, meta, refetch };
-};
-
-export const useCourseClass = (id: number) => {
-  const [courseClass, setCourseClass] = useState<CourseClass | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  const fetchCourseClass = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await courseClassService.getCourseClass(id);
-      setCourseClass(data);
-    } catch (err) {
-      setError(err as Error);
-      console.error('Erro ao buscar turma:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    fetchCourseClass();
-  }, [fetchCourseClass]);
-
-  const refetch = useCallback(() => {
-    fetchCourseClass();
-  }, [fetchCourseClass]);
-
-  return { courseClass, loading, error, refetch };
-};
-
-export const useStudentsByCourseClass = (
+export function useStudentsByCourseClass(
   courseClassId: number,
-  page = 1,
-  limit = 10,
-) => {
-  const [students, setStudents] = useState<Student[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [meta, setMeta] = useState<{
-    currentPage: number;
-    totalPages: number;
-    itemsPerPage: number;
-    totalItems: number;
-  } | null>(null);
+  page: number = 1,
+  limit: number = 10,
+) {
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ['courseClassStudents', courseClassId, page, limit],
+    queryFn: () =>
+      courseClassService.getStudentsPaginated(courseClassId, page, limit),
+    enabled: !!courseClassId,
+  });
 
-  const fetchStudents = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await courseClassService.getStudentsPaginated(
-        courseClassId,
-        page,
-        limit,
-      );
+  return {
+    students: data?.data ?? [],
+    meta: data?.meta ?? {
+      currentPage: 1,
+      totalPages: 0,
+      itemsPerPage: limit,
+      totalItems: 0,
+    },
+    loading: isLoading,
+    error: isError ? (error as Error).message : null,
+    refetch,
+  };
+}
 
-      setStudents(response.data ?? []);
-      setMeta(response.meta);
-    } catch (err) {
-      setError(err as Error);
-      console.error('Erro ao buscar alunos da turma:', err);
-      setStudents([]);
-      setMeta(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [courseClassId, page, limit]);
-
-  useEffect(() => {
-    fetchStudents();
-  }, [fetchStudents]);
-
-  const refetch = useCallback(() => {
-    fetchStudents();
-  }, [fetchStudents]);
-
-  return { students, loading, error, meta, refetch };
-};
-
-export const useTeachersByCourseClass = (
+export function useTeachersByCourseClass(
   courseClassId: number,
-  page = 1,
-  limit = 10,
-) => {
-  const [teachers, setTeachers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [meta, setMeta] = useState<{
-    currentPage: number;
-    totalPages: number;
-    itemsPerPage: number;
-    totalItems: number;
-  } | null>(null);
+  page: number = 1,
+  limit: number = 10,
+) {
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ['courseClassTeachers', courseClassId, page, limit],
+    queryFn: () => courseClassService.getTeachers(courseClassId, page, limit),
+    enabled: !!courseClassId,
+  });
 
-  const fetchTeachers = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await courseClassService.getTeachers(
-        courseClassId,
-        page,
-        limit,
-      );
-
-      setTeachers(response.data ?? []);
-      setMeta(response.meta);
-    } catch (err) {
-      setError(err as Error);
-      console.error('Erro ao buscar professores da turma:', err);
-      setTeachers([]);
-      setMeta(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [courseClassId, page, limit]);
-
-  useEffect(() => {
-    fetchTeachers();
-  }, [fetchTeachers]);
-
-  const refetch = useCallback(() => {
-    fetchTeachers();
-  }, [fetchTeachers]);
-
-  return { teachers, loading, error, meta, refetch };
-};
+  return {
+    teachers: data?.data ?? [],
+    meta: data?.meta ?? {
+      currentPage: 1,
+      totalPages: 0,
+      itemsPerPage: limit,
+      totalItems: 0,
+    },
+    loading: isLoading,
+    error: isError ? (error as Error).message : null,
+    refetch,
+  };
+}

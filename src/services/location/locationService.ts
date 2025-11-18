@@ -25,8 +25,12 @@ export const locationService = {
 
   async getLocations(page = 1, limit = 10): Promise<LocationPaginated> {
     try {
+      const params = new URLSearchParams();
+      params.append('page', String(page));
+      params.append('take', String(limit));
+
       const response = await apiService.get<LocationPaginated>(
-        `${baseUrl}?page=${page}&take=${limit}`,
+        `${baseUrl}?${params.toString()}`,
       );
 
       return response;
@@ -49,29 +53,18 @@ export const locationService = {
   async updateLocation(
     id: number,
     originalData: LocationDto,
-    updatedData?: LocationDto,
+    updatedData: LocationDto,
   ): Promise<Location> {
     try {
-      let dataToSend: Partial<LocationDto>;
+      const changes = getChangedFields(originalData, updatedData);
 
-      if (updatedData) {
-        // Modo com comparação: detectar apenas os campos que foram alterados
-        const changes = getChangedFields(originalData, updatedData);
-
-        // Se não há mudanças, retornar a localização atual sem fazer a requisição
-        if (hasNoChanges(changes)) {
-          return await this.getLocation(id);
-        }
-
-        dataToSend = changes;
-      } else {
-        // Modo sem comparação: enviar todos os dados
-        dataToSend = originalData;
+      if (hasNoChanges(changes)) {
+        return await this.getLocation(id);
       }
 
       const response = await apiService.patch<Location>(
         `${baseUrl}/${id}`,
-        dataToSend as unknown as Record<string, unknown>,
+        changes as unknown as Record<string, unknown>,
       );
 
       return response;

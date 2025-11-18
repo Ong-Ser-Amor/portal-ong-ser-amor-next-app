@@ -1,123 +1,156 @@
 import { courseClassService } from '@/services/courseClass/courseClassService';
-import { CourseClassDto, CourseClass } from '@/interfaces/CourseClass';
+import { CourseClassDto, UpdateCourseClassDto } from '@/interfaces/CourseClass';
 import { getApiErrorMessage } from '@/utils/errorUtils';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 
-export const useCreateCourseClass = () => {
-  const createCourseClass = async (data: CourseClassDto): Promise<CourseClass> => {
-    try {
-      const response = await courseClassService.createCourseClass(data);
-      return response;
-    } catch (error) {
-      const message = getApiErrorMessage(error);
-      console.error('Erro ao criar turma:', message);
-      throw error;
-    }
-  };
+interface UpdateCourseClassVariables {
+  id: number;
+  originalData: UpdateCourseClassDto;
+  updatedData: UpdateCourseClassDto;
+}
 
-  return createCourseClass;
-};
+export function useCreateCourseClass() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CourseClassDto) =>
+      courseClassService.createCourseClass(data),
+    onSuccess: (data) => {
+      toast.success('Turma criada com sucesso!');
+      queryClient.invalidateQueries({
+        queryKey: ['courseClasses', data.course.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+    },
+    onError: (error) => toast.error(getApiErrorMessage(error, 'turma')),
+  });
+}
 
-export const useUpdateCourseClass = () => {
-  const updateCourseClass = async (
-    id: number,
-    originalData: CourseClassDto,
-    updatedData?: CourseClassDto,
-  ): Promise<CourseClass> => {
-    try {
-      const response = await courseClassService.updateCourseClass(
-        id,
-        originalData,
-        updatedData,
-      );
-      return response;
-    } catch (error) {
-      const message = getApiErrorMessage(error);
-      console.error('Erro ao atualizar turma:', message);
-      throw error;
-    }
-  };
+export function useUpdateCourseClass() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    // Recebe o pacote para diff
+    mutationFn: ({
+      id,
+      originalData,
+      updatedData,
+    }: UpdateCourseClassVariables) =>
+      courseClassService.updateCourseClass(id, originalData, updatedData),
+    onSuccess: (data) => {
+      toast.success('Turma atualizada com sucesso!');
+      queryClient.invalidateQueries({
+        queryKey: ['courseClasses', data.course.id],
+      });
+      queryClient.invalidateQueries({ queryKey: ['courseClass', data.id] });
+    },
+    onError: (error) => toast.error(getApiErrorMessage(error, 'turma')),
+  });
+}
 
-  return updateCourseClass;
-};
+export function useDeleteCourseClass() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => courseClassService.deleteCourseClass(id),
+    onSuccess: () => {
+      toast.success('Turma excluída com sucesso!');
+      queryClient.invalidateQueries({ queryKey: ['courseClasses'] });
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+    },
+    onError: (error) => toast.error(getApiErrorMessage(error, 'turma')),
+  });
+}
 
-export const useDeleteCourseClass = () => {
-  const deleteCourseClass = async (id: number): Promise<void> => {
-    try {
-      await courseClassService.deleteCourseClass(id);
-    } catch (error) {
-      const message = getApiErrorMessage(error);
-      console.error('Erro ao excluir turma:', message);
-      throw error;
-    }
-  };
+export function useAddStudentToCourseClass() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      courseClassId,
+      studentId,
+    }: {
+      courseClassId: number;
+      studentId: number;
+    }) => courseClassService.addStudent(courseClassId, studentId),
+    onSuccess: (_, variables) => {
+      toast.success('Aluno adicionado à turma!');
+      queryClient.invalidateQueries({
+        queryKey: ['courseClassStudents', variables.courseClassId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['courseClass', variables.courseClassId],
+      });
+    },
+    onError: (error) =>
+      toast.error(getApiErrorMessage(error, 'adicionar aluno')),
+  });
+}
 
-  return deleteCourseClass;
-};
+export function useRemoveStudentFromCourseClass() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      courseClassId,
+      studentId,
+    }: {
+      courseClassId: number;
+      studentId: number;
+    }) => courseClassService.removeStudent(courseClassId, studentId),
+    onSuccess: (_, variables) => {
+      toast.success('Aluno removido da turma!');
+      queryClient.invalidateQueries({
+        queryKey: ['courseClassStudents', variables.courseClassId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['courseClass', variables.courseClassId],
+      });
+    },
+    onError: (error) => toast.error(getApiErrorMessage(error, 'remover aluno')),
+  });
+}
 
-export const useAddStudentToCourseClass = () => {
-  const addStudent = async (
-    courseClassId: number,
-    studentId: number,
-  ): Promise<void> => {
-    try {
-      await courseClassService.addStudent(courseClassId, studentId);
-    } catch (error) {
-      const message = getApiErrorMessage(error);
-      console.error('Erro ao adicionar aluno na turma:', message);
-      throw error;
-    }
-  };
+export function useAddTeacherToCourseClass() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      courseClassId,
+      teacherId,
+    }: {
+      courseClassId: number;
+      teacherId: number;
+    }) => courseClassService.addTeacher(courseClassId, teacherId),
+    onSuccess: (_, variables) => {
+      toast.success('Professor adicionado à turma!');
+      queryClient.invalidateQueries({
+        queryKey: ['courseClassTeachers', variables.courseClassId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['courseClass', variables.courseClassId],
+      });
+    },
+    onError: (error) =>
+      toast.error(getApiErrorMessage(error, 'adicionar professor')),
+  });
+}
 
-  return addStudent;
-};
-
-export const useRemoveStudentFromCourseClass = () => {
-  const removeStudent = async (
-    courseClassId: number,
-    studentId: number,
-  ): Promise<void> => {
-    try {
-      await courseClassService.removeStudent(courseClassId, studentId);
-    } catch (error) {
-      const message = getApiErrorMessage(error);
-      console.error('Erro ao remover aluno da turma:', message);
-      throw error;
-    }
-  };
-
-  return removeStudent;
-};
-
-export const useAddTeacherToCourseClass = () => {
-  const addTeacher = async (
-    courseClassId: number,
-    teacherId: number,
-  ): Promise<void> => {
-    try {
-      await courseClassService.addTeacher(courseClassId, teacherId);
-    } catch (error) {
-      const message = getApiErrorMessage(error);
-      console.error('Erro ao adicionar professor na turma:', message);
-      throw error;
-    }
-  };
-
-  return addTeacher;
-};
-
-export const useRemoveTeacherFromCourseClass = () => {
-  const removeTeacher = async (
-    courseClassId: number,
-    teacherId: number,
-  ): Promise<void> => {
-    try {
-      await courseClassService.removeTeacher(courseClassId, teacherId);
-    } catch (error) {
-      const message = getApiErrorMessage(error);
-      console.error('Erro ao remover professor da turma:', message);
-      throw error;
-    }
-  };
-
-  return removeTeacher;
-};
+export function useRemoveTeacherFromCourseClass() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      courseClassId,
+      teacherId,
+    }: {
+      courseClassId: number;
+      teacherId: number;
+    }) => courseClassService.removeTeacher(courseClassId, teacherId),
+    onSuccess: (_, variables) => {
+      toast.success('Professor removido da turma!');
+      queryClient.invalidateQueries({
+        queryKey: ['courseClassTeachers', variables.courseClassId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['courseClass', variables.courseClassId],
+      });
+    },
+    onError: (error) =>
+      toast.error(getApiErrorMessage(error, 'remover professor')),
+  });
+}

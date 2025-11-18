@@ -7,8 +7,7 @@ import { useAttendancesByLesson } from '@/hooks/attendance/useAttendanceQueries'
 import { useDeleteAllAttendances } from '@/hooks/attendance/useAttendanceMutations';
 import LessonDetail from '@/components/features/lesson/LessonDetail';
 import AttendanceFormContainer from '@/containers/attendance/AttendanceFormContainer';
-import { toast } from 'react-toastify';
-import { getApiErrorMessage } from '@/utils/errorUtils';
+import DeleteConfirmModal from '@/components/ui/DeleteConfirmModal';
 
 interface LessonDetailContainerProps {
   lessonId: number;
@@ -18,16 +17,16 @@ export default function LessonDetailContainer({
   lessonId,
 }: LessonDetailContainerProps) {
   const router = useRouter();
-  const { lesson, loading: lessonLoading } = useLesson(lessonId);
-  const {
-    attendances,
-    loading: attendancesLoading,
-    refetch: refetchAttendances,
-  } = useAttendancesByLesson(lessonId);
 
-  const deleteAllAttendances = useDeleteAllAttendances();
+  const { lesson, loading: lessonLoading } = useLesson(lessonId);
+  const { attendances, loading: attendancesLoading } =
+    useAttendancesByLesson(lessonId);
+
+  const { mutateAsync: deleteAllAttendances, isPending: isDeleting } =
+    useDeleteAllAttendances();
 
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const handleBack = () => {
     if (lesson?.courseClassId) {
@@ -41,26 +40,21 @@ export default function LessonDetailContainer({
     setIsAttendanceModalOpen(true);
   };
 
-  const handleDeleteAttendance = async () => {
-    if (
-      confirm(
-        'Tem certeza que deseja excluir TODA a chamada desta aula? Esta ação não pode ser desfeita.',
-      )
-    ) {
-      try {
-        await deleteAllAttendances(lessonId);
-        toast.success('Chamada excluída com sucesso!');
-        refetchAttendances();
-      } catch (error) {
-        const message = getApiErrorMessage(error);
-        toast.error(message || 'Erro ao excluir chamada.');
-        console.error('Erro ao deletar chamada:', error);
-      }
+  const handleDeleteAttendanceClick = () => {
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteAttendanceConfirm = async () => {
+    try {
+      await deleteAllAttendances(lessonId);
+
+      setDeleteConfirmOpen(false);
+    } catch (error) {
+      console.error('Erro ao deletar chamada:', error);
     }
   };
 
   const handleAttendanceSuccess = () => {
-    refetchAttendances();
     setIsAttendanceModalOpen(false);
   };
 
@@ -72,7 +66,7 @@ export default function LessonDetailContainer({
         loading={lessonLoading || attendancesLoading}
         onBack={handleBack}
         onRegisterAttendance={handleRegisterAttendance}
-        onDeleteAttendance={handleDeleteAttendance}
+        onDeleteAttendance={handleDeleteAttendanceClick}
       />
 
       {lesson && (
@@ -85,6 +79,14 @@ export default function LessonDetailContainer({
           onSuccess={handleAttendanceSuccess}
         />
       )}
+
+      <DeleteConfirmModal
+        isOpen={deleteConfirmOpen}
+        onClose={() => setDeleteConfirmOpen(false)}
+        onConfirm={handleDeleteAttendanceConfirm}
+        message='Tem certeza que deseja excluir TODA a chamada desta aula? Esta ação não pode ser desfeita.'
+        isLoading={isDeleting}
+      />
     </>
   );
 }

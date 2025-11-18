@@ -7,12 +7,12 @@ import IconButton from '@/components/ui/IconButton';
 import Button from '@/components/ui/Button';
 import { FiEdit, FiTrash2, FiClipboard } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
+import { PaginationMeta } from '@/interfaces/Pagination';
 
 interface LessonListProps {
   lessons: Lesson[];
   loading: boolean;
-  currentPage: number;
-  totalPages: number;
+  meta: PaginationMeta;
   onEdit: (lesson: Lesson) => void;
   onDelete: (lessonId: number) => void;
   onPageChange: (page: number) => void;
@@ -21,8 +21,7 @@ interface LessonListProps {
 export default function LessonList({
   lessons,
   loading,
-  currentPage,
-  totalPages,
+  meta,
   onEdit,
   onDelete,
   onPageChange,
@@ -84,10 +83,9 @@ export default function LessonList({
         isLoading={loading}
         emptyMessage='Nenhuma aula cadastrada ainda.'
       />
-      {totalPages > 0 && (
+      {meta.totalPages > 0 && (
         <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
+          meta={meta}
           onPageChange={onPageChange}
           className='mt-5 flex justify-center'
         />

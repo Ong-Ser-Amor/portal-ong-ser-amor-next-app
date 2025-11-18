@@ -1,3 +1,5 @@
+import { PaginatedResponse } from './Pagination';
+
 export interface Student {
   id: number;
   name: string;
@@ -9,12 +11,4 @@ export interface StudentDto {
   birthDate: string;
 }
 
-export interface StudentPaginated {
-  data?: Student[];
-  meta: {
-    currentPage: number;
-    totalPages: number;
-    itemsPerPage: number;
-    totalItems: number;
-  };
-}
+export type StudentPaginated = PaginatedResponse<Student>;

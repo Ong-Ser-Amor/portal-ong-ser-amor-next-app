@@ -1,101 +1,56 @@
-import { Course, CoursePaginated } from '@/interfaces/Course';
 import { courseService } from '@/services/course/courseService';
-import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 export function useCourses(page: number = 1, limit: number = 10) {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [meta, setMeta] = useState({
-    currentPage: 1,
-    totalPages: 0,
-    itemsPerPage: limit,
-    totalItems: 0,
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    /**
+     * queryKey: Um ID único para esta busca.
+     * É um array. O TanStack Query usa isto para o cache.
+     * Se 'page' ou 'limit' mudarem, o hook busca os dados automaticamente.
+     */
+    queryKey: ['courses', page, limit],
+
+    /**
+     * queryFn: A função (Promise) que busca os dados.
+     * Nós apenas passamos a sua função de serviço existente.
+     * O TanStack Query trata o 'await' e o 'try/catch' internamente.
+     */
+    queryFn: () => courseService.getCourses(page, limit),
+
+    // Opcional, mas recomendado:
+    staleTime: 1000 * 60 * 5, // Cache de 5 minutos
   });
 
-  const fetchCourses = useCallback(
-    async (fetchPage: number, fetchLimit: number) => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await courseService.getCourses(fetchPage, fetchLimit);
-
-        if (response && 'data' in response && Array.isArray(response.data)) {
-          setCourses(response.data);
-          setMeta(response.meta);
-        } else {
-          console.warn('Resposta da API inesperada:', response);
-          setCourses([]);
-          setMeta({
-            currentPage: 1,
-            totalPages: 0,
-            itemsPerPage: fetchLimit,
-            totalItems: 0,
-          });
-        }
-      } catch (err) {
-        setError(
-          'Erro ao carregar cursos. Por favor, tente novamente mais tarde.',
-        );
-        console.error('Erro ao carregar cursos:', err);
-        setCourses([]);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
-
-  const refetch = useCallback(
-    (newPage?: number, newLimit?: number) => {
-      fetchCourses(newPage ?? page, newLimit ?? limit);
-    },
-    [fetchCourses, page, limit],
-  );
-
-  useEffect(() => {
-    fetchCourses(page, limit);
-  }, [fetchCourses, page, limit]);
-
   return {
-    courses,
-    loading,
-    error,
-    meta,
+    courses: data?.data ?? [],
+    loading: isLoading,
+    error: isError ? (error as Error).message : null,
+    meta: data?.meta ?? {
+      currentPage: 1,
+      totalPages: 0,
+      itemsPerPage: limit,
+      totalItems: 0,
+    },
     refetch,
   };
 }
 
 export function useCourse(id: number) {
-  const [course, setCourse] = useState<Course | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchCourse = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await courseService.getCourse(id);
-      setCourse(response);
-    } catch (err) {
-      setError('Erro ao carregar curso.');
-      console.error(`Erro ao carregar curso ${id}:`, err);
-      setCourse(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (id) {
-      fetchCourse();
-    }
-  }, [id, fetchCourse]);
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ['course', id], // ID único para buscar um curso específico
+    queryFn: () => courseService.getCourse(id),
+    /**
+     * enabled: !!id
+     * Isto é uma boa prática. A query só será executada se 'id' for
+     * um valor "truthy" (ou seja, não for 0, null, ou undefined).
+     */
+    enabled: !!id,
+  });
 
   return {
-    course,
-    loading,
-    error,
-    refetch: fetchCourse,
+    course: data ?? null,
+    loading: isLoading,
+    error: isError ? (error as Error).message : null,
+    refetch: refetch,
   };
 }

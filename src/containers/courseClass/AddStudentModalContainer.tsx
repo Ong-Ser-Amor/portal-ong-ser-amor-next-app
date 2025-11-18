@@ -1,14 +1,13 @@
 'use client';
 
-
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import Modal from '@/components/ui/Modal';
-import AddStudentForm, { AddStudentFormData } from '@/components/features/courseClass/AddStudentForm';
+import AddStudentForm, {
+  AddStudentFormData,
+} from '@/components/features/courseClass/AddStudentForm';
 import { useStudents } from '@/hooks/student/useStudentQueries';
 import { useAddStudentToCourseClass } from '@/hooks/courseClass/useCourseClassMutations';
-import { toast } from 'react-toastify';
-import { getApiErrorMessage } from '@/utils/errorUtils';
 
 interface AddStudentModalContainerProps {
   isOpen: boolean;
@@ -25,9 +24,12 @@ const AddStudentModalContainer: React.FC<AddStudentModalContainerProps> = ({
   enrolledStudentIds,
   onSuccess,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  // Hook de Query para popular o select
   const { students, loading: loadingStudents } = useStudents(1, 1000);
-  const addStudent = useAddStudentToCourseClass();
+
+  // Hook de Mutação
+  const { mutateAsync: addStudent, isPending: isAdding } =
+    useAddStudentToCourseClass();
 
   const availableStudents = students.filter(
     (student) => !enrolledStudentIds.includes(student.id),
@@ -42,20 +44,16 @@ const AddStudentModalContainer: React.FC<AddStudentModalContainerProps> = ({
   }, [isOpen, methods]);
 
   const handleFormSubmit = async (data: AddStudentFormData) => {
-    setIsLoading(true);
     try {
-      const studentId = data.studentId;
-      if (!studentId || isNaN(Number(studentId))) return;
-      await addStudent(courseClassId, Number(studentId));
-      toast.success('Aluno adicionado à turma com sucesso!');
+      const studentId = Number(data.studentId);
+      if (!studentId) return;
+
+      await addStudent({ courseClassId, studentId });
+
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
-      const message = getApiErrorMessage(error);
-      toast.error(message || 'Erro ao adicionar aluno à turma.');
       console.error('Erro ao adicionar aluno:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -78,7 +76,7 @@ const AddStudentModalContainer: React.FC<AddStudentModalContainerProps> = ({
         <FormProvider {...methods}>
           <AddStudentForm
             students={availableStudents}
-            isLoading={isLoading}
+            isLoading={isAdding}
             onSubmit={handleFormSubmit}
             onCancel={onClose}
           />

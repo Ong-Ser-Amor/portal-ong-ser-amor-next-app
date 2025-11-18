@@ -1,4 +1,5 @@
 import { Course } from './Course';
+import { PaginatedResponse } from './Pagination';
 import { User } from './User';
 
 export enum CourseClassStatusEnum {
@@ -27,12 +28,11 @@ export interface CourseClassDto {
   status?: CourseClassStatusEnum;
 }
 
-export interface CourseClassPaginated {
-  data?: CourseClass[];
-  meta: {
-    currentPage: number;
-    totalPages: number;
-    itemsPerPage: number;
-    totalItems: number;
-  };
+export interface UpdateCourseClassDto {
+  name: string;
+  startDate: string;
+  endDate: string;
+  status?: CourseClassStatusEnum;
 }
+
+export type CourseClassPaginated = PaginatedResponse<CourseClass>;

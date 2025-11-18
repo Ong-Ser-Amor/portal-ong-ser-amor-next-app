@@ -9,10 +9,8 @@ import {
   useUpdateCourse,
 } from '@/hooks/course/useCourseMutations';
 import { Course, CourseDto } from '@/interfaces/Course';
-import { getApiErrorMessage } from '@/utils/errorUtils';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
 
 interface CourseFormContainerProps {
   isOpen: boolean;
@@ -27,16 +25,19 @@ const CourseFormContainer: React.FC<CourseFormContainerProps> = ({
   courseToEdit,
   onSuccess,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
   const methods = useForm<CourseFormData>({
     defaultValues: {
       name: courseToEdit?.name || '',
     },
   });
 
-  const createCourse = useCreateCourse();
-  const updateCourse = useUpdateCourse();
+  // Os hooks de mutação retornam o estado de loading e a função 'mutate'
+  const { mutateAsync: createCourse, isPending: isCreating } =
+    useCreateCourse();
+  const { mutateAsync: updateCourse, isPending: isUpdating } =
+    useUpdateCourse();
+
+  const isLoading = isCreating || isUpdating;
 
   useEffect(() => {
     methods.reset({
@@ -45,23 +46,22 @@ const CourseFormContainer: React.FC<CourseFormContainerProps> = ({
   }, [courseToEdit, isOpen, methods]);
 
   const handleFormSubmit = async (data: CourseFormData) => {
-    setIsLoading(true);
-
     try {
       if (courseToEdit) {
         const dto: CourseDto = { name: data.name };
-        await updateCourse.updateCourse(courseToEdit.id, dto);
+
+        await updateCourse({
+          id: courseToEdit.id,
+          data: dto,
+        });
       } else {
-        await createCourse.createCourse({ name: data.name });
+        await createCourse({ name: data.name });
       }
-      toast.success('Curso salvo com sucesso!');
-      if (onSuccess) onSuccess();
+
+      onSuccess();
       onClose();
     } catch (error) {
-      const friendlyMessage = getApiErrorMessage(error, 'curso');
-      toast.error(friendlyMessage);
-    } finally {
-      setIsLoading(false);
+      console.error('Falha ao salvar curso:', error);
     }
   };
 

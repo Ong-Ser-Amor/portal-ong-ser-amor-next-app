@@ -9,10 +9,7 @@ export const attendanceService = {
       );
       return response;
     } catch (error) {
-      console.error(
-        `Erro ao buscar chamadas da aula ${lessonId}:`,
-        error,
-      );
+      console.error(`Erro ao buscar chamadas da aula ${lessonId}:`, error);
       throw error;
     }
   },
@@ -28,10 +25,7 @@ export const attendanceService = {
       );
       return response;
     } catch (error) {
-      console.error(
-        `Erro ao criar chamadas da aula ${lessonId}:`,
-        error,
-      );
+      console.error(`Erro ao criar chamadas da aula ${lessonId}:`, error);
       throw error;
     }
   },
@@ -47,10 +41,7 @@ export const attendanceService = {
       );
       return response;
     } catch (error) {
-      console.error(
-        `Erro ao atualizar chamadas da aula ${lessonId}:`,
-        error,
-      );
+      console.error(`Erro ao atualizar chamadas da aula ${lessonId}:`, error);
       throw error;
     }
   },
@@ -59,10 +50,7 @@ export const attendanceService = {
     try {
       await apiService.delete(`/lessons/${lessonId}/attendances`);
     } catch (error) {
-      console.error(
-        `Erro ao excluir chamadas da aula ${lessonId}:`,
-        error,
-      );
+      console.error(`Erro ao excluir chamadas da aula ${lessonId}:`, error);
       throw error;
     }
   },

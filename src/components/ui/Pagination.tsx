@@ -1,28 +1,27 @@
 'use client';
 
+import { PaginationMeta } from '@/interfaces/Pagination';
 import Divider from './Divider';
 import { useThemeObserver } from '@/hooks/useThemeObserver';
 
 interface PaginationProps {
-  currentPage: number;
-  totalPages: number;
+  meta: PaginationMeta;
   onPageChange: (page: number) => void;
   className?: string;
-  itemsPerPage?: number;
   itemsPerPageOptions?: number[];
   onItemsPerPageChange?: (itemsPerPage: number) => void;
 }
 
 const Pagination: React.FC<PaginationProps> = ({
-  currentPage,
-  totalPages,
+  meta,
   onPageChange,
   className = '',
-  itemsPerPage,
   itemsPerPageOptions = [5, 10, 20, 50, 100],
   onItemsPerPageChange,
 }) => {
   useThemeObserver();
+
+  const { currentPage, totalPages, itemsPerPage } = meta;
 
   // Não renderizar paginação se houver apenas uma página
   if (totalPages <= 1) return null;
@@ -56,7 +55,8 @@ const Pagination: React.FC<PaginationProps> = ({
         }
         onMouseEnter={(e) => {
           if (1 !== currentPage) {
-            e.currentTarget.style.borderColor = 'var(--accent-primary, #2196f3)';
+            e.currentTarget.style.borderColor =
+              'var(--accent-primary, #2196f3)';
             e.currentTarget.style.color = 'var(--accent-primary, #2196f3)';
           }
         }}
@@ -121,13 +121,15 @@ const Pagination: React.FC<PaginationProps> = ({
           }
           onMouseEnter={(e) => {
             if (i !== currentPage) {
-              e.currentTarget.style.borderColor = 'var(--accent-primary, #2196f3)';
+              e.currentTarget.style.borderColor =
+                'var(--accent-primary, #2196f3)';
               e.currentTarget.style.color = 'var(--accent-primary, #2196f3)';
             }
           }}
           onMouseLeave={(e) => {
             if (i !== currentPage) {
-              e.currentTarget.style.borderColor = 'var(--border-color, #f0f0f0)';
+              e.currentTarget.style.borderColor =
+                'var(--border-color, #f0f0f0)';
               e.currentTarget.style.color = 'var(--text-primary, #333333)';
             }
           }}
@@ -175,13 +177,15 @@ const Pagination: React.FC<PaginationProps> = ({
           }
           onMouseEnter={(e) => {
             if (totalPages !== currentPage) {
-              e.currentTarget.style.borderColor = 'var(--accent-primary, #2196f3)';
+              e.currentTarget.style.borderColor =
+                'var(--accent-primary, #2196f3)';
               e.currentTarget.style.color = 'var(--accent-primary, #2196f3)';
             }
           }}
           onMouseLeave={(e) => {
             if (totalPages !== currentPage) {
-              e.currentTarget.style.borderColor = 'var(--border-color, #f0f0f0)';
+              e.currentTarget.style.borderColor =
+                'var(--border-color, #f0f0f0)';
               e.currentTarget.style.color = 'var(--text-primary, #333333)';
             }
           }}
@@ -205,7 +209,7 @@ const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <>
-      <Divider spacing="md" />
+      <Divider spacing='md' />
       <div
         className={`flex flex-col items-center justify-between sm:flex-row ${className}`}
       >
@@ -233,58 +237,66 @@ const Pagination: React.FC<PaginationProps> = ({
         {totalPages > 1 && (
           <div className='flex w-full justify-center'>
             <nav className='flex items-center gap-2.5'>
-            <button
-              onClick={() => onPageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className='rounded-lg border-2 px-3.5 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50'
-              style={{
-                background: 'var(--bg-secondary, #ffffff)',
-                borderColor: 'var(--border-color, #f0f0f0)',
-                color: 'var(--text-primary, #333333)',
-              }}
-              onMouseEnter={(e) => {
-                if (currentPage !== 1) {
-                  e.currentTarget.style.borderColor = 'var(--accent-primary, #2196f3)';
-                  e.currentTarget.style.color = 'var(--accent-primary, #2196f3)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (currentPage !== 1) {
-                  e.currentTarget.style.borderColor = 'var(--border-color, #f0f0f0)';
-                  e.currentTarget.style.color = 'var(--text-primary, #333333)';
-                }
-              }}
-            >
-              ← Anterior
-            </button>
+              <button
+                onClick={() => onPageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className='rounded-lg border-2 px-3.5 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50'
+                style={{
+                  background: 'var(--bg-secondary, #ffffff)',
+                  borderColor: 'var(--border-color, #f0f0f0)',
+                  color: 'var(--text-primary, #333333)',
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPage !== 1) {
+                    e.currentTarget.style.borderColor =
+                      'var(--accent-primary, #2196f3)';
+                    e.currentTarget.style.color =
+                      'var(--accent-primary, #2196f3)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPage !== 1) {
+                    e.currentTarget.style.borderColor =
+                      'var(--border-color, #f0f0f0)';
+                    e.currentTarget.style.color =
+                      'var(--text-primary, #333333)';
+                  }
+                }}
+              >
+                ← Anterior
+              </button>
 
-            {renderPageButtons()}
+              {renderPageButtons()}
 
-            <button
-              onClick={() => onPageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className='rounded-lg border-2 px-3.5 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50'
-              style={{
-                background: 'var(--bg-secondary, #ffffff)',
-                borderColor: 'var(--border-color, #f0f0f0)',
-                color: 'var(--text-primary, #333333)',
-              }}
-              onMouseEnter={(e) => {
-                if (currentPage !== totalPages) {
-                  e.currentTarget.style.borderColor = 'var(--accent-primary, #2196f3)';
-                  e.currentTarget.style.color = 'var(--accent-primary, #2196f3)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (currentPage !== totalPages) {
-                  e.currentTarget.style.borderColor = 'var(--border-color, #f0f0f0)';
-                  e.currentTarget.style.color = 'var(--text-primary, #333333)';
-                }
-              }}
-            >
-              Próximo →
-            </button>
-          </nav>
+              <button
+                onClick={() => onPageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className='rounded-lg border-2 px-3.5 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50'
+                style={{
+                  background: 'var(--bg-secondary, #ffffff)',
+                  borderColor: 'var(--border-color, #f0f0f0)',
+                  color: 'var(--text-primary, #333333)',
+                }}
+                onMouseEnter={(e) => {
+                  if (currentPage !== totalPages) {
+                    e.currentTarget.style.borderColor =
+                      'var(--accent-primary, #2196f3)';
+                    e.currentTarget.style.color =
+                      'var(--accent-primary, #2196f3)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (currentPage !== totalPages) {
+                    e.currentTarget.style.borderColor =
+                      'var(--border-color, #f0f0f0)';
+                    e.currentTarget.style.color =
+                      'var(--text-primary, #333333)';
+                  }
+                }}
+              >
+                Próximo →
+              </button>
+            </nav>
           </div>
         )}
       </div>

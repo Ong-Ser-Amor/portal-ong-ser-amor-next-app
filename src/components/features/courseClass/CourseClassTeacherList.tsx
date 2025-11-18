@@ -3,12 +3,12 @@ import ListItem from '@/components/ui/ListItem';
 import Pagination from '@/components/ui/Pagination';
 import IconButton from '@/components/ui/IconButton';
 import { FiTrash2 } from 'react-icons/fi';
+import { PaginationMeta } from '@/interfaces/Pagination';
 
 interface CourseClassTeacherListProps {
   teachers: User[];
   loading: boolean;
-  currentPage: number;
-  totalPages: number;
+  meta: PaginationMeta;
   onPageChange: (page: number) => void;
   onRemoveTeacher: (teacherId: number) => void;
 }
@@ -16,8 +16,7 @@ interface CourseClassTeacherListProps {
 export default function CourseClassTeacherList({
   teachers,
   loading,
-  currentPage,
-  totalPages,
+  meta,
   onPageChange,
   onRemoveTeacher,
 }: CourseClassTeacherListProps) {
@@ -34,7 +33,10 @@ export default function CourseClassTeacherList({
 
   if (teachers.length === 0) {
     return (
-      <div className='text-center p-8' style={{ color: 'var(--text-secondary)' }}>
+      <div
+        className='p-8 text-center'
+        style={{ color: 'var(--text-secondary)' }}
+      >
         Nenhum professor atribuído ainda.
       </div>
     );
@@ -59,10 +61,9 @@ export default function CourseClassTeacherList({
           />
         ))}
       </div>
-      {totalPages > 0 && (
+      {meta.totalPages > 0 && (
         <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
+          meta={meta}
           onPageChange={onPageChange}
           className='mt-5 flex justify-center'
         />

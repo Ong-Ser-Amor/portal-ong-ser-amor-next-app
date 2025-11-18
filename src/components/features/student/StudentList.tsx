@@ -7,14 +7,14 @@ import { FiEdit, FiTrash2 } from 'react-icons/fi';
 import PageHeader from '@/components/layout/PageHeader';
 import SearchBar from '@/components/ui/SearchBar';
 import Button from '@/components/ui/Button';
+import { PaginationMeta } from '@/interfaces/Pagination';
 
 interface StudentListProps {
   students: Student[];
   loading: boolean;
   error: string | null;
   searchInput: string;
-  currentPage: number;
-  totalPages: number;
+  meta: PaginationMeta;
   onSearchInputChange: (value: string) => void;
   onFilterClick: () => void;
   onAddStudent: () => void;
@@ -28,8 +28,7 @@ export default function StudentList({
   loading,
   error,
   searchInput,
-  currentPage,
-  totalPages,
+  meta,
   onSearchInputChange,
   onFilterClick,
   onAddStudent,
@@ -88,7 +87,7 @@ export default function StudentList({
         {loading ? (
           <div className='py-8 text-center'>
             <div
-              className='mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-t-2'
+              className='mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-t-2 border-b-2'
               style={{ borderColor: 'var(--accent-primary, #2196f3)' }}
             />
             <p style={{ color: 'var(--text-secondary, #666666)' }}>
@@ -112,12 +111,8 @@ export default function StudentList({
             emptyMessage='Nenhum aluno encontrado.'
           />
         )}
-        {totalPages > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-          />
+        {meta.totalPages > 0 && (
+          <Pagination meta={meta} onPageChange={onPageChange} />
         )}
       </div>
     </div>

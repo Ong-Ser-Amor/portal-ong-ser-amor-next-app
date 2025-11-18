@@ -1,18 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
 import Modal from '@/components/ui/Modal';
 import LessonForm, {
   LessonFormData,
 } from '@/components/features/lesson/LessonForm';
-import { Lesson } from '@/interfaces/Lesson';
+import { Lesson, LessonDto, UpdateLessonDto } from '@/interfaces/Lesson';
 import {
   useCreateLesson,
   useUpdateLesson,
 } from '@/hooks/lesson/useLessonMutations';
-import { getApiErrorMessage } from '@/utils/errorUtils';
 
 interface LessonFormContainerProps {
   isOpen: boolean;
@@ -29,8 +27,6 @@ const LessonFormContainer: React.FC<LessonFormContainerProps> = ({
   lessonToEdit,
   onSuccess,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
   const methods = useForm<LessonFormData>({
     defaultValues: {
       courseClassId,
@@ -39,8 +35,11 @@ const LessonFormContainer: React.FC<LessonFormContainerProps> = ({
     },
   });
 
-  const { createLesson } = useCreateLesson();
-  const { updateLesson } = useUpdateLesson();
+  const { mutateAsync: createLesson, isPending: isCreating } =
+    useCreateLesson();
+  const { mutateAsync: updateLesson, isPending: isUpdating } =
+    useUpdateLesson();
+  const isLoading = isCreating || isUpdating;
 
   useEffect(() => {
     if (lessonToEdit) {
@@ -60,25 +59,37 @@ const LessonFormContainer: React.FC<LessonFormContainerProps> = ({
   }, [lessonToEdit, courseClassId, methods]);
 
   const handleFormSubmit = async (data: LessonFormData) => {
-    setIsLoading(true);
     try {
       if (lessonToEdit) {
-        await updateLesson(lessonToEdit.id, data, lessonToEdit);
+        const formDto: UpdateLessonDto = {
+          date: data.date,
+          topic: data.topic,
+        };
+
+        const originalDto: UpdateLessonDto = {
+          date: lessonToEdit.date.split('T')[0],
+          topic: lessonToEdit.topic,
+        };
+
+        await updateLesson({
+          id: lessonToEdit.id,
+          originalData: originalDto,
+          updatedData: formDto,
+        });
       } else {
-        await createLesson(data);
+        const formDto: LessonDto = {
+          courseClassId,
+          date: data.date,
+          topic: data.topic,
+        };
+
+        await createLesson(formDto);
       }
-      toast.success(
-        lessonToEdit
-          ? 'Aula atualizada com sucesso!'
-          : 'Aula criada com sucesso!',
-      );
+
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
-      const friendlyMessage = getApiErrorMessage(error, 'aula');
-      toast.error(friendlyMessage);
-    } finally {
-      setIsLoading(false);
+      console.error('Erro ao salvar aula:', error);
     }
   };
 

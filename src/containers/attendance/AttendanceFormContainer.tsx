@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import Modal from '@/components/ui/Modal';
@@ -12,13 +12,13 @@ import {
   AttendanceItem,
   BulkAttendanceDto,
 } from '@/interfaces/Attendance';
-import { Student } from '@/interfaces/Student';
 import {
   useCreateAttendances,
   useUpdateAttendances,
 } from '@/hooks/attendance/useAttendanceMutations';
 import { courseClassService } from '@/services/courseClass/courseClassService';
 import { getApiErrorMessage } from '@/utils/errorUtils';
+import { useQuery } from '@tanstack/react-query';
 
 interface AttendanceFormContainerProps {
   isOpen: boolean;
@@ -37,11 +37,19 @@ export default function AttendanceFormContainer({
   existingAttendances,
   onSuccess,
 }: AttendanceFormContainerProps) {
-  const [students, setStudents] = useState<Student[]>([]);
-  const [loadingStudents, setLoadingStudents] = useState(false);
-  const { createAttendances, loading: createLoading } = useCreateAttendances();
-  const { updateAttendances, loading: updateLoading } = useUpdateAttendances();
-  const loading = createLoading || updateLoading;
+  const { data: students = [], isLoading: loadingStudents } = useQuery({
+    queryKey: ['courseClassStudentsAll', courseClassId],
+    queryFn: () => courseClassService.getStudents(courseClassId),
+    enabled: isOpen && !!courseClassId,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const { mutateAsync: createAttendances, isPending: isCreating } =
+    useCreateAttendances();
+  const { mutateAsync: updateAttendances, isPending: isUpdating } =
+    useUpdateAttendances();
+
+  const loading = isCreating || isUpdating;
 
   const methods = useForm<AttendanceFormData>({
     defaultValues: {
@@ -49,16 +57,9 @@ export default function AttendanceFormContainer({
     },
   });
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchStudents();
-    }
-  }, [isOpen, courseClassId]);
-
-  // Reseta o formulário quando o modal abre ou quando mudam os alunos/atendances existentes
+  // Popula o formulário cruzando dados
   useEffect(() => {
     if (isOpen && students.length > 0) {
-      // Prepara a lista inicial de chamadas
       const initialAttendances = students.map((student) => {
         const existing = existingAttendances.find(
           (att) => att.student.id === student.id,
@@ -74,22 +75,9 @@ export default function AttendanceFormContainer({
     }
   }, [isOpen, students, existingAttendances, methods]);
 
-  const fetchStudents = async () => {
-    setLoadingStudents(true);
-    try {
-      const data = await courseClassService.getStudents(courseClassId);
-      setStudents(data);
-    } catch (error) {
-      toast.error('Erro ao carregar lista de alunos.');
-    } finally {
-      setLoadingStudents(false);
-    }
-  };
-
   const handleFormSubmit = async (attendanceItems: AttendanceItem[]) => {
     try {
       const isEditing = existingAttendances.length > 0;
-
       let dataToSend: AttendanceItem[];
 
       if (isEditing) {
@@ -118,14 +106,13 @@ export default function AttendanceFormContainer({
       };
 
       if (isEditing) {
-        await updateAttendances(lessonId, bulkData);
-        toast.success('Chamada atualizada com sucesso!');
+        await updateAttendances({ lessonId, data: bulkData });
       } else {
-        await createAttendances(lessonId, bulkData);
-        toast.success('Chamada registrada com sucesso!');
+        await createAttendances({ lessonId, data: bulkData });
       }
 
-      onSuccess();
+      if (onSuccess) onSuccess();
+      onClose();
     } catch (error) {
       const message = getApiErrorMessage(error);
       toast.error(message || 'Erro ao salvar chamada.');

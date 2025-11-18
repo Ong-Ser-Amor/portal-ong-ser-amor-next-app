@@ -92,6 +92,11 @@ export default function Sidebar({
       label: 'Locais',
     },
     {
+      path: '/asset-categories',
+      icon: <span className='text-xl'>🏷️</span>,
+      label: 'Categorias de Patrimônio',
+    },
+    {
       path: '/configuracoes',
       icon: <FiSettings size={20} />,
       label: 'Configurações',

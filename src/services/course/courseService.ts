@@ -1,6 +1,5 @@
 import { Course, CourseDto, CoursePaginated } from '@/interfaces/Course';
 import { apiService } from '../api/apiService';
-import { getChangedFields, hasNoChanges } from '@/utils/patchUtils';
 
 const baseUrl = '/courses';
 
@@ -21,8 +20,12 @@ export const courseService = {
 
   async getCourses(page = 1, limit = 10): Promise<CoursePaginated> {
     try {
+      const params = new URLSearchParams();
+      params.append('page', String(page));
+      params.append('take', String(limit));
+
       const response = await apiService.get<CoursePaginated>(
-        `${baseUrl}?page=${page}&take=${limit}`,
+        `${baseUrl}?${params.toString()}`,
       );
 
       return response;
@@ -42,32 +45,11 @@ export const courseService = {
     }
   },
 
-  async updateCourse(
-    id: number,
-    originalData: CourseDto,
-    updatedData?: CourseDto,
-  ): Promise<Course> {
+  async updateCourse(id: number, data: CourseDto): Promise<Course> {
     try {
-      let dataToSend: Partial<CourseDto>;
-
-      if (updatedData) {
-        // Modo com comparação: detectar apenas os campos que foram alterados
-        const changes = getChangedFields(originalData, updatedData);
-
-        // Se não há mudanças, retornar o curso atual sem fazer a requisição
-        if (hasNoChanges(changes)) {
-          return await this.getCourse(id);
-        }
-
-        dataToSend = changes;
-      } else {
-        // Modo legacy: enviar todos os dados
-        dataToSend = originalData;
-      }
-
       const response = await apiService.patch<Course>(
         `${baseUrl}/${id}`,
-        dataToSend as unknown as Record<string, unknown>,
+        data as unknown as Record<string, unknown>,
       );
 
       return response;

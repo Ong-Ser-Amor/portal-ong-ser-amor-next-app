@@ -1,6 +1,8 @@
+import { PaginatedResponse } from './Pagination';
+
 export interface Location {
   id: number;
-  name?: string;
+  name: string;
   address: string;
 }
 
@@ -9,12 +11,4 @@ export interface LocationDto {
   address?: string;
 }
 
-export interface LocationPaginated {
-  data?: Location[];
-  meta: {
-    currentPage: number;
-    totalPages: number;
-    itemsPerPage: number;
-    totalItems: number;
-  };
-}
+export type LocationPaginated = PaginatedResponse<Location>;

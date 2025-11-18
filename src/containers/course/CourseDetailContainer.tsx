@@ -9,8 +9,6 @@ import CourseDetail from '@/components/features/course/CourseDetail';
 import CourseFormContainer from './CourseFormContainer';
 import CourseClassFormContainer from '../courseClass/CourseClassFormContainer';
 import { CourseClass } from '@/interfaces/CourseClass';
-import { toast } from 'react-toastify';
-import { getApiErrorMessage } from '@/utils/errorUtils';
 
 interface CourseDetailContainerProps {
   courseId: number;
@@ -23,18 +21,28 @@ export default function CourseDetailContainer({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  const { course, loading: courseLoading, refetch: refetchCourse } = useCourse(courseId);
+  const {
+    course,
+    loading: courseLoading,
+    refetch: refetchCourse,
+  } = useCourse(courseId);
+
   const {
     courseClasses,
     loading: classesLoading,
     meta,
-    refetch: refetchClasses,
   } = useCourseClasses(courseId, currentPage, itemsPerPage);
+
+  const { mutateAsync: deleteCourseClass, isPending: isDeleting } =
+    useDeleteCourseClass();
 
   const [isEditCourseModalOpen, setIsEditCourseModalOpen] = useState(false);
   const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false);
   const [isEditClassModalOpen, setIsEditClassModalOpen] = useState(false);
   const [selectedClass, setSelectedClass] = useState<CourseClass | null>(null);
+
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [classToDelete, setClassToDelete] = useState<number | null>(null);
 
   const handleBack = () => {
     router.push('/courses');
@@ -53,19 +61,25 @@ export default function CourseDetailContainer({
     setIsEditClassModalOpen(true);
   };
 
-  const deleteCourseClass = useDeleteCourseClass();
+  const handleDeleteClassClick = (courseClassId: number) => {
+    setClassToDelete(courseClassId);
+    setDeleteConfirmOpen(true);
+  };
 
-  const handleDeleteClass = async (courseClassId: number) => {
-    if (confirm('Tem certeza que deseja excluir esta turma?')) {
-      try {
-        await deleteCourseClass(courseClassId);
-        toast.success('Turma excluída com sucesso!');
-        refetchClasses();
-      } catch (error) {
-        const message = getApiErrorMessage(error);
-        toast.error(message || 'Erro ao excluir turma.');
-        console.error('Erro ao deletar turma:', error);
+  const handleDeleteClassConfirm = async () => {
+    if (classToDelete === null) return;
+
+    try {
+      await deleteCourseClass(classToDelete);
+
+      setClassToDelete(null);
+      setDeleteConfirmOpen(false);
+
+      if (courseClasses.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
       }
+    } catch (error) {
+      console.error('Erro ao deletar turma:', error);
     }
   };
 
@@ -75,11 +89,13 @@ export default function CourseDetailContainer({
   };
 
   const handleClassSuccess = () => {
-    setCurrentPage(1);
-    refetchClasses();
     setIsAddClassModalOpen(false);
     setIsEditClassModalOpen(false);
     setSelectedClass(null);
+
+    if (!selectedClass && currentPage !== 1) {
+      setCurrentPage(1);
+    }
   };
 
   const handlePageChange = (page: number) => {
@@ -92,14 +108,13 @@ export default function CourseDetailContainer({
         course={course}
         courseClasses={courseClasses}
         loading={courseLoading || classesLoading}
-        currentPage={currentPage}
-        totalPages={meta?.totalPages ?? 0}
+        courseClassesMeta={meta}
         onPageChange={handlePageChange}
         onBack={handleBack}
         onEditCourse={handleEditCourse}
         onAddClass={handleAddClass}
         onEditClass={handleEditClass}
-        onDeleteClass={handleDeleteClass}
+        onDeleteClass={handleDeleteClassClick}
       />
 
       {/* Modal de Edição do Curso */}

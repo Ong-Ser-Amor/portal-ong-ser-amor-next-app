@@ -1,4 +1,3 @@
-import React from 'react';
 import Button from '@/components/ui/Button';
 import Table from '@/components/ui/Table';
 import { Student } from '@/interfaces/Student';
