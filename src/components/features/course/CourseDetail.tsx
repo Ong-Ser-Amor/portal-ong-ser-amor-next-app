@@ -4,13 +4,13 @@ import CourseClassList from '../courseClass/CourseClassList';
 import { FiEdit, FiPlus } from 'react-icons/fi';
 import Button from '@/components/ui/Button';
 import PageHeader from '@/components/layout/PageHeader';
+import { PaginationMeta } from '@/interfaces/Pagination';
 
 interface CourseDetailProps {
   course: Course | null;
   courseClasses: CourseClass[];
   loading: boolean;
-  currentPage: number;
-  totalPages: number;
+  courseClassesMeta: PaginationMeta;
   onPageChange: (page: number) => void;
   onBack: () => void;
   onEditCourse: () => void;
@@ -23,8 +23,7 @@ export default function CourseDetail({
   course,
   courseClasses,
   loading,
-  currentPage,
-  totalPages,
+  courseClassesMeta,
   onPageChange,
   onBack,
   onEditCourse,
@@ -53,8 +52,8 @@ export default function CourseDetail({
 
   return (
     <div className='container mx-auto px-4 py-5'>
-      <PageHeader 
-        title={course.name} 
+      <PageHeader
+        title={course.name}
         breadcrumb='Detalhes do Curso'
         onBack={onBack}
       >
@@ -73,14 +72,14 @@ export default function CourseDetail({
           boxShadow: '0 2px 8px var(--card-shadow, rgba(0, 0, 0, 0.05))',
         }}
       >
-        <h2 
+        <h2
           className='text-xl font-semibold'
-          style={{ 
+          style={{
             color: 'var(--text-primary, #333333)',
             marginTop: 0,
             marginBottom: '25px',
             paddingBottom: '10px',
-            borderBottom: '2px solid var(--border-color, #f0f0f0)'
+            borderBottom: '2px solid var(--border-color, #f0f0f0)',
           }}
         >
           Turmas do Curso
@@ -89,8 +88,7 @@ export default function CourseDetail({
         <CourseClassList
           courseClasses={courseClasses}
           loading={loading}
-          currentPage={currentPage}
-          totalPages={totalPages}
+          meta={courseClassesMeta}
           onPageChange={onPageChange}
           onEdit={onEditClass}
           onDelete={onDeleteClass}

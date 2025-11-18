@@ -5,14 +5,14 @@ import SearchBar from '@/components/ui/SearchBar';
 import { Course } from '@/interfaces/Course';
 import { FaFilter } from 'react-icons/fa';
 import CourseCard from './CourseCard';
+import { PaginationMeta } from '@/interfaces/Pagination';
 
 interface CourseListProps {
   courses: Course[];
   loading: boolean;
   error: string | null;
   searchInput: string;
-  currentPage: number;
-  totalPages: number;
+  meta: PaginationMeta;
   onSearchInputChange: (value: string) => void;
   onFilterClick: () => void;
   onAddCourse: () => void;
@@ -26,8 +26,7 @@ export default function CourseList({
   loading,
   error,
   searchInput,
-  currentPage,
-  totalPages,
+  meta,
   onSearchInputChange,
   onFilterClick,
   onAddCourse,
@@ -90,12 +89,8 @@ export default function CourseList({
           </div>
         )}
 
-        {totalPages > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-          />
+        {meta.totalPages > 0 && (
+          <Pagination meta={meta} onPageChange={onPageChange} />
         )}
       </div>
     </div>

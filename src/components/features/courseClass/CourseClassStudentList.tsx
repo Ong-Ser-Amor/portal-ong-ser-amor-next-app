@@ -3,12 +3,12 @@ import ListItem from '@/components/ui/ListItem';
 import Pagination from '@/components/ui/Pagination';
 import IconButton from '@/components/ui/IconButton';
 import { FiTrash2 } from 'react-icons/fi';
+import { PaginationMeta } from '@/interfaces/Pagination';
 
 interface CourseClassStudentListProps {
   students: Student[];
   loading: boolean;
-  currentPage: number;
-  totalPages: number;
+  meta: PaginationMeta;
   onPageChange: (page: number) => void;
   onRemoveStudent: (studentId: number) => void;
 }
@@ -16,8 +16,7 @@ interface CourseClassStudentListProps {
 export default function CourseClassStudentList({
   students,
   loading,
-  currentPage,
-  totalPages,
+  meta,
   onPageChange,
   onRemoveStudent,
 }: CourseClassStudentListProps) {
@@ -26,11 +25,14 @@ export default function CourseClassStudentList({
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
-    
+
     return `${age} anos`;
   };
 
@@ -47,7 +49,10 @@ export default function CourseClassStudentList({
 
   if (students.length === 0) {
     return (
-      <div className='text-center p-8' style={{ color: 'var(--text-secondary)' }}>
+      <div
+        className='p-8 text-center'
+        style={{ color: 'var(--text-secondary)' }}
+      >
         Nenhum aluno matriculado ainda.
       </div>
     );
@@ -72,10 +77,9 @@ export default function CourseClassStudentList({
           />
         ))}
       </div>
-      {totalPages > 0 && (
+      {meta.totalPages > 0 && (
         <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
+          meta={meta}
           onPageChange={onPageChange}
           className='mt-5 flex justify-center'
         />

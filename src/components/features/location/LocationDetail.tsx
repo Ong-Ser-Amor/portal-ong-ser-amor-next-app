@@ -4,13 +4,13 @@ import PageHeader from '@/components/layout/PageHeader';
 import { Location } from '@/interfaces/Location';
 import { Area } from '@/interfaces/Area';
 import AreaList from '../area/AreaList';
+import { PaginationMeta } from '@/interfaces/Pagination';
 
 interface LocationDetailProps {
   location: Location | null;
   areas: Area[];
   loading: boolean;
-  currentPage: number;
-  totalPages: number;
+  areasMeta: PaginationMeta;
   onPageChange: (page: number) => void;
   onBack: () => void;
   onEditLocation: () => void;
@@ -23,8 +23,7 @@ export default function LocationDetail({
   location,
   areas,
   loading,
-  currentPage,
-  totalPages,
+  areasMeta,
   onPageChange,
   onBack,
   onEditLocation,
@@ -89,8 +88,7 @@ export default function LocationDetail({
         <AreaList
           areas={areas}
           loading={loading}
-          currentPage={currentPage}
-          totalPages={totalPages}
+          meta={areasMeta}
           onPageChange={onPageChange}
           onEdit={onEditArea}
           onDelete={onDeleteArea}

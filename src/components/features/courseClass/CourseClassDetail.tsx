@@ -8,6 +8,7 @@ import { FiPlus } from 'react-icons/fi';
 import LessonList from '../lesson/LessonList';
 import CourseClassStudentList from './CourseClassStudentList';
 import CourseClassTeacherList from './CourseClassTeacherList';
+import { PaginationMeta } from '@/interfaces/Pagination';
 
 interface CourseClassDetailProps {
   courseClass: CourseClass | null;
@@ -17,12 +18,9 @@ interface CourseClassDetailProps {
   loading: boolean;
   studentsLoading: boolean;
   teachersLoading: boolean;
-  currentLessonPage: number;
-  totalLessonPages: number;
-  currentStudentPage: number;
-  totalStudentPages: number;
-  currentTeacherPage: number;
-  totalTeacherPages: number;
+  lessonMeta: PaginationMeta;
+  studentMeta: PaginationMeta;
+  teacherMeta: PaginationMeta;
   onLessonPageChange: (page: number) => void;
   onStudentPageChange: (page: number) => void;
   onTeacherPageChange: (page: number) => void;
@@ -45,12 +43,9 @@ export default function CourseClassDetail({
   loading,
   studentsLoading,
   teachersLoading,
-  currentLessonPage,
-  totalLessonPages,
-  currentStudentPage,
-  totalStudentPages,
-  currentTeacherPage,
-  totalTeacherPages,
+  lessonMeta,
+  studentMeta,
+  teacherMeta,
   onLessonPageChange,
   onStudentPageChange,
   onTeacherPageChange,
@@ -88,9 +83,10 @@ export default function CourseClassDetail({
     );
   }
 
-  const teachersNames = courseClass.teachers && courseClass.teachers.length > 0
-    ? courseClass.teachers.map((t) => t.name).join(', ')
-    : 'Não atribuído';
+  const teachersNames =
+    courseClass.teachers && courseClass.teachers.length > 0
+      ? courseClass.teachers.map((t) => t.name).join(', ')
+      : 'Não atribuído';
 
   return (
     <div className='container mx-auto px-4 py-5'>
@@ -124,8 +120,7 @@ export default function CourseClassDetail({
         <LessonList
           lessons={lessons}
           loading={loading}
-          currentPage={currentLessonPage}
-          totalPages={totalLessonPages}
+          meta={lessonMeta}
           onEdit={onEditLesson}
           onDelete={onDeleteLesson}
           onPageChange={onLessonPageChange}
@@ -155,8 +150,7 @@ export default function CourseClassDetail({
         <CourseClassTeacherList
           teachers={teachers}
           loading={teachersLoading}
-          currentPage={currentTeacherPage}
-          totalPages={totalTeacherPages}
+          meta={teacherMeta}
           onPageChange={onTeacherPageChange}
           onRemoveTeacher={onRemoveTeacher}
         />
@@ -185,8 +179,7 @@ export default function CourseClassDetail({
         <CourseClassStudentList
           students={students}
           loading={studentsLoading}
-          currentPage={currentStudentPage}
-          totalPages={totalStudentPages}
+          meta={studentMeta}
           onPageChange={onStudentPageChange}
           onRemoveStudent={onRemoveStudent}
         />

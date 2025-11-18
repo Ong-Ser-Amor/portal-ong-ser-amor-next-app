@@ -114,8 +114,7 @@ export default function LocationDetailContainer({
         location={location}
         areas={areas}
         loading={locationLoading || areasLoading}
-        currentPage={currentPage}
-        totalPages={meta?.totalPages ?? 0}
+        areasMeta={meta}
         onPageChange={handlePageChange}
         onBack={handleBack}
         onEditLocation={handleEditLocation}

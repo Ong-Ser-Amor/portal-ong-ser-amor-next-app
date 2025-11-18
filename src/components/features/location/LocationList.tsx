@@ -5,14 +5,14 @@ import SearchBar from '@/components/ui/SearchBar';
 import Button from '@/components/ui/Button';
 import { FaFilter } from 'react-icons/fa6';
 import Pagination from '@/components/ui/Pagination';
+import { PaginationMeta } from '@/interfaces/Pagination';
 
 interface LocationListProps {
   locations: Location[];
   loading: boolean;
   error: string | null;
   searchInput: string;
-  currentPage: number;
-  totalPages: number;
+  meta: PaginationMeta;
   onSearchInputChange: (value: string) => void;
   onFilterClick: () => void;
   onAddLocation: () => void;
@@ -27,8 +27,7 @@ export default function LocationList({
   loading,
   error,
   searchInput,
-  currentPage,
-  totalPages,
+  meta,
   onSearchInputChange,
   onFilterClick,
   onAddLocation,
@@ -90,12 +89,8 @@ export default function LocationList({
             ))}
           </div>
         )}
-        {totalPages > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-          />
+        {meta.totalPages > 0 && (
+          <Pagination meta={meta} onPageChange={onPageChange} />
         )}
       </div>
     </div>

@@ -94,8 +94,7 @@ const LocationListContainer: React.FC = () => {
         loading={loading}
         error={error}
         searchInput={searchInput}
-        currentPage={meta.currentPage}
-        totalPages={meta.totalPages}
+        meta={meta}
         onSearchInputChange={setSearchInput}
         onFilterClick={handleFilterClick}
         onAddLocation={handleAddLocation}

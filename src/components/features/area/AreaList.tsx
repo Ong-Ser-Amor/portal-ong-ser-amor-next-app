@@ -1,12 +1,12 @@
 import Pagination from '@/components/ui/Pagination';
 import { Area } from '@/interfaces/Area';
 import AreaCard from './AreaCard';
+import { PaginationMeta } from '@/interfaces/Pagination';
 
 interface AreaListProps {
   areas: Area[];
   loading: boolean;
-  currentPage: number;
-  totalPages: number;
+  meta: PaginationMeta;
   onPageChange: (page: number) => void;
   onEdit: (area: Area) => void;
   onDelete: (areaId: number) => void;
@@ -16,8 +16,7 @@ interface AreaListProps {
 export default function AreaList({
   areas,
   loading,
-  currentPage,
-  totalPages,
+  meta,
   onPageChange,
   onEdit,
   onDelete,
@@ -65,12 +64,8 @@ export default function AreaList({
         ))}
       </div>
 
-      {totalPages > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={onPageChange}
-        />
+      {meta.totalPages > 0 && (
+        <Pagination meta={meta} onPageChange={onPageChange} />
       )}
     </div>
   );

@@ -108,8 +108,7 @@ export default function CourseDetailContainer({
         course={course}
         courseClasses={courseClasses}
         loading={courseLoading || classesLoading}
-        currentPage={currentPage}
-        totalPages={meta?.totalPages ?? 0}
+        courseClassesMeta={meta}
         onPageChange={handlePageChange}
         onBack={handleBack}
         onEditCourse={handleEditCourse}

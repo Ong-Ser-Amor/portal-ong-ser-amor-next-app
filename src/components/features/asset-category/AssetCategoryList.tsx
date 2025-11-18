@@ -5,14 +5,14 @@ import { FaFilter } from 'react-icons/fa6';
 import Pagination from '@/components/ui/Pagination';
 import { AssetCategory } from '@/interfaces/AssetCategory';
 import AssetCategoryCard from './AssetCategoryCard';
+import { PaginationMeta } from '@/interfaces/Pagination';
 
 interface AssetCategoryListProps {
   assetCategories: AssetCategory[];
   loading: boolean;
   error: string | null;
   searchInput: string;
-  currentPage: number;
-  totalPages: number;
+  meta: PaginationMeta;
   onSearchInputChange: (value: string) => void;
   onFilterClick: () => void;
   onAddAssetCategory: () => void;
@@ -27,8 +27,7 @@ export default function AssetCategoryList({
   loading,
   error,
   searchInput,
-  currentPage,
-  totalPages,
+  meta,
   onSearchInputChange,
   onFilterClick,
   onAddAssetCategory,
@@ -93,12 +92,8 @@ export default function AssetCategoryList({
             ))}
           </div>
         )}
-        {totalPages > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={onPageChange}
-          />
+        {meta.totalPages > 0 && (
+          <Pagination meta={meta} onPageChange={onPageChange} />
         )}
       </div>
     </div>

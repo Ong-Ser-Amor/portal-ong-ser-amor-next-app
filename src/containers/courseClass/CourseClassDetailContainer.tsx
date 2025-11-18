@@ -218,14 +218,11 @@ export default function CourseClassDetailContainer({
         studentsLoading={studentsLoading || isRemovingStudent}
         teachersLoading={teachersLoading || isRemovingTeacher}
         // Paginação
-        currentLessonPage={currentLessonPage}
-        totalLessonPages={lessonMeta?.totalPages ?? 0}
+        lessonMeta={lessonMeta}
+        studentMeta={studentMeta}
+        teacherMeta={teacherMeta}
         onLessonPageChange={setCurrentLessonPage}
-        currentStudentPage={currentStudentPage}
-        totalStudentPages={studentMeta?.totalPages ?? 0}
         onStudentPageChange={setCurrentStudentPage}
-        currentTeacherPage={currentTeacherPage}
-        totalTeacherPages={teacherMeta?.totalPages ?? 0}
         onTeacherPageChange={setCurrentTeacherPage}
         // Ações
         onBack={handleBack}

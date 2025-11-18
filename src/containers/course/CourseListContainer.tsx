@@ -7,7 +7,6 @@ import { Course } from '@/interfaces/Course';
 import { useDeleteCourse } from '@/hooks/course/useCourseMutations';
 import { useCourses } from '@/hooks/course/useCourseQueries';
 import { useState } from 'react';
-import { toast } from 'react-toastify';
 
 const CourseListContainer: React.FC = () => {
   const [searchInput, setSearchInput] = useState<string>('');
@@ -97,8 +96,7 @@ const CourseListContainer: React.FC = () => {
         loading={loading}
         error={error}
         searchInput={searchInput}
-        currentPage={meta.currentPage}
-        totalPages={meta.totalPages}
+        meta={meta}
         onSearchInputChange={setSearchInput}
         onFilterClick={handleFilterClick}
         onAddCourse={handleAddCourse}
