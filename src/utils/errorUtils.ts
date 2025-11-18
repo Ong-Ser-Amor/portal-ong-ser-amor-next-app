@@ -75,11 +75,6 @@ export const getApiErrorMessage = (
 ): string => {
   const err = error as ErrorWithResponse;
 
-  // Se o erro já tem uma mensagem customizada, usa ela
-  if (err.message && !err.message.includes('Erro na requisição:')) {
-    return err.message;
-  }
-
   // Trata erros baseados no status HTTP
   if (err.status || (err.response && err.response.status)) {
     const status = err.status || err.response?.status;
