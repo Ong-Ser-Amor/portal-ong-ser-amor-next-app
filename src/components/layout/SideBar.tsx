@@ -79,12 +79,12 @@ export default function Sidebar({
     {
       path: '/courses',
       icon: <span className='text-xl'>📚</span>,
-      label: 'Courses',
+      label: 'Cursos',
     },
     {
       path: '/students',
       icon: <span className='text-xl'>👥</span>,
-      label: 'Students',
+      label: 'Alunos',
     },
     {
       path: '/locations',
